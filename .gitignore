@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# SQLite database and its write-ahead log — never commit, holds real user data
+*.db
+*.db-wal
+*.db-shm
+
+# Uploaded PDFs live on disk, never in git
+media/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Local backups
+backups/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
