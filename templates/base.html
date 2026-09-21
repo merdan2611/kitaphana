@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="tk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Kitaphana{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="site-nav">
+            <a class="site-title" href="/">Kitaphana</a>
+        </nav>
+    </header>
+
+    {% if dev_otp_mode %}
+    <p class="dev-banner">
+        ÖSÜŞ TERTIBI: giriş kody SMS bilen iberilmeýär, ekranda görkezilýär.
+    </p>
+    {% endif %}
+
+    <main class="site-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <p>Kitaphana — türkmen dilinde sanly kitaphana.</p>
+    </footer>
+</body>
+</html>

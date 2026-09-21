@@ -4,6 +4,7 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+.pytest_cache/
 
 # SQLite database and its write-ahead log — never commit, holds real user data
 *.db

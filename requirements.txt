@@ -1,0 +1,13 @@
+# Pinned to exact versions: this file is installed on the server months after it is written,
+# and should produce the same environment it does today. Bump deliberately, not automatically.
+
+# Runtime
+fastapi==0.141.1
+starlette==1.6.0
+uvicorn==0.53.0
+Jinja2==3.1.6
+python-dotenv==1.2.3
+
+# Testing
+pytest==9.1.1
+httpx2==2.13.0

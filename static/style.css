@@ -1,0 +1,97 @@
+/* Kitaphana — one hand-written stylesheet, no framework (ADR-0003).
+   Mobile-first: the base rules target a 360px-wide screen; wider layouts are added
+   with min-width media queries, never the reverse. */
+
+:root {
+    --color-bg: #fdfcfb;
+    --color-text: #1f1a17;
+    --color-muted: #6b6058;
+    --color-accent: #7a4a2b;
+    --color-accent-contrast: #fdfcfb;
+    --color-border: #e2d9d0;
+    --color-banner-bg: #fff4d6;
+    --color-banner-text: #5c4a12;
+    --space-1: 0.5rem;
+    --space-2: 1rem;
+    --space-3: 1.5rem;
+    --space-4: 2.5rem;
+    --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.5;
+}
+
+a {
+    color: var(--color-accent);
+}
+
+.site-header {
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-2);
+}
+
+.site-nav {
+    display: flex;
+    align-items: center;
+}
+
+.site-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--color-text);
+}
+
+.dev-banner {
+    margin: 0;
+    padding: var(--space-1) var(--space-2);
+    background: var(--color-banner-bg);
+    color: var(--color-banner-text);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.site-content {
+    padding: var(--space-3) var(--space-2);
+    max-width: 40rem;
+    margin: 0 auto;
+}
+
+.site-footer {
+    border-top: 1px solid var(--color-border);
+    padding: var(--space-2);
+    color: var(--color-muted);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-1);
+}
+
+.hero p {
+    color: var(--color-muted);
+}
+
+@media (min-width: 48rem) {
+    .site-header,
+    .site-content,
+    .site-footer {
+        padding-left: var(--space-4);
+        padding-right: var(--space-4);
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+}

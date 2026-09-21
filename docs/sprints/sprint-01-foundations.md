@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | ⚪ Pending |
+| **Status** | 🟢 Shipped — 2026-09-21 |
 | **Phase** | 1 (usable library, codes on screen) |
 | **Milestone** | M1 — It runs on my machine |
 | **Estimated time** | ~1 week (5-10 hours) |
@@ -94,12 +94,12 @@ current migration number.
 
 ## Done when (sprint acceptance)
 
-- [ ] A fresh clone reaches a rendered home page by following the README alone, with no
+- [x] A fresh clone reaches a rendered home page by following the README alone, with no
       undocumented step.
-- [ ] `/health` returns 200 and reports the right migration number.
-- [ ] The database is in WAL mode with foreign keys enforced.
-- [ ] Running the migration runner twice in a row is harmless.
-- [ ] Nothing secret is committed: `git status` is clean and `.env` and `*.db` are ignored.
+- [x] `/health` returns 200 and reports the right migration number.
+- [x] The database is in WAL mode with foreign keys enforced.
+- [x] Running the migration runner twice in a row is harmless.
+- [x] Nothing secret is committed: `git status` is clean and `.env` and `*.db` are ignored.
 
 ## Tests
 

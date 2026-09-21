@@ -2,20 +2,19 @@
 
 **The "where am I?" file. Open this first in every session.**
 
-Nothing has been built yet. The repository holds documentation and a git history; the next
-action is Sprint 01.
+Sprint 01 has shipped: the skeleton runs locally. Sprint 03 — Accounts is next.
 
 ## Current sprint
 
 | | |
 |---|---|
-| **Sprint** | S01 — Foundations |
+| **Sprint** | S03 — Accounts |
 | **Status** | ⚪ Pending |
 | **Started** | — |
 | **Phase** | 1 (usable library, codes on screen) |
-| **Sprint doc** | [`sprints/sprint-01-foundations.md`](sprints/sprint-01-foundations.md) |
-| **Milestone** | M1 — It runs on my machine |
-| **Next up** | S03 — Accounts (S02 runs whenever the VDS is available — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)) |
+| **Sprint doc** | [`sprints/sprint-03-accounts.md`](sprints/sprint-03-accounts.md) |
+| **Milestone** | M3 — I can log in |
+| **Next up** | S04 — Admin and ingest (S02 runs whenever the VDS is available — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)) |
 
 ## Phase 1 sprints
 
@@ -23,7 +22,7 @@ action is Sprint 01.
 
 | # | Sprint | Status | Shipped | Milestone | You can now… |
 |---|---|---|---|---|---|
-| 01 | [Foundations](sprints/sprint-01-foundations.md) | ⚪ Pending | — | M1 | …run the app locally and see a page |
+| 01 | [Foundations](sprints/sprint-01-foundations.md) | 🟢 Shipped | 2026-09-21 | M1 | …run the app locally and see a page |
 | 02 | [Production ground](sprints/sprint-02-production-ground.md) | 🔴 Blocked — VDS not yet purchased | — | M2 | …open the real domain over HTTPS |
 | 03 | [Accounts](sprints/sprint-03-accounts.md) | ⚪ Pending | — | M3 | …sign up with a phone number and stay logged in |
 | 04 | [Admin and ingest](sprints/sprint-04-admin-and-ingest.md) | ⚪ Pending | — | M4 | …put a book into the library |
@@ -82,6 +81,10 @@ If a sprint is 🔴 Blocked, say what it is blocked on in the status cell and op
 
 ## Shipped log
 
-*Newest first. Empty until S01 ships.*
+*Newest first.*
 
+- **2026-09-21** — Sprint 01 (Foundations) shipped. `uvicorn app.main:app` serves a home page
+  through the real base layout, `GET /health` reports the applied migration number, and SQLite
+  runs in WAL mode with foreign keys enforced and a forward-only migration runner
+  (`python -m scripts.migrate`, safe to run twice).
 - **2026-09-20** — Repository created; documentation, ADRs and Phase 1 sprint plans written.
