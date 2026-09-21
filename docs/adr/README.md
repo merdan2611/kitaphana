@@ -49,3 +49,4 @@ because it was a mistake or annoying because it was the price of something that 
 | [0014](0014-x-accel-redirect-for-downloads.md) | Serve downloads with nginx via X-Accel-Redirect | Accepted | 2026-09-20 |
 | [0015](0015-turkmentelecom-vds-hosting.md) | Host on a single Turkmentelecom VDS | Accepted | 2026-09-20 |
 | [0016](0016-sqlite-wal-and-migrations.md) | SQLite in WAL mode with plain SQL migrations | Accepted | 2026-09-20 |
+| [0017](0017-local-dev-with-placeholder-fixtures.md) | Develop locally with placeholder fixtures before the VDS is available | Accepted | 2026-09-21 |

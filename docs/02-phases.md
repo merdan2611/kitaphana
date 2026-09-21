@@ -22,6 +22,13 @@ application on the live server, because server administration is the least famil
 this project and the worst possible time to learn it is the week before launch. From Sprint 02
 onward every sprint ends with a deploy, so deployment is never an event.
 
+That is still the right order once a VDS actually exists. It does not yet, with no purchase date
+set, so Sprints 03-07 are being built and fully tested on localhost first, using placeholder
+public-domain books as catalogue content, and Sprint 02 runs whenever the VDS is available —
+see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md). This changes the order sprints
+happen in, not this phase's exit criteria: Phase 1 still is not done until the loop works on the
+real domain.
+
 **Sprints:** 01 Foundations · 02 Production ground · 03 Accounts · 04 Admin and ingest ·
 05 Public catalogue · 06 Stars and downloads · 07 Requests · 08 Beta hardening
 

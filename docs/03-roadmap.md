@@ -15,7 +15,7 @@ action is Sprint 01.
 | **Phase** | 1 (usable library, codes on screen) |
 | **Sprint doc** | [`sprints/sprint-01-foundations.md`](sprints/sprint-01-foundations.md) |
 | **Milestone** | M1 — It runs on my machine |
-| **Next up** | S02 — Production ground |
+| **Next up** | S03 — Accounts (S02 runs whenever the VDS is available — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)) |
 
 ## Phase 1 sprints
 
@@ -24,7 +24,7 @@ action is Sprint 01.
 | # | Sprint | Status | Shipped | Milestone | You can now… |
 |---|---|---|---|---|---|
 | 01 | [Foundations](sprints/sprint-01-foundations.md) | ⚪ Pending | — | M1 | …run the app locally and see a page |
-| 02 | [Production ground](sprints/sprint-02-production-ground.md) | ⚪ Pending | — | M2 | …open the real domain over HTTPS |
+| 02 | [Production ground](sprints/sprint-02-production-ground.md) | 🔴 Blocked — VDS not yet purchased | — | M2 | …open the real domain over HTTPS |
 | 03 | [Accounts](sprints/sprint-03-accounts.md) | ⚪ Pending | — | M3 | …sign up with a phone number and stay logged in |
 | 04 | [Admin and ingest](sprints/sprint-04-admin-and-ingest.md) | ⚪ Pending | — | M4 | …put a book into the library |
 | 05 | [Public catalogue](sprints/sprint-05-public-catalogue.md) | ⚪ Pending | — | M5 | …find that book by searching |
@@ -48,14 +48,17 @@ action is Sprint 01.
 ## Order and dependencies
 
 ```
-S01 ──► S02 ──► S03 ──┬──► S04 ──► S05 ──► S06 ──┐
-                      │                          ├──► S08
-                      └──────────► S07 ──────────┘
+S01 ──┬──► S03 ──┬──► S04 ──► S05 ──► S06 ──┐
+      │          │                          ├──► S08
+      │          └──────────► S07 ──────────┘
+      └──► S02 (needs the VDS — run as soon as it exists; not on this critical path)
 ```
 
-- **S02 before everything else** is the deliberate choice of this phase: deployment is the
-  least familiar work, so it happens while the application is still small enough that nothing
-  else can be blamed when it breaks. From S02 on, every sprint ends deployed.
+- **S02 no longer gates S03-S07.** The original plan deployed second so the least familiar work
+  happened early; that is still the right move the moment the VDS exists, but it does not exist
+  yet and has no purchase date. Sprints 01 and 03-07 are built and fully tested on localhost with
+  placeholder content in the meantime, and S02 runs whenever it can, independent of sprint order.
+  See [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md).
 - **S03 gates S04-S07** — admin authentication is built on the same session machinery as
   reader authentication.
 - **S06 needs S05**, because a download button has to live on a book page.

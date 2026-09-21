@@ -24,6 +24,7 @@ before they ship, and they are the only Turkmen in this documentation.
 | **Free book** | Costs zero stars to download. Still requires an account. |
 | **Priced book** | Costs a set number of stars. The price is a per-book field, not a global constant. |
 | **Catalogue** | The public, searchable list of books. |
+| **Fixture / placeholder book** | A real public-domain text used to populate the catalogue during local development, kept under `fixtures/books/` and out of the production database. Stands in for the real collection until it is imported in Phase 3; never a substitute for real editorial judgement about what belongs in the library. See [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md). |
 
 ## Stars
 

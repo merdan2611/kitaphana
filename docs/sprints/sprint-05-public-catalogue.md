@@ -90,8 +90,9 @@ and text is readable before images arrive.
 - [ ] Every page works at 360 px wide.
 - [ ] Unpublished books are invisible everywhere, including by direct URL.
 - [ ] Empty states are real pages.
-- [ ] Deployed, and opened on an actual phone on mobile data — not the desktop browser's
-      narrow view.
+- [ ] Verified end-to-end on localhost, checked at 360 px width — and opened on an actual phone
+      once deployed in Sprint 02's catch-up pass (see
+      [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)).
 
 ## Tests
 
@@ -120,5 +121,6 @@ and text is readable before images arrive.
 ## References
 
 [ADR-0003](../adr/0003-no-frontend-framework.md) ·
+[ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md) ·
 [`../00-vision.md`](../00-vision.md) ·
 [R8 — whether a Russian interface is needed](../04-risks-and-research.md)

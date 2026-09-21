@@ -6,7 +6,7 @@
 | **Phase** | 1 (usable library, codes on screen) |
 | **Milestone** | M3 — I can log in |
 | **Estimated time** | ~1 week (5-10 hours) |
-| **Depends on** | Sprint 02 |
+| **Depends on** | Sprint 01 |
 
 ## Goal
 
@@ -119,7 +119,7 @@ the page exists.
 - [ ] Rate limits fire and say so clearly.
 - [ ] No code or session token is readable in the database.
 - [ ] The dev-mode banner is visible on every page, and vanishes when the flag is off.
-- [ ] Deployed and working on `https://<domain>`.
+- [ ] Verified end-to-end on localhost — deployment happens in Sprint 02's catch-up pass once the VDS is available (see [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)).
 
 ## Tests
 
@@ -151,4 +151,5 @@ the page exists.
 
 [ADR-0006](../adr/0006-phone-number-and-otp-auth.md) ·
 [ADR-0013](../adr/0013-dev-otp-mode.md) ·
+[ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md) ·
 [R2, R3 in risks](../04-risks-and-research.md)

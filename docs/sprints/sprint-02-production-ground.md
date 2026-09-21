@@ -7,7 +7,8 @@
 | **Milestone** | M2 — It is on the internet |
 | **Estimated time** | ~1-2 weeks (the least familiar work in the project) |
 | **Depends on** | Sprint 01 |
-| **Blocked by** | R4 — port 80 reachability and foreign DNS resolution |
+| **Blocked by** | R4 — port 80 reachability and foreign DNS resolution; the VDS itself not yet being purchased |
+| **Runs when** | The VDS is bought — independent of which other sprint is in progress ([ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)) |
 
 ## Goal
 
@@ -21,6 +22,11 @@ is a home page and a health endpoint, so anything that breaks is the server, not
 
 Budget more time than a normal sprint. It is a week of work only if nothing surprises you, and
 something will.
+
+This sprint cannot start until the VDS exists, which does not have a purchase date yet. Sprints
+03-07 are being built and tested on localhost in the meantime, so by the time this sprint
+actually runs, some of them may already be functionally complete. Task 9 exists for exactly
+that case.
 
 ## You can now…
 
@@ -114,6 +120,19 @@ week.
 
 **Done when:** someone following only these notes could rebuild the server from a fresh image.
 
+### 9. Catch-up verification
+
+Deploy whatever has been built locally in the meantime, then re-run the "Done when" checklist of
+every sprint from 03 onward that reports itself shipped, against the real server this time —
+not as a formality, but because things that only exist in production (real TLS, real network
+latency to Turkmenistan, nginx actually serving downloads via
+[ADR-0014](../adr/0014-x-accel-redirect-for-downloads.md), a real reboot) have not been checked
+against any of that code yet ([ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)).
+
+**Done when:** every already-shipped sprint's acceptance checklist has been re-verified against
+`https://<domain>`, and any gap found is written down and fixed before this sprint is marked
+done — not deferred again.
+
 ## Done when (sprint acceptance)
 
 - [ ] `https://<domain>` serves the home page with a valid certificate.
@@ -122,6 +141,7 @@ week.
 - [ ] Only SSH, 80 and 443 are open; SSH is key-only.
 - [ ] The uvicorn process is not reachable from outside except through nginx.
 - [ ] The server build is written down.
+- [ ] Every sprint shipped locally before this one has been re-verified against the live server.
 
 ## Tests
 
@@ -153,4 +173,5 @@ this document
 [ADR-0005](../adr/0005-git-pull-deploy.md) ·
 [ADR-0012](../adr/0012-foreign-domain-registrar.md) ·
 [ADR-0014](../adr/0014-x-accel-redirect-for-downloads.md) ·
-[ADR-0015](../adr/0015-turkmentelecom-vds-hosting.md)
+[ADR-0015](../adr/0015-turkmentelecom-vds-hosting.md) ·
+[ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)

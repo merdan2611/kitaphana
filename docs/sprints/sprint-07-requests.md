@@ -109,7 +109,9 @@ this feature is obviously useful.
 - [ ] An admin fulfils a request by linking a book, and rejects with a reason.
 - [ ] Duplicates can be merged without losing or double-counting upvotes.
 - [ ] Rate limiting works.
-- [ ] Deployed, with the request link reachable from a failed search.
+- [ ] Verified end-to-end on localhost, with the request link reachable from a failed search —
+      deployment happens in Sprint 02's catch-up pass once the VDS is available (see
+      [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)).
 
 ## Tests
 
@@ -140,4 +142,5 @@ this feature is obviously useful.
 ## References
 
 [ADR-0009](../adr/0009-anonymous-requests-with-upvotes.md) ·
+[ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md) ·
 [`../02-phases.md`](../02-phases.md) (Phase 4)

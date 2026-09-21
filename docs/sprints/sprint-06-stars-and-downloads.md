@@ -114,8 +114,10 @@ too.
 - [ ] nginx serves the bytes: the uvicorn worker is free within milliseconds.
 - [ ] The media directory is not reachable by direct URL.
 - [ ] The history page accounts for every star the reader has ever had.
-- [ ] Deployed, with a real download of a large book over mobile data — including pausing and
-      resuming it.
+- [ ] Verified end-to-end on localhost, including the direct-serve fallback for downloads —
+      and will be exercised for real, over mobile data with pausing and resuming, once deployed
+      in Sprint 02's catch-up pass (see
+      [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)).
 
 ## Tests
 
@@ -132,8 +134,11 @@ The most important tests in the project.
   Turkmen titles will exercise this.
 - Download rate limits fire.
 
-Manually on the server: start a large download, watch `systemctl status kitaphana` to confirm
-the worker is idle while the transfer continues, then kill the download at 50% and resume it.
+Manually, once nginx exists locally or on the server: start a large download, watch
+`systemctl status kitaphana` (or the local process) to confirm the worker is idle while the
+transfer continues, then kill the download at 50% and resume it. If nginx is not set up locally
+yet, this check waits for Sprint 02's catch-up pass — the direct-serve fallback path is what
+gets exercised on localhost until then.
 
 ## Files this sprint creates / touches
 
@@ -155,4 +160,5 @@ the worker is idle while the transfer continues, then kill the download at 50% a
 
 [ADR-0007](../adr/0007-star-credits-append-only-ledger.md) ·
 [ADR-0014](../adr/0014-x-accel-redirect-for-downloads.md) ·
-[ADR-0002](../adr/0002-local-disk-pdf-storage.md)
+[ADR-0002](../adr/0002-local-disk-pdf-storage.md) ·
+[ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)

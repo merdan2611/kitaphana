@@ -89,6 +89,21 @@ two books somehow reference one file.
 
 **Done when:** deleting removes both the row and the file, and asks first.
 
+### 8. Seed the placeholder fixtures
+
+The real collection is not imported until Phase 3, and there is no VDS yet to upload to
+([ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)). Write `scripts/seed_fixtures.py`,
+reading `fixtures/books/manifest.yaml` and calling the same storage/hashing function this
+sprint's upload handler uses for each entry — not a raw database insert, so the seeded books
+exercise the exact code path a real upload does.
+
+The script must refuse to run against a database that already contains real, non-fixture books.
+Placeholder content must never be able to reach a live catalogue by an accidental re-run.
+
+**Done when:** running the script populates the admin list with the fixture books, each showing
+the correct content hash and cover; running it a second time is a no-op; and running it against
+a database seeded with at least one non-fixture book refuses with a clear error.
+
 ## Done when (sprint acceptance)
 
 - [ ] An admin uploads a PDF with metadata and sees it in the list.
@@ -97,7 +112,10 @@ two books somehow reference one file.
 - [ ] Memory use is flat during a large upload.
 - [ ] Publishing state controls public visibility.
 - [ ] No admin page is reachable by a normal reader.
-- [ ] Deployed, with at least five real books uploaded to the live server.
+- [ ] The placeholder fixtures seed cleanly through the real ingest path and the seed script
+      refuses to run against a database with real books already in it.
+- [ ] Verified end-to-end on localhost — deployment happens in Sprint 02's catch-up pass once
+      the VDS is available (see [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)).
 
 ## Tests
 
@@ -109,12 +127,13 @@ two books somehow reference one file.
 - Admin endpoints return 404 for a normal reader — including the upload handler itself, not just
   the page that links to it.
 
-Manually, on the live server: upload the largest PDF you have and watch memory with `htop`.
+Manually, on localhost: upload the largest PDF you have and watch memory with `htop`. Repeat
+against the live server once Sprint 02 has happened.
 
 ## Files this sprint creates / touches
 
 `app/admin.py` · `app/storage.py` · `app/pdfmeta.py` · `templates/admin/*.html` ·
-`static/admin.css` · `tests/test_storage.py`
+`static/admin.css` · `scripts/seed_fixtures.py` · `tests/test_storage.py`
 
 ## No-gos
 
@@ -124,9 +143,12 @@ Manually, on the live server: upload the largest PDF you have and watch memory w
 - No stars, no downloads.
 - No OCR, no text extraction, no thumbnails beyond the single cover.
 - No rich text in descriptions. Plain text.
+- Fixtures are never seeded automatically in production, and never by anything other than the
+  guarded seed script.
 
 ## References
 
 [ADR-0002](../adr/0002-local-disk-pdf-storage.md) ·
 [ADR-0010](../adr/0010-semi-automatic-bulk-import.md) ·
-[ADR-0014](../adr/0014-x-accel-redirect-for-downloads.md)
+[ADR-0014](../adr/0014-x-accel-redirect-for-downloads.md) ·
+[ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)
