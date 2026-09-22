@@ -41,6 +41,7 @@
 
         <form method="post" action="/login/verify" class="stack-form">
             <input type="hidden" name="phone" value="{{ phone }}">
+            {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
             <label for="code">Kod</label>
             <input id="code" class="code-input" name="code" type="text" inputmode="numeric"
                    autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="7" required autofocus>
@@ -50,13 +51,15 @@
         <div class="form-aside">
             <form method="post" action="/login" class="inline-form">
                 <input type="hidden" name="phone" value="{{ phone }}">
+                {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
                 <button class="link-button" type="submit">Täze kod sora</button>
             </form>
-            <a href="/login">Başga belgi bilen gir</a>
+            <a href="/login{% if next_url %}?next={{ next_url | urlencode }}{% endif %}">Başga belgi bilen gir</a>
         </div>
 
         {% else %}
         <form method="post" action="/login" class="stack-form">
+            {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
             <label for="phone">Telefon belgisi</label>
             <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel"
                    placeholder="+993 61 234567" value="{{ phone or '' }}" required autofocus>

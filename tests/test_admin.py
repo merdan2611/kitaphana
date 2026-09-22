@@ -166,6 +166,7 @@ def test_upload_unpublished_edit_then_publish(admin, db):
 
     admin.post(f"/admin/books/{book_id}/publish")
     assert visible() == {book_id}
+    assert f'href="/books/{book_id}"' in admin.get(f"/admin/books/{book_id}").text  # "saýtda aç"
     admin.post(f"/admin/books/{book_id}/unpublish")
     assert visible() == set()
 

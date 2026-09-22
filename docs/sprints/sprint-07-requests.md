@@ -23,6 +23,10 @@ brought forward if the star work stalls.
 
 ## Tasks
 
+> **Carried in from Sprint 05 (2026-09-23):** this sprint's migration is `006-requests.sql`
+> (003-005 are taken). The no-results page already shows a "Bu kitaby soraň" placeholder panel
+> (`templates/catalogue.html`); task 8 turns it into a request link prefilled with the search.
+
 > **Layout (added 2026-09-23, [ADR-0018](../adr/0018-responsive-website-and-phone-layout.md)):**
 > every page in this sprint needs both designs — the website from 48rem and the app-style
 > phone layout below it — checked with screenshots at both widths. The request list also gets a
@@ -30,7 +34,7 @@ brought forward if the star work stalls.
 
 ### 1. Schema
 
-`migrations/005-requests.sql`:
+`migrations/006-requests.sql`:
 
 - `requests` — id, user_id, title, author, note, status (`open` / `fulfilled` / `rejected` /
   `merged`), fulfilled_book_id, merged_into_id, created_at, resolved_at
@@ -132,7 +136,7 @@ this feature is obviously useful.
 
 ## Files this sprint creates / touches
 
-`app/requests.py` · `migrations/005-requests.sql` · `templates/requests.html` ·
+`app/requests.py` · `migrations/006-requests.sql` · `templates/requests.html` ·
 `templates/request_new.html` · `templates/admin/requests.html` · `templates/catalogue.html`
 (no-results link) · `tests/test_requests.py`
 

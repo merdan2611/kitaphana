@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import tempfile
 
 import pytest
 from fastapi.testclient import TestClient
@@ -8,6 +9,26 @@ from fastapi.testclient import TestClient
 from app import config
 from app.db import apply_migrations, connect, get_db
 from app.main import app
+
+# app.main points tempfile at MEDIA_DIR/tmp so real uploads spool to disk, not tmpfs. Undo that
+# for the test run: otherwise pytest's own tmp_path directories land inside the project.
+tempfile.tempdir = None
+
+
+REAL_MEDIA = config.BASE_DIR / "media"
+
+
+def _real_media_files() -> set:
+    return {path for path in REAL_MEDIA.rglob("*") if path.is_file()} if REAL_MEDIA.exists() else set()
+
+
+@pytest.fixture(autouse=True, scope="session")
+def real_media_untouched():
+    """Fail the run if any test writes into the developer's real media directory."""
+    before = _real_media_files()
+    yield
+    added = sorted(str(path) for path in _real_media_files() - before)
+    assert not added, f"tests wrote into the real media directory: {added[:5]}"
 
 
 @pytest.fixture(autouse=True)
@@ -29,6 +50,9 @@ def test_settings(monkeypatch, tmp_path):
         otp_limits_per_ip=((10, 600), (50, 86400)),
         session_ttl_days=180,
         media_dir=tmp_path / "media",
+        # Any connection opened without an explicit path (the HTML 404 page does this) must hit
+        # the test's database, never the developer's kitaphana.db. Same file as `db_path`.
+        database_path=tmp_path / "test.db",
         max_upload_mb=200,
     )
     return override

@@ -39,7 +39,7 @@
     <div class="edit-main">
         <section class="panel publish-panel">
             {% if book.is_published %}
-            <p>Okyjylar bu kitaby görýär.</p>
+            <p>Okyjylar bu kitaby görýär: <a href="/books/{{ book.id }}">saýtda aç</a>.</p>
             <form method="post" action="/admin/books/{{ book.id }}/unpublish">
                 <button type="submit" class="button-quiet">Neşirden aýyr</button>
             </form>

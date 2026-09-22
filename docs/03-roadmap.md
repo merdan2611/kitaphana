@@ -2,20 +2,20 @@
 
 **The "where am I?" file. Open this first in every session.**
 
-Sprint 01 has shipped: the skeleton runs locally. Sprint 04 has shipped: an admin can put books into the library. Sprint 05 — Public catalogue
-is next.
+Sprints 01, 03, 04 and 05 have shipped: anyone can browse and search the library, and an admin
+can add books to it. Sprint 06 — Stars and downloads is next; Sprint 02 still waits for the VDS.
 
 ## Current sprint
 
 | | |
 |---|---|
-| **Sprint** | S05 — Public catalogue |
+| **Sprint** | S06 — Stars and downloads |
 | **Status** | ⚪ Pending |
 | **Started** | — |
 | **Phase** | 1 (usable library, codes on screen) |
-| **Sprint doc** | [`sprints/sprint-05-public-catalogue.md`](sprints/sprint-05-public-catalogue.md) |
-| **Milestone** | M5 — I can find a book |
-| **Next up** | S06 — Stars and downloads (S02 runs whenever the VDS is available — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)) |
+| **Sprint doc** | [`sprints/sprint-06-stars-and-downloads.md`](sprints/sprint-06-stars-and-downloads.md) |
+| **Milestone** | M6 — I can download a book |
+| **Next up** | S07 — Requests (S02 runs whenever the VDS is available — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)) |
 
 ## Phase 1 sprints
 
@@ -27,7 +27,7 @@ is next.
 | 02 | [Production ground](sprints/sprint-02-production-ground.md) | 🔴 Blocked — VDS not yet purchased | — | M2 | …open the real domain over HTTPS |
 | 03 | [Accounts](sprints/sprint-03-accounts.md) | 🟢 Shipped | 2026-09-23 | M3 | …sign up with a phone number and stay logged in |
 | 04 | [Admin and ingest](sprints/sprint-04-admin-and-ingest.md) | 🟢 Shipped | 2026-09-23 | M4 | …put a book into the library |
-| 05 | [Public catalogue](sprints/sprint-05-public-catalogue.md) | ⚪ Pending | — | M5 | …find that book by searching |
+| 05 | [Public catalogue](sprints/sprint-05-public-catalogue.md) | 🟢 Shipped | 2026-09-23 | M5 | …find that book by searching |
 | 06 | [Stars and downloads](sprints/sprint-06-stars-and-downloads.md) | ⚪ Pending | — | M6 | …spend stars and get the PDF |
 | 07 | [Requests](sprints/sprint-07-requests.md) | ⚪ Pending | — | M7 | …ask for a missing book and upvote others |
 | 08 | [Beta hardening](sprints/sprint-08-beta-hardening.md) | ⚪ Pending | — | M8 | …hand the link to a tester without apologising |
@@ -83,6 +83,15 @@ If a sprint is 🔴 Blocked, say what it is blocked on in the status cell and op
 ## Shipped log
 
 *Newest first.*
+
+- **2026-09-23** — Sprint 05 (Public catalogue) shipped. Anyone, signed in or not, can browse the
+  published books, filter by language, sort newest-first or by title, and search by title or
+  author. Search ignores case and Turkmen letters, so "alem" finds «Älem» and works without a
+  Turkmen keyboard, and it stays around 20 ms with 30,000 books. Each book has its own page with
+  cover, details and description. Visitors are invited to log in and are brought back to the
+  book afterwards; signed-in readers see the download button that Sprint 06 will switch on.
+  Unknown, unpublished and malformed addresses all get a real 404 page. On phones the catalogue
+  is a list with a Katalog tab; on the website it is a cover grid.
 
 - **2026-09-23** — Between sprints: the site became responsive in earnest. On desktop it is a
   website (top navigation, wide pages, two columns where they help); on a phone it feels like an

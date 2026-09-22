@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Sahypa tapylmady: Kitaphana{% endblock %}
+
+{% block content %}
+<section class="not-found">
+    <h1>Sahypa tapylmady</h1>
+    <p>Bu salgyda sahypa ýok. Ol aýrylan bolmagy ýa-da salgy ýalňyş ýazylan bolmagy mümkin.</p>
+    <form class="search-form" role="search" method="get" action="/books">
+        <label class="visually-hidden" for="nf-q">Kitap gözle</label>
+        <input id="nf-q" type="search" name="q" placeholder="Kitap ýa-da awtor" enterkeyhint="search">
+        <button type="submit">Gözle</button>
+    </form>
+    <p class="not-found-links"><a href="/books">Kataloga geç</a> <a href="/">Baş sahypa</a></p>
+</section>
+{% endblock %}

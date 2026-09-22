@@ -3,9 +3,10 @@
 A digital library for books in Turkmen. Readers browse a catalogue, spend **stars** (a
 prepaid credit) to download PDFs, and request books that are not in the library yet.
 
-Status: **Sprint 04 shipped** — runs locally with phone-number login (the code is shown on
-screen while `DEV_OTP_MODE` is on) and an admin panel for uploading and publishing books. See
-[`docs/03-roadmap.md`](docs/03-roadmap.md) for what's next.
+Status: **Sprint 05 shipped** — runs locally with phone-number login (the code is shown on
+screen while `DEV_OTP_MODE` is on), an admin panel for uploading and publishing books, and a
+public catalogue with search at `/books`. See [`docs/03-roadmap.md`](docs/03-roadmap.md) for
+what's next.
 
 ## Stack
 
@@ -31,7 +32,8 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env          # dev defaults: OTP shown on screen, no real SMS
-python -m scripts.migrate     # creates and migrates kitaphana.db
+python -m scripts.migrate     # creates and migrates kitaphana.db (always use this, not the
+                              # sqlite3 CLI: migration 004 calls a Python function)
 python -m scripts.seed_fixtures  # optional: five public-domain placeholder books
 uvicorn app.main:app --reload
 ```

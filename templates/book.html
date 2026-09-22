@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import cover %}
+
+{% block title %}{{ book.title }}{% if book.author %}, {{ book.author }}{% endif %}: Kitaphana{% endblock %}
+{% block description %}{{ book.title }}{% if book.author %}, {{ book.author }}{% endif %}.{% if book.description %} {{ book.description | replace("\r", "") | replace("\n", " ") | truncate(150) }}{% endif %}{% endblock %}
+
+{% block content %}
+<p class="breadcrumb"><a href="/books">Katalog</a></p>
+
+<article class="book-page">
+    <div class="book-page-cover">{{ cover(book, eager=true) }}</div>
+
+    <div class="book-page-main">
+        <h1>{{ book.title }}</h1>
+        {% if book.author %}<p class="book-page-author">{{ book.author }}</p>{% endif %}
+
+        <dl class="book-facts">
+            {% if book.year %}<div><dt>Ýyly</dt><dd>{{ book.year }}</dd></div>{% endif %}
+            <div><dt>Dili</dt><dd>{{ language_name }}</dd></div>
+            {% if book.page_count %}<div><dt>Sahypa</dt><dd>{{ book.page_count }}</dd></div>{% endif %}
+            <div><dt>Faýl</dt><dd>PDF, {{ book.file_size | filesize }}</dd></div>
+            <div><dt>Bahasy</dt><dd>{% if book.price_stars %}{{ book.price_stars }} ýyldyz{% else %}Mugt{% endif %}</dd></div>
+        </dl>
+
+        {# Sprint 06 makes this button work and checks the reader's star balance. #}
+        <section class="download-panel" aria-label="Ýükläp almak">
+            {% if current_user %}
+            <button type="button" disabled>Ýükle</button>
+            <p>Ýükläp almak indiki tapgyrda goşular.{% if book.price_stars %} Şonda bu kitap üçin
+                {{ book.price_stars }} ýyldyz gerek bolar.{% endif %}</p>
+            {% else %}
+            <a class="button" href="{{ login_url }}">Ýüklemek üçin giriň</a>
+            <p>Diňe telefon belgiňiz gerek, parol ýok. Girenden soň şu sahypa gaýdyp gelersiňiz.</p>
+            {% endif %}
+        </section>
+
+        {% if book.description %}
+        <section class="book-description">
+            <h2>Kitap barada</h2>
+            <p>{{ book.description }}</p>
+        </section>
+        {% endif %}
+    </div>
+</article>
+{% endblock %}

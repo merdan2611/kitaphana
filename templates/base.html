@@ -7,6 +7,7 @@
     {# The one colour CSS cannot reach: keep it equal to --color-header in static/style.css. #}
     <meta name="theme-color" content="#ffffff">
     <title>{% block title %}Kitaphana{% endblock %}</title>
+    <meta name="description" content="{% block description %}Türkmen dilindäki kitaplaryň sanly kitaphanasy: gözläň, tapyň we PDF görnüşinde ýükläp alyň.{% endblock %}">
     <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
     {% block head %}{% endblock %}
 </head>
@@ -25,6 +26,7 @@
             {% if dev_otp_mode %}<span class="dev-pill">Ösüş tertibi</span>{% endif %}
             {# Website navigation; on phones the tab bar at the bottom takes its place. #}
             <nav class="site-nav" aria-label="Esasy">
+                <a href="/books" {% if request.url.path.startswith("/books") %}aria-current="page"{% endif %}>Katalog</a>
                 {% if current_user %}
                 {% if current_user.is_admin %}<a href="/admin">Dolandyryş</a>{% endif %}
                 <a href="/account" {% if request.url.path.startswith("/account") %}aria-current="page"{% endif %}>Hasabym</a>
@@ -56,6 +58,7 @@
     {# Phone navigation, app-style. New top-level sections add a tab here (ADR-0018). #}
     <nav class="tab-bar" aria-label="Bölümler">
         <a href="/" {% if request.url.path == "/" %}aria-current="page"{% endif %}>{{ icon("home") }}<span>Baş sahypa</span></a>
+        <a href="/books" {% if request.url.path.startswith("/books") %}aria-current="page"{% endif %}>{{ icon("book") }}<span>Katalog</span></a>
         {% if current_user %}
         <a href="/account" {% if request.url.path.startswith("/account") %}aria-current="page"{% endif %}>{{ icon("user") }}<span>Hasabym</span></a>
         {% if current_user.is_admin %}

@@ -14,7 +14,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
 
-from app.config import BASE_DIR, settings
+from app import config
+from app.config import BASE_DIR
+from app.search import fold
 
 BUSY_TIMEOUT_MS = 5000
 
@@ -23,7 +25,8 @@ MIGRATIONS_DIR = BASE_DIR / "migrations"
 
 def connect(database_path: Path | str | None = None) -> sqlite3.Connection:
     """Open a connection with this project's required pragmas already set."""
-    path = Path(database_path) if database_path is not None else settings.database_path
+    # Read at call time, not import time, so tests can point every connection at their own file.
+    path = Path(database_path) if database_path is not None else config.settings.database_path
     path.parent.mkdir(parents=True, exist_ok=True)
     # check_same_thread=False: FastAPI opens a request's connection (the get_db dependency) and
     # runs the handler in separate thread-pool calls, which may land on different threads. Each
@@ -33,6 +36,9 @@ def connect(database_path: Path | str | None = None) -> sqlite3.Connection:
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute(f"PRAGMA busy_timeout = {BUSY_TIMEOUT_MS}")
+    # The search folding function (app/search.py), callable from SQL. Migration 004 uses it to
+    # fill books.search_text for books that existed before the column did.
+    conn.create_function("kitaphana_fold", 1, fold, deterministic=True)
     return conn
 
 

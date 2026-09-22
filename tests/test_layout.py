@@ -73,9 +73,9 @@ def test_every_token_used_is_defined():
 # --- Phone tab bar ---------------------------------------------------------------------------
 
 
-def test_signed_out_visitor_gets_home_and_login_tabs(client):
+def test_signed_out_visitor_gets_home_catalogue_and_login_tabs(client):
     tabs = tab_bar(client.get("/").text)
-    assert 'href="/"' in tabs and 'href="/login"' in tabs
+    assert 'href="/"' in tabs and 'href="/books"' in tabs and 'href="/login"' in tabs
     assert 'href="/account"' not in tabs and 'href="/admin"' not in tabs
 
 
@@ -93,9 +93,29 @@ def test_admin_also_gets_an_admin_tab(client, db):
     assert 'href="/admin"' in tab_bar(client.get("/").text)
 
 
-@pytest.mark.parametrize("path, expected", [("/", "/"), ("/login", "/login")])
+@pytest.mark.parametrize(
+    "path, expected",
+    [("/", "/"), ("/login", "/login"), ("/books", "/books"), ("/books?q=alem", "/books")],
+)
 def test_the_current_tab_is_marked(client, path, expected):
     assert current_tab(client.get(path).text) == expected
+
+
+def test_catalogue_tab_stays_marked_on_a_book_page(client, db):
+    import io
+
+    from app import storage
+    from tests.pdfs import make_pdf
+
+    book_id = storage.ingest(
+        db, storage.stage(io.BytesIO(make_pdf())), original_filename="a.pdf", is_published=True
+    )
+    assert current_tab(client.get(f"/books/{book_id}").text) == "/books"
+
+
+def test_website_header_links_to_the_catalogue(client):
+    header = client.get("/").text.split('<nav class="site-nav"', 1)[1].split("</nav>", 1)[0]
+    assert 'href="/books"' in header
 
 
 def test_account_tab_is_marked_on_the_account_page(client):

@@ -22,14 +22,14 @@ from starlette.datastructures import UploadFile
 
 from app import pdfmeta, storage
 from app.auth import require_admin
+from app.catalogue import LANGUAGES, MAX_BOOK_ID
 from app.db import get_db, timestamp
+from app.search import book_search_text
 from app.templating import templates
 
 router = APIRouter(prefix="/admin", dependencies=[Depends(require_admin)])
 
 PAGE_SIZE = 20
-
-LANGUAGES = {"tk": "Türkmençe", "ru": "Rusça", "en": "Iňlisçe"}
 
 STATUS_FILTERS = {
     "all": ("Hemmesi", ""),
@@ -101,6 +101,8 @@ def parse_book_form(form) -> tuple[dict, dict, dict]:
 
 
 def _book_or_404(conn: sqlite3.Connection, book_id: int) -> sqlite3.Row:
+    if not 1 <= book_id <= MAX_BOOK_ID:
+        raise HTTPException(status_code=404)  # beyond SQLite's integers: no such book
     book = conn.execute("SELECT * FROM books WHERE id = ?", (book_id,)).fetchone()
     if book is None:
         raise HTTPException(status_code=404)
@@ -271,10 +273,11 @@ def _save_book(request: Request, conn: sqlite3.Connection, book_id: int, form):
         return _edit_page(request, conn, book, 400, values=raw, errors=errors)
     conn.execute(
         "UPDATE books SET title = ?, author = ?, year = ?, language = ?, description = ?,"
-        " price_stars = ?, updated_at = ? WHERE id = ?",
+        " price_stars = ?, updated_at = ?, search_text = ? WHERE id = ?",
         (
             fields["title"], fields["author"], fields["year"], fields["language"],
-            fields["description"], fields["price_stars"], timestamp(), book_id,
+            fields["description"], fields["price_stars"], timestamp(),
+            book_search_text(fields["title"], fields["author"]), book_id,
         ),
     )
     conn.commit()

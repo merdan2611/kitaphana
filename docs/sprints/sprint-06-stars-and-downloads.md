@@ -24,9 +24,14 @@ where the other three went.
 
 ## Tasks
 
+> **Carried in from Sprint 05 (2026-09-23):** migrations 003 and 004 are taken, so this sprint's
+> is `005-stars.sql`. The book page already has the download button as a placeholder
+> (`templates/book.html`): disabled for signed-in readers, "Ýüklemek üçin giriň" for visitors.
+> `/login?next=<path>` brings a reader back to the book after sign-in (`auth.safe_next`).
+
 ### 1. Ledger schema
 
-`migrations/004-stars.sql` creating `star_ledger`: id, user_id, amount (signed), reason
+`migrations/005-stars.sql` creating `star_ledger`: id, user_id, amount (signed), reason
 (`grant` / `topup` / `spend` / `refund`), reference (book id, payment id, request id),
 note, created_at. Indexed on user_id.
 
@@ -142,7 +147,7 @@ gets exercised on localhost until then.
 
 ## Files this sprint creates / touches
 
-`app/stars.py` · `app/downloads.py` · `migrations/004-stars.sql` ·
+`app/stars.py` · `app/downloads.py` · `migrations/005-stars.sql` ·
 `templates/account_history.html` · `templates/insufficient_stars.html` ·
 `templates/admin/grant.html` · `templates/book.html` · `tests/test_stars.py` ·
 `tests/test_downloads.py`

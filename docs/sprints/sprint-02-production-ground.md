@@ -93,6 +93,9 @@ sensible upload size limit (large enough for the biggest PDF you expect), and de
 `internal` location for media that [ADR-0014](../adr/0014-x-accel-redirect-for-downloads.md)
 will need in Sprint 06. Defining it now costs nothing and means Sprint 06 does not touch nginx.
 
+Turn on `gzip` for HTML and CSS: a catalogue page is 18 KB of HTML but 3.4 KB gzipped, and the
+stylesheet 30 KB but 6.6 KB, which matters on metered connections (measured in Sprint 05).
+
 Set `client_max_body_size` a little above `MAX_UPLOAD_MB` (default 200 MB), or nginx refuses
 large admin uploads before the app sees them. `/covers/` can be aliased to `MEDIA_DIR/covers/`
 so nginx serves cover images directly; the app's own `/covers/` route is the local fallback.

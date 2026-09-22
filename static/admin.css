@@ -69,15 +69,6 @@ body.admin {
     margin-bottom: var(--space-3);
 }
 
-.breadcrumb {
-    margin: 0 0 var(--space-1);
-    font-size: 0.9rem;
-}
-
-.breadcrumb a::before {
-    content: "‹ ";
-}
-
 .panel {
     margin-bottom: var(--space-3);
     padding: var(--space-3) var(--space-2);
@@ -170,11 +161,6 @@ body.admin {
 
 .filter-bar input {
     grid-column: 1 / -1;
-}
-
-.result-count {
-    color: var(--color-text-muted);
-    font-size: 0.9rem;
 }
 
 .book-table {
@@ -270,13 +256,6 @@ body.admin {
     .book-table-title {
         margin-bottom: 0.25rem;
     }
-}
-
-.pager {
-    display: flex;
-    justify-content: center;
-    gap: var(--space-3);
-    margin: var(--space-3) 0;
 }
 
 .empty {

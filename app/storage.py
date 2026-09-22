@@ -25,6 +25,7 @@ from PIL import Image, UnidentifiedImageError
 
 from app import config, pdfmeta
 from app.db import timestamp
+from app.search import book_search_text
 
 CHUNK_SIZE = 1024 * 1024
 # The PDF spec allows junk before the header as long as it starts within the first 1024 bytes.
@@ -185,12 +186,13 @@ def ingest(
         cursor = conn.execute(
             "INSERT INTO books (title, author, year, language, description, content_hash,"
             " file_size, page_count, cover_path, price_stars, is_published, original_filename,"
-            " is_fixture, created_at, updated_at)"
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            " is_fixture, created_at, updated_at, search_text)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 title, author, year, language, description.strip(), staged.content_hash,
                 staged.size, info.page_count, cover if has_cover else None, price_stars,
                 int(is_published), original_filename, int(is_fixture), now, now,
+                book_search_text(title, author),
             ),
         )
         conn.commit()

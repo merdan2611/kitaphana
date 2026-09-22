@@ -21,6 +21,7 @@ during Phase 2 would be expensive — answer those during Phase 1.
 | **R7** | What should a star cost in TMT, and what fees or minimums apply to operator transfers? | Sets the package sizes and whether small purchases are viable at all. | Before Phase 2 |
 | **R8** | Do the intended readers expect a Russian interface, or is Turkmen alone sufficient? | Retrofitting a second language after the interface is written costs several times what building for two costs. Ask actual testers in Sprint 08. | Sprint 08 |
 | **R9** | What is the legal and practical position on redistributing these scans in Turkmenistan? | Affects what can be hosted, whether authors and publishers should be approached, and what a takedown process should look like. Not a blocker for building, but it should be a considered position rather than an unexamined one. | Before public launch |
+| **R10** | How do readers actually search? In particular: do they type Russian titles in Latin letters ("kashtanka" for «Каштанка»), and do they expect titles sorted in Turkmen alphabetical order (… E, Ä, F …) rather than with Ä filed under A? | Sprint 05's search ignores diacritics and case but does not transliterate between scripts, and its title sort files Ä with A. Either could quietly hide books from readers. Watch what testers type and ask them. | Sprint 08 |
 
 When one of these is answered, replace the row with the answer and its date, and update any
 ADR it affects.

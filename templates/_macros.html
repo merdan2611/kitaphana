@@ -22,7 +22,8 @@
 {% set url = cover_url(book) %}
 {% if url %}
 <div class="cover">
-    <img src="{{ url }}" alt="" {% if not eager %}loading="lazy"{% endif %} decoding="async">
+    {# width/height give the browser the 2:3 box before the image arrives, so nothing jumps. #}
+    <img src="{{ url }}" alt="" width="360" height="540" {% if not eager %}loading="lazy"{% endif %} decoding="async">
 </div>
 {% else %}
 <div class="cover" aria-hidden="true">

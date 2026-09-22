@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import re
 
+import pytest
 from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
@@ -395,3 +396,73 @@ def test_admin_route_is_open_to_a_flagged_user(client, db):
     db.execute("UPDATE users SET is_admin = 1 WHERE phone = ?", (PHONE,))
     db.commit()
     assert _admin_probe_client(client).get("/admin/probe").status_code == 200
+
+
+# --- Returning to where the reader was -------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        ("/books/12", "/books/12"),
+        ("/books?q=alem&lang=tk", "/books?q=alem&lang=tk"),
+        ("", None),
+        (None, None),
+        ("//evil.example", None),
+        ("///evil.example", None),
+        ("https://evil.example/x", None),
+        ("/\\evil.example", None),
+        ("javascript:alert(1)", None),
+        ("books/12", None),
+        ("/login", None),
+        ("/login?next=/books/1", None),
+        ("/logout", None),
+        ("/books/1\r\nSet-Cookie: x=y", None),
+        ("/books/1\tx", None),
+        ("/" + "a" * 600, None),
+    ],
+)
+def test_safe_next_accepts_only_paths_on_this_site(value, expected):
+    assert auth.safe_next(value) == expected
+
+
+def test_login_returns_the_reader_to_where_they_were(client):
+    assert 'name="next" value="/books/12"' in client.get("/login?next=/books/12").text
+
+    code_page = client.post("/login", data={"phone": PHONE, "next": "/books/12"})
+    assert 'name="next" value="/books/12"' in code_page.text
+
+    response = client.post(
+        "/login/verify",
+        data={"phone": PHONE, "code": shown_code(code_page), "next": "/books/12"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+    assert response.headers["location"] == "/books/12"
+
+
+@pytest.mark.parametrize("evil", ["//evil.example", "https://evil.example", "/\\evil.example"])
+def test_an_outside_next_is_ignored(client, evil):
+    code_page = client.post("/login", data={"phone": PHONE, "next": evil})
+    assert "evil.example" not in code_page.text
+    response = client.post(
+        "/login/verify",
+        data={"phone": PHONE, "code": shown_code(code_page), "next": evil},
+        follow_redirects=False,
+    )
+    assert response.headers["location"] == "/account"
+
+
+def test_next_survives_a_wrong_code(client):
+    code_page = client.post("/login", data={"phone": PHONE, "next": "/books/12"})
+    retry = client.post(
+        "/login/verify",
+        data={"phone": PHONE, "code": wrong(shown_code(code_page)), "next": "/books/12"},
+    )
+    assert 'name="next" value="/books/12"' in retry.text
+
+
+def test_signed_in_reader_following_a_login_link_goes_straight_there(client):
+    login(client)
+    response = client.get("/login?next=/books/12", follow_redirects=False)
+    assert response.headers["location"] == "/books/12"

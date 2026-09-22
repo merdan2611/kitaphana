@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% from "_macros.html" import cover %}
+
+{% block title %}{% if q %}«{{ q }}»: {% endif %}Katalog: Kitaphana{% endblock %}
+
+{% block content %}
+<div class="catalogue-head">
+    <h1>Katalog</h1>
+    <form class="search-form" role="search" method="get" action="/books">
+        <label class="visually-hidden" for="q">Kitap gözle</label>
+        <input id="q" type="search" name="q" value="{{ q }}" placeholder="Kitap ýa-da awtor" enterkeyhint="search">
+        {% if lang %}<input type="hidden" name="lang" value="{{ lang }}">{% endif %}
+        {% if sort != "new" %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+        <button type="submit">Gözle</button>
+    </form>
+</div>
+
+{% if catalogue_empty %}
+<div class="empty-state">
+    <h2>Katalog entek boş</h2>
+    <p>Ilkinji kitaplar ýakyn wagtda goşular.</p>
+    {% if current_user and current_user.is_admin %}<a class="button" href="/admin/books/new">Kitap goş</a>{% endif %}
+</div>
+{% else %}
+
+{# Filters are plain links, so every view of the catalogue has a URL that can be shared. They are
+   hidden only when the search found nothing in any language, since then there is nothing to filter. #}
+{% if all_count %}
+<nav class="filters" aria-label="Süzgüçler">
+    <div class="chip-row" role="group" aria-label="Dil">
+        <a class="chip" href="{{ link(lang='', page=1) }}" {% if not lang %}aria-current="true"{% endif %}>Ähli diller <span class="chip-count">{{ all_count }}</span></a>
+        {% for code, name in languages.items() %}
+        {% if counts.get(code) or code == lang %}
+        <a class="chip" href="{{ link(lang=code, page=1) }}" {% if code == lang %}aria-current="true"{% endif %}>{{ name }} <span class="chip-count">{{ counts.get(code, 0) }}</span></a>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div class="chip-row" role="group" aria-label="Tertibi">
+        {% for key, (label, _) in sorts.items() %}
+        <a class="chip" href="{{ link(sort=key, page=1) }}" {% if key == sort %}aria-current="true"{% endif %}>{{ label }}</a>
+        {% endfor %}
+    </div>
+</nav>
+{% endif %}
+
+{% if books %}
+<p class="result-count">{% if q %}«{{ q }}» boýunça {{ total }} kitap tapyldy{% else %}{{ total }} kitap{% endif %}</p>
+<ul class="book-grid">
+    {% for book in books %}
+    <li>
+        <a class="book-card" href="/books/{{ book.id }}">
+            {{ cover(book, eager=loop.index <= 4) }}
+            <span class="book-card-text">
+                <span class="book-card-title">{{ book.title }}</span>
+                {% if book.author %}<span class="book-card-author">{{ book.author }}</span>{% endif %}
+                <span class="book-card-meta">
+                    {% if book.year %}<span>{{ book.year }}</span>{% endif %}
+                    {% if book.price_stars %}<span>{{ book.price_stars }} ýyldyz</span>
+                    {% else %}<span class="price-free">Mugt</span>{% endif %}
+                </span>
+            </span>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+
+{% if pages > 1 %}
+<nav class="pager" aria-label="Sahypalar">
+    {% if page > 1 %}<a class="button button-quiet" href="{{ link(page=page - 1) }}" rel="prev">Öňki</a>{% endif %}
+    <span>Sahypa {{ page }} / {{ pages }}</span>
+    {% if page < pages %}<a class="button button-quiet" href="{{ link(page=page + 1) }}" rel="next">Indiki</a>{% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    {% if q %}
+    <h2>«{{ q }}» boýunça kitap tapylmady</h2>
+    <p>Başgaça ýazyp görüň. Baş we setir harplar, şeýle hem ä, ň, ş ýaly harplar gözlegde
+        tapawutlanmaýar: «alem» ýazsaňyz, «Älem» hem tapylýar.</p>
+    {% else %}
+    <h2>Bu dilde entek kitap ýok</h2>
+    {% endif %}
+    <p><a href="{{ link(q='', lang='', page=1) }}">Ähli kitaplara serediň</a></p>
+    {% if q %}
+    {# Sprint 07 turns this into a request form, prefilled with the search. #}
+    <div class="placeholder-panel">
+        <h3>Bu kitaby soraň</h3>
+        <p>Kitaphanada ýok kitaby soramak ýakyn wagtda mümkin bolar. Şonda şu gözlegden bir
+            basyşda sorap bilersiňiz.</p>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}

@@ -12,8 +12,9 @@ import re
 import secrets
 import sqlite3
 from datetime import timedelta
+from urllib.parse import urlsplit
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 
 from app import config, ratelimit, sessions
@@ -170,34 +171,68 @@ def require_admin(user: sqlite3.Row | None = Depends(current_user)) -> sqlite3.R
 router = APIRouter()
 
 
+def safe_next(value: str | None) -> str | None:
+    """Where to send a reader after login, if `value` is a path on this site; otherwise None.
+
+    The value arrives in a URL (/login?next=/books/12), so without this check a crafted link such
+    as /login?next=//evil.example would bounce a freshly logged-in reader to another site.
+    """
+    if not value or len(value) > 500:
+        return None
+    # "//host" and "/\host" are both read by browsers as another site.
+    if not value.startswith("/") or value.startswith("//") or "\\" in value:
+        return None
+    if any(ch < " " or ch == "\x7f" for ch in value):
+        return None
+    parts = urlsplit(value)
+    if parts.scheme or parts.netloc or parts.path.startswith(("/login", "/logout")):
+        return None
+    return value
+
+
 def _login_page(request: Request, status_code: int = 200, **context):
     context.setdefault("step", "phone")
     return templates.TemplateResponse(request, "login.html", context, status_code=status_code)
 
 
 @router.get("/login")
-def login_form(request: Request, user=Depends(current_user)):
+def login_form(
+    request: Request,
+    next_url: str = Query("", alias="next"),
+    user=Depends(current_user),
+):
+    destination = safe_next(next_url)
     if user is not None:
-        return RedirectResponse("/account", status_code=303)
-    return _login_page(request)
+        return RedirectResponse(destination or "/account", status_code=303)
+    return _login_page(request, next_url=destination)
 
 
 @router.post("/login")
 def login_request_code(
-    request: Request, phone: str = Form(""), conn: sqlite3.Connection = Depends(get_db)
+    request: Request,
+    phone: str = Form(""),
+    next_url: str = Form("", alias="next"),
+    conn: sqlite3.Connection = Depends(get_db),
 ):
+    destination = safe_next(next_url)
     try:
         canonical = normalize_phone(phone)
     except InvalidPhone as exc:
-        return _login_page(request, 400, phone=phone, error=exc.message)
+        return _login_page(request, 400, phone=phone, error=exc.message, next_url=destination)
 
     ip = request.client.host if request.client else None
     try:
         code = request_code(conn, canonical, ip)
     except ratelimit.RateLimited as exc:
-        return _login_page(request, 429, phone=phone, error=exc.message)
+        return _login_page(request, 429, phone=phone, error=exc.message, next_url=destination)
 
-    return _login_page(request, step="code", phone=canonical, shown_code=deliver_code(canonical, code))
+    return _login_page(
+        request,
+        step="code",
+        phone=canonical,
+        shown_code=deliver_code(canonical, code),
+        next_url=destination,
+    )
 
 
 @router.post("/login/verify")
@@ -205,21 +240,25 @@ def login_verify(
     request: Request,
     phone: str = Form(""),
     code: str = Form(""),
+    next_url: str = Form("", alias="next"),
     conn: sqlite3.Connection = Depends(get_db),
 ):
+    destination = safe_next(next_url)
     try:
         canonical = normalize_phone(phone)
     except InvalidPhone as exc:
-        return _login_page(request, 400, phone=phone, error=exc.message)
+        return _login_page(request, 400, phone=phone, error=exc.message, next_url=destination)
 
     try:
         user_id = verify_code(conn, canonical, code)
     except CodeRejected as exc:
-        return _login_page(request, 400, step="code", phone=canonical, error=exc.message)
+        return _login_page(
+            request, 400, step="code", phone=canonical, error=exc.message, next_url=destination
+        )
 
     cookie = sessions.create_session(conn, user_id)
     conn.commit()
-    response = RedirectResponse("/account", status_code=303)
+    response = RedirectResponse(destination or "/account", status_code=303)
     sessions.set_session_cookie(response, cookie)
     return response
 
