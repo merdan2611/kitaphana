@@ -5,6 +5,8 @@ no page can forget the dev-mode banner (ADR-0013) or the signed-in header.
 """
 from __future__ import annotations
 
+from urllib.parse import quote
+
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
@@ -21,5 +23,22 @@ def _page_globals(request: Request) -> dict:
     }
 
 
+def _filesize(size: int | None) -> str:
+    if not size:
+        return "—"
+    if size < 1024 * 1024:
+        return f"{size / 1024:.0f} KB"
+    return f"{size / (1024 * 1024):.1f} MB"
+
+
+def _cover_url(book) -> str | None:
+    """The cover's URL with a version, so a replaced cover is not hidden by the browser cache."""
+    if not book["cover_path"]:
+        return None
+    return f"/{book['cover_path']}?v={quote(book['updated_at'] or '')}"
+
+
 templates = Jinja2Templates(directory=BASE_DIR / "templates", context_processors=[_page_globals])
 templates.env.filters["phone"] = format_phone
+templates.env.filters["filesize"] = _filesize
+templates.env.globals["cover_url"] = _cover_url

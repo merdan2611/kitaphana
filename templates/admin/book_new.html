@@ -1,0 +1,78 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Kitap goş: dolandyryş{% endblock %}
+
+{% block content %}
+<div class="admin-heading">
+    <h1>Kitap goş</h1>
+</div>
+
+{% if duplicate %}
+<div class="form-error" role="alert">
+    <p>Bu faýl kitaphanada eýýäm bar, başga at bilen bolsa-da:
+        <a href="/admin/books/{{ duplicate.id }}">«{{ duplicate.title }}»</a>{% if duplicate.author %}, {{ duplicate.author }}{% endif %}.</p>
+    <p>Ýüklenen nusga saklanmady.</p>
+</div>
+{% endif %}
+
+<form class="panel admin-form" method="post" action="/admin/books" enctype="multipart/form-data"
+      data-upload-form>
+    <div class="field{% if errors.get('pdf') %} field-invalid{% endif %}">
+        <label for="f-pdf">PDF faýly</label>
+        <input id="f-pdf" name="pdf" type="file" accept="application/pdf,.pdf" required>
+        {% if errors.get('pdf') %}<p class="field-error">{{ errors.pdf }}</p>{% endif %}
+    </div>
+
+    {% set title_hint = "Boş galdyrsaňyz, PDF-iň içindäki maglumatdan ýa-da faýlyň adyndan alynýar." %}
+    {% set author_hint = "Boş galdyrsaňyz, PDF-iň içindäki maglumatdan alynýar." %}
+    {% include "admin/_book_fields.html" %}
+
+    <p class="field-hint">Kitap garalama hökmünde saklanýar. Okyjylar ony siz neşir edeniňizden soň görýär.</p>
+
+    <div class="form-actions">
+        <button type="submit">Ýükle</button>
+        <progress class="upload-progress" max="100" value="0" hidden></progress>
+        <span class="upload-status" role="status"></span>
+    </div>
+</form>
+
+<script>
+/* Upload progress (ADR-0003 allows JS where a page genuinely needs it). Without JS the form
+   still submits normally; this only adds a progress bar for large PDFs. */
+(function () {
+    var form = document.querySelector("[data-upload-form]");
+    if (!form || !window.FormData) return;
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var button = form.querySelector("button[type=submit]");
+        var bar = form.querySelector(".upload-progress");
+        var status = form.querySelector(".upload-status");
+        var xhr = new XMLHttpRequest();
+        button.disabled = true;
+        bar.hidden = false;
+        xhr.upload.addEventListener("progress", function (e) {
+            if (!e.lengthComputable) return;
+            var pct = Math.round((e.loaded / e.total) * 100);
+            bar.value = pct;
+            status.textContent = pct < 100 ? "Ýüklenýär: " + pct + "%" : "Barlanýar…";
+        });
+        xhr.addEventListener("load", function () {
+            // Success redirects to the new book's page; anything else is a page with errors.
+            if (/\/admin\/books\/\d+/.test(xhr.responseURL)) {
+                window.location.href = xhr.responseURL;
+                return;
+            }
+            document.open();
+            document.write(xhr.responseText);
+            document.close();
+        });
+        xhr.addEventListener("error", function () {
+            button.disabled = false;
+            status.textContent = "Baglanyşyk kesildi. Täzeden synanyşyň.";
+        });
+        xhr.open("POST", form.action);
+        xhr.send(new FormData(form));
+    });
+})();
+</script>
+{% endblock %}

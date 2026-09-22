@@ -1,0 +1,34 @@
+{# A book's cover, or a typeset stand-in when it has none. Never a broken image. #}
+{% macro cover(book, eager=false) -%}
+{% set url = cover_url(book) %}
+{% if url %}
+<div class="cover">
+    <img src="{{ url }}" alt="" {% if not eager %}loading="lazy"{% endif %} decoding="async">
+</div>
+{% else %}
+<div class="cover" aria-hidden="true">
+    <div class="cover-blank cover-blank-{{ book.id % 4 }}">
+        <span class="cover-blank-title">{{ book.title }}</span>
+        <span class="cover-blank-author">{{ book.author }}</span>
+        <span class="cover-blank-initial">{{ book.title[:1] }}</span>
+    </div>
+</div>
+{% endif %}
+{%- endmacro %}
+
+{# A labelled form field with its error, if any. #}
+{% macro field(name, label, values, errors, type="text", hint=None) -%}
+<div class="field{% if errors.get(name) %} field-invalid{% endif %}">
+    <label for="f-{{ name }}">{{ label }}</label>
+    {% if type == "textarea" %}
+    <textarea id="f-{{ name }}" name="{{ name }}" rows="5"
+              {% if errors.get(name) %}aria-invalid="true" aria-describedby="e-{{ name }}"{% endif %}>{{ values.get(name, '') }}</textarea>
+    {% else %}
+    <input id="f-{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ values.get(name, '') }}"
+           {% if type == "number" %}inputmode="numeric"{% endif %}
+           {% if errors.get(name) %}aria-invalid="true" aria-describedby="e-{{ name }}"{% endif %}>
+    {% endif %}
+    {% if hint %}<p class="field-hint">{{ hint }}</p>{% endif %}
+    {% if errors.get(name) %}<p class="field-error" id="e-{{ name }}">{{ errors[name] }}</p>{% endif %}
+</div>
+{%- endmacro %}

@@ -1,0 +1,76 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import cover %}
+
+{% block title %}Kitaplar: dolandyryş{% endblock %}
+
+{% block content %}
+<div class="admin-heading">
+    <h1>Kitaplar</h1>
+    <a class="button" href="/admin/books/new">Kitap goş</a>
+</div>
+
+{% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
+
+<form class="filter-bar" method="get" action="/admin/books" role="search">
+    <label class="visually-hidden" for="q">Gözleg</label>
+    <input id="q" type="search" name="q" value="{{ q }}" placeholder="Ady ýa-da awtory">
+    <label class="visually-hidden" for="status">Ýagdaýy</label>
+    <select id="status" name="status">
+        {% for key, (label, _) in status_filters.items() %}
+        <option value="{{ key }}" {% if key == status %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="button-quiet">Gözle</button>
+</form>
+
+{% if books %}
+<p class="result-count">{{ total }} kitap{% if q %}, «{{ q }}» boýunça{% endif %}</p>
+<table class="book-table">
+    <thead>
+        <tr>
+            <th scope="col"><span class="visually-hidden">Daşlyk</span></th>
+            <th scope="col">Kitap</th>
+            <th scope="col">Dil</th>
+            <th scope="col" class="num">Baha</th>
+            <th scope="col">Ýagdaýy</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+        <tr>
+            <td class="book-table-cover">{{ cover(book) }}</td>
+            <td class="book-table-title">
+                <a href="/admin/books/{{ book.id }}">{{ book.title }}</a>
+                <span>{{ book.author or "Awtor görkezilmedik" }}{% if book.year %}, {{ book.year }}{% endif %}</span>
+            </td>
+            <td data-label="Dil">{{ languages.get(book.language, book.language) }}</td>
+            <td class="num" data-label="Baha">{% if book.price_stars %}{{ book.price_stars }} ýyldyz{% else %}mugt{% endif %}</td>
+            <td>
+                {% if book.is_published %}<span class="badge badge-live">Neşir edilen</span>
+                {% else %}<span class="badge">Garalama</span>{% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if pages > 1 %}
+<nav class="pager" aria-label="Sahypalar">
+    {% if page > 1 %}<a href="?q={{ q | urlencode }}&status={{ status }}&page={{ page - 1 }}">Öňki</a>{% endif %}
+    <span>{{ page }} / {{ pages }}</span>
+    {% if page < pages %}<a href="?q={{ q | urlencode }}&status={{ status }}&page={{ page + 1 }}">Indiki</a>{% endif %}
+</nav>
+{% endif %}
+
+{% elif q or status != "all" %}
+<div class="empty">
+    <p>Bu gözleg boýunça kitap tapylmady.</p>
+    <a href="/admin/books">Süzgüçleri aýyr</a>
+</div>
+{% else %}
+<div class="empty">
+    <p>Kitaphana entek boş.</p>
+    <a class="button" href="/admin/books/new">Ilkinji kitaby ýükle</a>
+</div>
+{% endif %}
+{% endblock %}

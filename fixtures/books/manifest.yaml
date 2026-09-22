@@ -1,0 +1,59 @@
+# Placeholder books for local development only (ADR-0017). Loaded by scripts/seed_fixtures.py
+# through the same ingest path as an admin upload. See ../README.md for the rules.
+#
+# All five PDFs were exported on 2026-09-23 with Wikisource's own exporter
+# (https://ws-export.wmcloud.org, format pdf-a5). The texts are public domain; the exporter's
+# typesetting is offered under CC BY-SA 3.0 / GFDL, as its "About this digital edition" page
+# inside each PDF says, which permits redistribution. Each work is in its original language,
+# so there is no translator whose rights could still run.
+
+- filename: magtymguly-baglar-hey.pdf
+  title: "Baglar, heý!"
+  author: "Magtymguly Pyragy"
+  year: null
+  language: "tk"
+  price_stars: 0
+  description: "Magtymguly Pyragynyň goşgusy."
+  source: "https://wikisource.org/wiki/Baglar,_he%C3%BD! — multilingual Wikisource, tagged
+    PD-old. Magtymguly died around 1807, so the poem has been out of copyright everywhere for
+    well over a century. The Latin-script text is a transcription, not a translation."
+
+- filename: poe-the-raven.pdf
+  title: "The Raven"
+  author: "Edgar Allan Poe"
+  year: 1845
+  language: "en"
+  price_stars: 0
+  description: "Poe's narrative poem, first published in 1845."
+  source: "https://en.wikisource.org/wiki/The_Raven_(Poe) — published 1845; Poe died 1849.
+    Public domain worldwide."
+
+- filename: wilde-the-happy-prince.pdf
+  title: "The Happy Prince"
+  author: "Oscar Wilde"
+  year: 1888
+  language: "en"
+  price_stars: 2
+  description: "The title story from The Happy Prince and Other Tales."
+  source: "https://en.wikisource.org/wiki/The_Happy_Prince_and_Other_Tales/The_Happy_Prince —
+    published 1888; Wilde died 1900. Public domain worldwide."
+
+- filename: chekhov-kashtanka.pdf
+  title: "Каштанка"
+  author: "Антон Павлович Чехов"
+  year: 1887
+  language: "ru"
+  price_stars: 1
+  description: "Рассказ Чехова о собаке, потерявшей хозяина."
+  source: "https://ru.wikisource.org/wiki/Каштанка_(Чехов) — published 1887; Chekhov died 1904.
+    Public domain worldwide."
+
+- filename: tolstoy-kavkazskiy-plennik.pdf
+  title: "Кавказский пленник"
+  author: "Лев Николаевич Толстой"
+  year: 1872
+  language: "ru"
+  price_stars: 3
+  description: "Рассказ Толстого, написанный для «Азбуки»."
+  source: "https://ru.wikisource.org/wiki/Кавказский_пленник_(Толстой) — published 1872;
+    Tolstoy died 1910. Public domain worldwide."

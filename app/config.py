@@ -76,6 +76,7 @@ class Settings:
     otp_limits_per_phone: tuple[tuple[int, int], ...] = ((3, 600), (10, 86400))
     otp_limits_per_ip: tuple[tuple[int, int], ...] = ((10, 600), (50, 86400))
     session_ttl_days: int = 180
+    max_upload_mb: int = 200
     cookie_secure: bool = True
     app_version: str = "0.1.0"
 
@@ -92,6 +93,7 @@ def load_settings() -> Settings:
         otp_limits_per_phone=_limits_env("OTP_LIMITS_PER_PHONE", "3/600,10/86400"),
         otp_limits_per_ip=_limits_env("OTP_LIMITS_PER_IP", "10/600,50/86400"),
         session_ttl_days=_int_env("SESSION_TTL_DAYS", 180),
+        max_upload_mb=_int_env("MAX_UPLOAD_MB", 200),
         cookie_secure=_bool_env("COOKIE_SECURE", default=True),
     )
 

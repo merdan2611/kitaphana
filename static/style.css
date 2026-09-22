@@ -1,45 +1,121 @@
 /* Kitaphana — one hand-written stylesheet, no framework (ADR-0003).
-   Mobile-first: the base rules target a 360px-wide screen; wider layouts are added
-   with min-width media queries, never the reverse. */
+   Mobile-first: base rules target a 360px screen; wider layouts are added with min-width
+   queries, never the reverse. No webfonts: every byte is paid for on a metered connection.
+
+   Palette, from Turkmen carpet dyes: madder red is the one brand colour; indigo is for the
+   admin side; saffron is reserved for the dev-mode warning so it can never read as branding. */
 
 :root {
-    --color-bg: #fdfcfb;
-    --color-text: #1f1a17;
-    --color-muted: #6b6058;
-    --color-accent: #7a4a2b;
-    --color-accent-contrast: #fdfcfb;
-    --color-border: #e2d9d0;
-    --color-banner-bg: #b3261e;
-    --color-banner-text: #ffffff;
-    --color-error-bg: #fdecea;
-    --color-error-text: #8c1d18;
-    --color-code-bg: #fff4d6;
+    --ink: #1b2130;
+    --muted: #5a6070;
+    --paper: #ffffff;
+    --surface: #f3f4f6;
+    --line: #dcdfe5;
+    --madder: #9e1b22;
+    --madder-dark: #7c141a;
+    --indigo: #22335e;
+    --pistachio: #2e5b4f;
+    --saffron: #f5b81c;
+    --error-bg: #fbeaea;
+    --ok-bg: #e6f0ec;
+
+    --serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, "Noto Serif", Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+
+    /* Type scale: major third (1.25) */
+    --step--1: 0.8rem;
+    --step-0: 1rem;
+    --step-1: 1.25rem;
+    --step-2: 1.563rem;
+    --step-3: 1.953rem;
+    --step-4: 2.441rem;
+
     --space-1: 0.5rem;
     --space-2: 1rem;
     --space-3: 1.5rem;
     --space-4: 2.5rem;
-    --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --space-5: 4rem;
+    --radius: 6px;
+    --measure: 40rem;
 }
 
-* {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    font-family: var(--font-body);
-    background: var(--color-bg);
-    color: var(--color-text);
-    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--sans);
+    font-size: var(--step-0);
+    line-height: 1.55;
+    background: var(--paper);
+    color: var(--ink);
+    -webkit-text-size-adjust: 100%;
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--serif);
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 var(--space-2);
+}
+
+h1 { font-size: var(--step-3); }
+h2 { font-size: var(--step-2); }
+h3 { font-size: var(--step-1); }
+
+p {
+    margin: 0 0 var(--space-2);
 }
 
 a {
-    color: var(--color-accent);
+    color: var(--madder);
+    text-underline-offset: 0.15em;
 }
 
+a:hover {
+    color: var(--madder-dark);
+}
+
+:focus-visible {
+    outline: 3px solid var(--indigo);
+    outline-offset: 2px;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* --- Dev-mode banner (ADR-0013) -------------------------------------------------------------
+   Loud on purpose, and in a colour nothing else uses. Sticky so it stays on screen. */
+
+.dev-banner {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: var(--space-1) var(--space-2);
+    background:
+        repeating-linear-gradient(-45deg, var(--ink) 0 10px, transparent 10px 20px) top / 100% 5px no-repeat,
+        var(--saffron);
+    padding-top: calc(var(--space-1) + 5px);
+    color: var(--ink);
+    font-size: var(--step--1);
+    line-height: 1.4;
+    text-align: center;
+}
+
+/* --- Header and the göl strip ---------------------------------------------------------------- */
+
 .site-header {
-    border-bottom: 1px solid var(--color-border);
-    padding: var(--space-2);
+    background: var(--paper);
 }
 
 .site-nav {
@@ -47,86 +123,163 @@ a {
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
+    /* Same column as the page content, so the title and the text below share a left edge. */
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: var(--space-2);
+}
+
+.site-title {
+    font-family: var(--serif);
+    font-size: var(--step-1);
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
 }
 
 .site-nav-links {
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    font-size: 0.95rem;
 }
 
-.site-title {
-    font-size: 1.25rem;
-    font-weight: 700;
+.site-nav-links a {
     text-decoration: none;
-    color: var(--color-text);
 }
 
-/* Deliberately loud (ADR-0013): dev-OTP mode must never run quietly. Sticky, so it stays
-   on screen while scrolling. */
-.dev-banner {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    margin: 0;
-    padding: var(--space-1) var(--space-2);
-    background: var(--color-banner-bg);
-    color: var(--color-banner-text);
-    font-size: 0.9rem;
-    text-align: center;
+.site-nav-links a:hover {
+    text-decoration: underline;
 }
+
+/* A carpet border: madder göl octagons with an indigo heart, small indigo diamonds between.
+   One 32x16 SVG tile, repeated; about 600 bytes, no request. */
+.gol-strip {
+    height: 16px;
+    background: var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='16' viewBox='0 0 32 16'%3E%3Cpolygon points='8,2 16,2 20,6 20,10 16,14 8,14 4,10 4,6' fill='%239e1b22'/%3E%3Cpolygon points='12,4.5 15.5,8 12,11.5 8.5,8' fill='%23fff'/%3E%3Crect x='11' y='7' width='2' height='2' fill='%2322335e'/%3E%3Cpolygon points='26,5 29,8 26,11 23,8' fill='%2322335e'/%3E%3C/svg%3E") repeat-x center / 32px 16px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+
+/* --- Page frame ------------------------------------------------------------------------------ */
 
 .site-content {
-    padding: var(--space-3) var(--space-2);
-    max-width: 40rem;
+    flex: 1;
+    width: 100%;
+    max-width: var(--measure);
     margin: 0 auto;
+    padding: var(--space-4) var(--space-2) var(--space-5);
 }
 
 .site-footer {
-    border-top: 1px solid var(--color-border);
-    padding: var(--space-2);
-    color: var(--color-muted);
-    font-size: 0.85rem;
+    border-top: 1px solid var(--line);
+    padding: var(--space-3) var(--space-2);
+    color: var(--muted);
+    font-size: var(--step--1);
     text-align: center;
 }
 
-.hero h1 {
-    font-size: 1.5rem;
-    margin-bottom: var(--space-1);
+.site-footer p {
+    margin: 0;
 }
 
-.hero p {
-    color: var(--color-muted);
+/* --- Home ------------------------------------------------------------------------------------ */
+
+.home-lead h1 {
+    font-size: var(--step-4);
+    letter-spacing: -0.01em;
+    max-width: 14ch;
 }
 
-.form-page h1 {
-    font-size: 1.5rem;
-    margin-top: 0;
+.home-lead p {
+    font-size: var(--step-1);
+    color: var(--muted);
+    max-width: 34ch;
+    font-family: var(--serif);
+    line-height: 1.5;
 }
 
-.stack-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    margin: var(--space-2) 0;
+.home-ways {
+    list-style: none;
+    margin: var(--space-4) 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-3);
 }
 
-.stack-form input {
+.home-ways li {
+    padding-left: var(--space-2);
+    border-left: 3px solid var(--madder);
+}
+
+.home-ways h2 {
+    font-size: var(--step-1);
+    margin-bottom: 0.25rem;
+}
+
+.home-ways p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.home-status {
+    padding: var(--space-2);
+    background: var(--surface);
+    border-radius: var(--radius);
+}
+
+.home-status p:last-child {
+    margin-bottom: 0;
+}
+
+/* --- Buttons and forms ----------------------------------------------------------------------- */
+
+button,
+.button {
+    display: inline-block;
     font: inherit;
-    font-size: 1.1rem;
-    padding: 0.6rem;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-}
-
-button {
-    font: inherit;
-    padding: 0.6rem var(--space-2);
-    border: 0;
-    border-radius: 4px;
-    background: var(--color-accent);
-    color: var(--color-accent-contrast);
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 0.75rem 1.25rem;
+    border: 2px solid var(--madder);
+    border-radius: var(--radius);
+    background: var(--madder);
+    color: var(--paper);
+    text-decoration: none;
+    text-align: center;
     cursor: pointer;
+}
+
+button:hover,
+.button:hover {
+    background: var(--madder-dark);
+    border-color: var(--madder-dark);
+    color: var(--paper);
+}
+
+.button-quiet {
+    background: transparent;
+    color: var(--madder);
+}
+
+.button-quiet:hover {
+    background: var(--surface);
+    color: var(--madder-dark);
+}
+
+.link-button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--madder);
+    font-weight: 400;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
+
+.link-button:hover {
+    background: none;
+    color: var(--madder-dark);
 }
 
 .inline-form {
@@ -134,64 +287,227 @@ button {
     margin: 0;
 }
 
-.link-button {
-    padding: 0;
-    background: none;
-    color: var(--color-accent);
-    text-decoration: underline;
+.stack-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin: var(--space-3) 0;
 }
 
-.secondary-form {
-    align-items: flex-start;
+label {
+    font-weight: 600;
 }
 
-.form-error {
-    padding: var(--space-1) var(--space-2);
-    background: var(--color-error-bg);
-    color: var(--color-error-text);
-    border-radius: 4px;
+input[type="text"],
+input[type="tel"],
+input[type="number"],
+input[type="search"],
+select,
+textarea {
+    width: 100%;
+    font: inherit;
+    font-size: 1.1rem; /* 16px+ stops iOS zooming into the field */
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #b9bec9;
+    border-radius: var(--radius);
+    background: var(--paper);
+    color: var(--ink);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 3px solid color-mix(in srgb, var(--indigo) 35%, transparent);
+    outline-offset: 0;
+    border-color: var(--indigo);
+}
+
+.field-error {
+    color: var(--madder);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.form-error,
+.notice {
+    padding: 0.75rem var(--space-2);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--madder);
+    background: var(--error-bg);
+    color: var(--madder-dark);
+}
+
+.notice {
+    border-left-color: var(--pistachio);
+    background: var(--ok-bg);
+    color: var(--pistachio);
+}
+
+/* --- Login ----------------------------------------------------------------------------------- */
+
+.form-page {
+    max-width: 26rem;
+}
+
+.form-page .lead {
+    color: var(--muted);
 }
 
 .dev-code {
-    display: flex;
-    flex-direction: column;
+    margin: var(--space-3) 0;
     padding: var(--space-2);
-    background: var(--color-code-bg);
-    border: 2px dashed var(--color-banner-bg);
-    border-radius: 4px;
+    border: 2px dashed var(--ink);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--saffron) 22%, var(--paper));
+}
+
+.dev-code-label {
+    display: block;
+    font-size: 0.9rem;
 }
 
 .dev-code-value {
-    font-size: 2rem;
+    display: block;
+    font-size: var(--step-4);
     font-weight: 700;
+    letter-spacing: 0.25em;
+    font-variant-numeric: tabular-nums;
+}
+
+.code-input {
+    font-size: var(--step-2) !important;
     letter-spacing: 0.3em;
     font-variant-numeric: tabular-nums;
 }
 
+.form-aside {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+/* --- Account --------------------------------------------------------------------------------- */
+
+.account-details {
+    margin: var(--space-3) 0;
+    border-top: 1px solid var(--line);
+}
+
+.account-details div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--line);
+}
+
 .account-details dt {
-    color: var(--color-muted);
-    font-size: 0.9rem;
+    color: var(--muted);
 }
 
 .account-details dd {
-    margin: 0 0 var(--space-2);
-    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
 }
 
 .placeholder {
-    color: var(--color-muted);
+    color: var(--muted);
+    font-weight: 400 !important;
     font-style: italic;
 }
 
-@media (min-width: 48rem) {
-    .site-header,
-    .site-content,
-    .site-footer {
-        padding-left: var(--space-4);
-        padding-right: var(--space-4);
+/* --- Covers ----------------------------------------------------------------------------------
+   Shared by the admin and, from Sprint 05, the catalogue. A book with no cover image gets a
+   typeset one: title and author on a carpet colour, never a broken image. */
+
+.cover {
+    aspect-ratio: 2 / 3;
+    width: 100%;
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgb(27 33 48 / 0.18), 0 0 0 1px rgb(27 33 48 / 0.06);
+}
+
+.cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cover-blank {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 12% 10%;
+    color: var(--paper);
+    font-family: var(--serif);
+    background: var(--madder);
+    border-top: 8px solid rgb(255 255 255 / 0.2);
+}
+
+.cover-blank-1 { background: var(--indigo); }
+.cover-blank-2 { background: var(--pistachio); }
+.cover-blank-3 { background: #6b3e26; }
+
+.cover-blank-title {
+    font-size: clamp(0.75rem, 11cqi, 1.3rem);
+    font-weight: 700;
+    line-height: 1.15;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.cover-blank-author {
+    font-size: clamp(0.6rem, 7cqi, 0.9rem);
+    opacity: 0.85;
+}
+
+.cover-blank-initial {
+    display: none;
+}
+
+/* Too narrow for a readable title (list thumbnails): show the initial alone. */
+@container (max-width: 6rem) {
+    .cover-blank {
+        justify-content: center;
+        align-items: center;
+        padding: 0;
     }
 
-    .hero h1 {
-        font-size: 2rem;
+    .cover-blank-title,
+    .cover-blank-author {
+        display: none;
+    }
+
+    .cover-blank-initial {
+        display: block;
+        font-size: 55cqi;
+        font-weight: 700;
+    }
+}
+
+.cover {
+    container-type: inline-size;
+}
+
+@media (min-width: 48rem) {
+    .home-lead h1 {
+        font-size: 3.2rem;
+    }
+
+    .home-ways {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        scroll-behavior: auto !important;
+        transition: none !important;
     }
 }

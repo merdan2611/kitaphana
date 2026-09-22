@@ -1,0 +1,17 @@
+{% from "_macros.html" import field %}
+{{ field("title", "Ady", values, errors, hint=title_hint) }}
+{{ field("author", "Awtory", values, errors, hint=author_hint) }}
+<div class="field-row">
+    {{ field("year", "Ýyly", values, errors, type="number") }}
+    <div class="field{% if errors.get('language') %} field-invalid{% endif %}">
+        <label for="f-language">Dili</label>
+        <select id="f-language" name="language">
+            {% for code, label in languages.items() %}
+            <option value="{{ code }}" {% if values.get('language') == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        {% if errors.get('language') %}<p class="field-error">{{ errors.language }}</p>{% endif %}
+    </div>
+    {{ field("price_stars", "Bahasy (ýyldyz)", values, errors, type="number", hint="0 bolsa mugt.") }}
+</div>
+{{ field("description", "Düşündiriş", values, errors, type="textarea", hint="Diňe ýönekeý tekst.") }}

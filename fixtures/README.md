@@ -47,7 +47,19 @@ One entry per placeholder book:
 
 ## Status
 
-Empty except for this file. Specific public-domain texts have not been chosen yet — that needs a
-small amount of real research into sources whose public-domain status is actually verifiable,
-which is worth doing carefully rather than guessing. Do this before Sprint 04's seeding task
-needs something to seed.
+Five texts, chosen 2026-09-23, about 1 MB in total. All were exported with Wikisource's own
+exporter, and each is in its original language, so no translator's rights apply:
+
+| File | Work | Language | Why it is public domain |
+|---|---|---|---|
+| `magtymguly-baglar-hey.pdf` | Magtymguly, *Baglar, heý!* | tk | Poet died c. 1807; tagged PD-old on Wikisource |
+| `poe-the-raven.pdf` | Poe, *The Raven* (1845) | en | Author died 1849 |
+| `wilde-the-happy-prince.pdf` | Wilde, *The Happy Prince* (1888) | en | Author died 1900 |
+| `chekhov-kashtanka.pdf` | Chekhov, *Каштанка* (1887) | ru | Author died 1904 |
+| `tolstoy-kavkazskiy-plennik.pdf` | Tolstoy, *Кавказский пленник* (1872) | ru | Author died 1910 |
+
+Prices are deliberately mixed (free, 1, 2 and 3 stars) so Sprint 06 has both free and priced
+books to test against. Load them with `python -m scripts.seed_fixtures`.
+
+Only one Turkmen text so far. Multilingual Wikisource has more Magtymguly poems, each a page or
+so long; add a few if the catalogue needs more Turkmen to look realistic.

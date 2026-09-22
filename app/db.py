@@ -25,7 +25,10 @@ def connect(database_path: Path | str | None = None) -> sqlite3.Connection:
     """Open a connection with this project's required pragmas already set."""
     path = Path(database_path) if database_path is not None else settings.database_path
     path.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(path)
+    # check_same_thread=False: FastAPI opens a request's connection (the get_db dependency) and
+    # runs the handler in separate thread-pool calls, which may land on different threads. Each
+    # connection still belongs to one request and is used by one thread at a time.
+    conn = sqlite3.connect(path, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA foreign_keys = ON")

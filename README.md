@@ -3,9 +3,9 @@
 A digital library for books in Turkmen. Readers browse a catalogue, spend **stars** (a
 prepaid credit) to download PDFs, and request books that are not in the library yet.
 
-Status: **Sprint 03 shipped** — runs locally with phone-number login (the code is shown on
-screen while `DEV_OTP_MODE` is on). See [`docs/03-roadmap.md`](docs/03-roadmap.md) for what's
-next.
+Status: **Sprint 04 shipped** — runs locally with phone-number login (the code is shown on
+screen while `DEV_OTP_MODE` is on) and an admin panel for uploading and publishing books. See
+[`docs/03-roadmap.md`](docs/03-roadmap.md) for what's next.
 
 ## Stack
 
@@ -24,11 +24,15 @@ Each of these is a deliberate decision with a written rationale in [`docs/adr/`]
 ## Quick start
 
 ```bash
+# System package for rendering book covers (Fedora: dnf, Debian/Ubuntu: apt)
+sudo dnf install poppler-utils
+
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env          # dev defaults: OTP shown on screen, no real SMS
 python -m scripts.migrate     # creates and migrates kitaphana.db
+python -m scripts.seed_fixtures  # optional: five public-domain placeholder books
 uvicorn app.main:app --reload
 ```
 
@@ -41,6 +45,8 @@ To make yourself an admin, log in once, then:
 ```bash
 python -m scripts.make_admin "+993 61 234567"
 ```
+
+The admin panel is at http://127.0.0.1:8000/admin (a 404 for anyone who is not an admin).
 
 ## Tests
 

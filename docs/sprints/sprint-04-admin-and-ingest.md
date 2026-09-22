@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | ⚪ Pending |
+| **Status** | 🟢 Shipped — 2026-09-23 |
 | **Phase** | 1 (usable library, codes on screen) |
 | **Milestone** | M4 — I can put a book in |
 | **Estimated time** | ~1 week (5-10 hours) |
@@ -106,15 +106,15 @@ a database seeded with at least one non-fixture book refuses with a clear error.
 
 ## Done when (sprint acceptance)
 
-- [ ] An admin uploads a PDF with metadata and sees it in the list.
-- [ ] Duplicate uploads are refused and name the existing book.
-- [ ] Files are stored by hash, fanned out into subdirectories, outside the repository.
-- [ ] Memory use is flat during a large upload.
-- [ ] Publishing state controls public visibility.
-- [ ] No admin page is reachable by a normal reader.
-- [ ] The placeholder fixtures seed cleanly through the real ingest path and the seed script
+- [x] An admin uploads a PDF with metadata and sees it in the list.
+- [x] Duplicate uploads are refused and name the existing book.
+- [x] Files are stored by hash, fanned out into subdirectories, outside the repository.
+- [x] Memory use is flat during a large upload.
+- [x] Publishing state controls public visibility.
+- [x] No admin page is reachable by a normal reader.
+- [x] The placeholder fixtures seed cleanly through the real ingest path and the seed script
       refuses to run against a database with real books already in it.
-- [ ] Verified end-to-end on localhost — deployment happens in Sprint 02's catch-up pass once
+- [x] Verified end-to-end on localhost — deployment happens in Sprint 02's catch-up pass once
       the VDS is available (see [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)).
 
 ## Tests
@@ -145,6 +145,40 @@ against the live server once Sprint 02 has happened.
 - No rich text in descriptions. Plain text.
 - Fixtures are never seeded automatically in production, and never by anything other than the
   guarded seed script.
+
+## Notes from the sprint
+
+- **Memory was not flat at first, and the cause was pypdf.** Given a *path*, `PdfReader` reads
+  the whole file into a `BytesIO` before parsing. A 150 MB upload raised the server's peak
+  memory by 150 MB. `app/pdfmeta.py` now passes an open file, which pypdf reads lazily, and a
+  test pins that. Measured afterwards: three 150 MB uploads (valid, garbage, duplicate) left
+  uvicorn's peak resident memory at 72 MB against a 71 MB idle baseline.
+- **Upload spooling goes to `MEDIA_DIR/tmp`, not `/tmp`.** Starlette spools uploads over 1 MB to
+  tempfile's directory, and `/tmp` is often tmpfs, i.e. RAM. `app/main.py` points tempfile at
+  the media disk, which also makes the final move a rename rather than a copy.
+- **Admin handlers never declare `File`/`Form` parameters.** FastAPI parses those *before*
+  dependencies run, so a non-admin could push a 200 MB body at the server before getting the
+  404. Handlers that take a body are `async def`, read the form after the guard, and hand the
+  blocking work to the thread pool. Publish and unpublish are separate body-less endpoints for
+  the same reason.
+- **Fixed a Sprint 01 bug along the way:** `connect()` now passes `check_same_thread=False`.
+  FastAPI opens the `get_db` connection and runs the handler in separate thread-pool calls,
+  which can land on different threads. Under concurrent load that raised `ProgrammingError`.
+- **Covers:** `pdftoppm` (poppler) in a subprocess, 360 px wide JPEG, about 15 KB each. It
+  runs outside the web process's memory. An uploaded cover goes through Pillow, with a
+  25-megapixel cap checked before decoding. Books without a cover get a typeset stand-in:
+  title and author on a carpet colour, or just the initial at thumbnail size.
+- **`published_books` view** (migration 003) is the one definition of "public". Sprint 05 must
+  query it, never `books` directly.
+- **Fixtures** are five Wikisource exports in Turkmen, English and Russian; see
+  `fixtures/README.md` for provenance.
+- **Frontend pass:** a new public design (madder red, göl carpet-border strip, serif headings,
+  no webfonts) and a visually separate admin (indigo bar, grey desk). The dev banner is now
+  saffron with a hazard edge, a colour nothing else on the site uses.
+- **Deliberately not done:** there is no admin preview of the stored PDF, because serving PDFs
+  through Python is ruled out (ADR-0014); Sprint 06 builds the download path. Admin search is
+  `LIKE`, which is ASCII-only for case-folding, so Cyrillic search is case-sensitive; Sprint 05
+  owns real search.
 
 ## References
 

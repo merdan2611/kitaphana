@@ -1,18 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Hasabym — Kitaphana{% endblock %}
+{% block title %}Hasabym: Kitaphana{% endblock %}
 
 {% block content %}
 <section class="form-page">
     <h1>Hasabym</h1>
     <dl class="account-details">
-        <dt>Telefon belgisi</dt>
-        <dd>{{ user.phone | phone }}</dd>
-        <dt>Ýyldyz balansy</dt>
-        <dd class="placeholder">Ýakyn wagtda goşular</dd>
+        <div>
+            <dt>Telefon belgisi</dt>
+            <dd>{{ user.phone | phone }}</dd>
+        </div>
+        <div>
+            <dt>Ýyldyz balansy</dt>
+            <dd class="placeholder">ýakyn wagtda</dd>
+        </div>
     </dl>
     <form method="post" action="/logout">
-        <button type="submit">Çykyş</button>
+        <button class="button-quiet" type="submit">Çykyş</button>
     </form>
 </section>
 {% endblock %}

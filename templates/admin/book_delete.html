@@ -1,0 +1,21 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import cover %}
+
+{% block title %}Kitaby pozmak: dolandyryş{% endblock %}
+
+{% block content %}
+<section class="panel confirm-panel">
+    <div class="confirm-cover">{{ cover(book, eager=true) }}</div>
+    <div>
+        <h1>«{{ book.title }}» pozulsynmy?</h1>
+        <p>Kitap katalogdan aýrylýar we onuň PDF faýly ({{ book.file_size | filesize }}) diskden
+            pozulýar. Muny yzyna gaýtaryp bolmaýar.</p>
+        <div class="form-actions">
+            <form method="post" action="/admin/books/{{ book.id }}/delete">
+                <button type="submit" class="button-danger">Hawa, poz</button>
+            </form>
+            <a href="/admin/books/{{ book.id }}">Ýok, yzyna</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

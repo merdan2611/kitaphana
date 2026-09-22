@@ -11,7 +11,7 @@ from app.main import app
 
 
 @pytest.fixture(autouse=True)
-def test_settings(monkeypatch):
+def test_settings(monkeypatch, tmp_path):
     """Pin the settings tests rely on, so a developer's local .env cannot change results.
 
     Returns a function that overrides further fields for one test.
@@ -28,6 +28,8 @@ def test_settings(monkeypatch):
         otp_limits_per_phone=((3, 600), (10, 86400)),
         otp_limits_per_ip=((10, 600), (50, 86400)),
         session_ttl_days=180,
+        media_dir=tmp_path / "media",
+        max_upload_mb=200,
     )
     return override
 

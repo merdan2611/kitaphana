@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import cover %}
+
+{% block title %}Dolandyryş: Kitaphana{% endblock %}
+
+{% block content %}
+<div class="admin-heading">
+    <h1>Umumy</h1>
+    <a class="button" href="/admin/books/new">Kitap goş</a>
+</div>
+
+<dl class="admin-counts">
+    <div><dt>Ähli kitaplar</dt><dd>{{ total }}</dd></div>
+    <div><dt>Neşir edilen</dt><dd>{{ published }}</dd></div>
+    <div>
+        <dt>Garalama</dt>
+        <dd>{% if drafts %}<a href="/admin/books?status=draft">{{ drafts }}</a>{% else %}0{% endif %}</dd>
+    </div>
+</dl>
+
+<section class="panel">
+    <h2>Soňky goşulanlar</h2>
+    {% if recent %}
+    <ul class="book-rows">
+        {% for book in recent %}
+        <li>
+            <a class="book-row" href="/admin/books/{{ book.id }}">
+                <span class="book-row-cover">{{ cover(book) }}</span>
+                <span class="book-row-text">
+                    <strong>{{ book.title }}</strong>
+                    <span>{{ book.author or "Awtor görkezilmedik" }}</span>
+                </span>
+                {% if book.is_published %}<span class="badge badge-live">Neşir edilen</span>
+                {% else %}<span class="badge">Garalama</span>{% endif %}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    <p class="panel-foot"><a href="/admin/books">Ähli kitaplar</a></p>
+    {% else %}
+    <p>Kitaphana entek boş. Ilkinji PDF-i ýükläň ýa-da ösüş üçin
+        <code>python -m scripts.seed_fixtures</code> işlediň.</p>
+    {% endif %}
+</section>
+{% endblock %}

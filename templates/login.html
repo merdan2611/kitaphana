@@ -1,41 +1,44 @@
 {% extends "base.html" %}
 
-{% block title %}Giriş — Kitaphana{% endblock %}
+{% block title %}Giriş: Kitaphana{% endblock %}
 
 {% block content %}
 <section class="form-page">
-    <h1>Giriş</h1>
-
-    {% if error %}
-    <p class="form-error" role="alert">{{ error }}</p>
-    {% endif %}
-
     {% if step == "code" %}
-    <p><strong>{{ phone | phone }}</strong> belgisi üçin giriş kody döredildi.</p>
+    <h1>Kody giriziň</h1>
+    <p class="lead"><strong>{{ phone | phone }}</strong> belgisi üçin 6 sanly kod döredildi.</p>
+
+    {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
 
     {% if shown_code %}
     <div class="dev-code">
-        <span class="dev-code-label">Giriş kodyňyz (ösüş tertibi):</span>
+        <span class="dev-code-label">Ösüş tertibinde kod SMS-iň ýerine şu ýerde görkezilýär:</span>
         <span class="dev-code-value">{{ shown_code }}</span>
     </div>
     {% endif %}
 
     <form method="post" action="/login/verify" class="stack-form">
         <input type="hidden" name="phone" value="{{ phone }}">
-        <label for="code">6 sanly kod</label>
-        <input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code"
-               pattern="[0-9 ]*" maxlength="7" required autofocus>
+        <label for="code">Kod</label>
+        <input id="code" class="code-input" name="code" type="text" inputmode="numeric"
+               autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="7" required autofocus>
         <button type="submit">Gir</button>
     </form>
 
-    <form method="post" action="/login" class="stack-form secondary-form">
-        <input type="hidden" name="phone" value="{{ phone }}">
-        <button class="link-button" type="submit">Täze kod sora</button>
-    </form>
-    <p><a href="/login">Başga belgi bilen gir</a></p>
+    <div class="form-aside">
+        <form method="post" action="/login" class="inline-form">
+            <input type="hidden" name="phone" value="{{ phone }}">
+            <button class="link-button" type="submit">Täze kod sora</button>
+        </form>
+        <a href="/login">Başga belgi bilen gir</a>
+    </div>
 
     {% else %}
-    <p>Telefon belgiňizi giriziň. Hasabyňyz ýok bolsa, ol awtomatik döredilýär.</p>
+    <h1>Giriş</h1>
+    <p class="lead">Telefon belgiňizi giriziň. Hasabyňyz ýok bolsa, ol şu wagt döredilýär: parol gerek däl.</p>
+
+    {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+
     <form method="post" action="/login" class="stack-form">
         <label for="phone">Telefon belgisi</label>
         <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel"

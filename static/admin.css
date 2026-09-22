@@ -1,0 +1,534 @@
+/* Admin panel. Loaded only by templates/admin/base.html, on top of style.css.
+   Deliberately unlike the public site — indigo bar, grey desk, denser type — so it is never
+   unclear which side you are on. */
+
+body.admin {
+    background: var(--surface);
+}
+
+.admin-bar {
+    background: var(--indigo);
+    color: var(--paper);
+}
+
+.admin-bar-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0.75rem var(--space-2);
+}
+
+.admin-bar a {
+    color: var(--paper);
+    text-decoration: none;
+}
+
+.admin-brand {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: var(--step-1);
+}
+
+.admin-brand span {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: var(--step-0);
+    opacity: 0.75;
+}
+
+.admin-nav {
+    display: flex;
+    gap: var(--space-2);
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-nav a {
+    padding: 0.35rem 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    opacity: 0.85;
+}
+
+.admin-nav a:hover,
+.admin-nav a[aria-current="page"] {
+    opacity: 1;
+    border-bottom-color: var(--saffron);
+}
+
+.admin-exit {
+    margin-left: auto;
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+.admin-content {
+    max-width: 72rem;
+    padding-top: var(--space-3);
+}
+
+.admin h1 {
+    font-size: var(--step-2);
+    margin: 0;
+}
+
+.admin h2 {
+    font-size: var(--step-1);
+}
+
+.admin-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+}
+
+.breadcrumb {
+    margin: 0 0 var(--space-1);
+    font-size: 0.9rem;
+}
+
+.breadcrumb a::before {
+    content: "‹ ";
+}
+
+.panel {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: var(--space-3) var(--space-2);
+    margin-bottom: var(--space-3);
+}
+
+.panel-foot {
+    margin: var(--space-2) 0 0;
+}
+
+.button {
+    padding: 0.6rem 1rem;
+}
+
+.admin button:not(.link-button) {
+    padding: 0.6rem 1rem;
+}
+
+.button-danger {
+    background: var(--madder);
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: var(--line);
+    color: var(--ink);
+    font-size: var(--step--1);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge-live {
+    background: var(--ok-bg);
+    color: var(--pistachio);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+code {
+    font-size: 0.9em;
+    background: var(--surface);
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+}
+
+/* --- Index ----------------------------------------------------------------------------------- */
+
+.admin-counts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-1);
+    margin: 0 0 var(--space-3);
+}
+
+.admin-counts div {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0.75rem var(--space-2);
+}
+
+.admin-counts dt {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.admin-counts dd {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: var(--step-2);
+    font-weight: 700;
+}
+
+.book-rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.book-row {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr auto;
+    gap: var(--space-2);
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.book-rows li:last-child .book-row {
+    border-bottom: 0;
+}
+
+.book-row:hover strong {
+    color: var(--madder);
+    text-decoration: underline;
+}
+
+.book-row-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.book-row-text span {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+/* --- Book list ------------------------------------------------------------------------------- */
+
+.filter-bar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-1);
+    margin-bottom: var(--space-2);
+}
+
+.filter-bar input {
+    grid-column: 1 / -1;
+}
+
+.result-count {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.book-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+.book-table th {
+    text-align: left;
+    font-size: var(--step--1);
+    color: var(--muted);
+    font-weight: 600;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.book-table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+}
+
+.book-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.book-table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.book-table-cover {
+    width: 3.5rem;
+}
+
+.book-table-cover .cover {
+    width: 2.75rem;
+}
+
+.book-table-title a {
+    font-weight: 600;
+}
+
+.book-table-title span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+/* On a phone the table becomes a stack of rows: cover on the left, everything else beside it. */
+@media (max-width: 40rem) {
+    .book-table thead {
+        display: none;
+    }
+
+    .book-table,
+    .book-table tbody {
+        display: block;
+    }
+
+    .book-table tr {
+        display: grid;
+        grid-template-columns: 3.5rem 1fr;
+        column-gap: var(--space-2);
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .book-table tr:last-child {
+        border-bottom: 0;
+    }
+
+    .book-table td {
+        padding: 0;
+        border: 0;
+        grid-column: 2;
+        text-align: left !important;
+        font-size: 0.9rem;
+    }
+
+    .book-table td.book-table-cover {
+        grid-column: 1;
+        grid-row: 1 / span 4;
+    }
+
+    .book-table td[data-label]::before {
+        content: attr(data-label) ": ";
+        color: var(--muted);
+    }
+
+    .book-table-title {
+        margin-bottom: 0.25rem;
+    }
+}
+
+.pager {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3);
+    margin: var(--space-3) 0;
+}
+
+.empty {
+    padding: var(--space-4) var(--space-2);
+    text-align: center;
+    background: var(--paper);
+    border: 1px dashed var(--line);
+    border-radius: var(--radius);
+}
+
+/* --- Forms ----------------------------------------------------------------------------------- */
+
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.field-row {
+    display: grid;
+    gap: var(--space-2);
+}
+
+.field-hint {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.field-invalid input,
+.field-invalid select,
+.field-invalid textarea {
+    border-color: var(--madder);
+}
+
+input[type="file"] {
+    font: inherit;
+    font-size: 0.95rem;
+    max-width: 100%;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.form-actions form {
+    margin: 0;
+}
+
+.upload-progress {
+    flex: 1;
+    min-width: 8rem;
+    height: 0.6rem;
+    accent-color: var(--indigo);
+}
+
+.upload-status {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+/* --- Edit ------------------------------------------------------------------------------------ */
+
+.edit-layout {
+    display: grid;
+    gap: var(--space-3);
+}
+
+/* On a phone the form comes first: editing is why you opened the page. */
+.edit-main {
+    order: -1;
+}
+
+.edit-cover {
+    width: 9rem;
+    margin-bottom: var(--space-2);
+}
+
+.cover-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: var(--space-1);
+}
+
+.file-facts {
+    margin: var(--space-3) 0 0;
+    font-size: 0.9rem;
+}
+
+.file-facts div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.file-facts dt {
+    color: var(--muted);
+}
+
+.file-facts dd {
+    margin: 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.publish-panel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-2);
+}
+
+.publish-panel p,
+.publish-panel form {
+    margin: 0;
+}
+
+.danger-link a {
+    color: var(--madder);
+    font-size: 0.9rem;
+}
+
+.confirm-panel {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: var(--space-3);
+    align-items: start;
+    max-width: 40rem;
+}
+
+.confirm-panel h1 {
+    margin-bottom: var(--space-2);
+}
+
+@media (min-width: 48rem) {
+    .admin-bar-inner {
+        flex-wrap: nowrap;
+        padding: 0.75rem var(--space-4);
+    }
+
+    .admin-nav {
+        order: 0;
+        width: auto;
+    }
+
+    .admin-content {
+        padding-left: var(--space-4);
+        padding-right: var(--space-4);
+    }
+
+    .filter-bar {
+        grid-template-columns: 1fr 12rem auto;
+    }
+
+    .filter-bar input {
+        grid-column: auto;
+    }
+
+    .field-row {
+        grid-template-columns: 1fr 1.4fr 1fr;
+    }
+
+    .edit-layout {
+        grid-template-columns: 15rem 1fr;
+        align-items: start;
+    }
+
+    .edit-main {
+        order: 0;
+    }
+
+    .edit-cover {
+        width: 100%;
+    }
+
+    .panel {
+        padding: var(--space-3);
+    }
+}

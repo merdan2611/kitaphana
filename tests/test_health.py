@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from app.db import MIGRATIONS_DIR
+
+LATEST_MIGRATION = max(int(p.name.split("-", 1)[0]) for p in MIGRATIONS_DIR.glob("*.sql"))
+
 
 def test_health_reports_ok_status_migration_and_version(client):
     response = client.get("/health")
@@ -7,7 +11,7 @@ def test_health_reports_ok_status_migration_and_version(client):
     assert response.status_code == 200
     body = response.json()
     assert body["status"] == "ok"
-    assert body["migration"] == 2
+    assert body["migration"] == LATEST_MIGRATION
     assert body["version"]
 
 

@@ -2,20 +2,20 @@
 
 **The "where am I?" file. Open this first in every session.**
 
-Sprint 01 has shipped: the skeleton runs locally. Sprint 03 has shipped: you can log in with a phone number. Sprint 04 — Admin and ingest is
-next.
+Sprint 01 has shipped: the skeleton runs locally. Sprint 04 has shipped: an admin can put books into the library. Sprint 05 — Public catalogue
+is next.
 
 ## Current sprint
 
 | | |
 |---|---|
-| **Sprint** | S04 — Admin and ingest |
+| **Sprint** | S05 — Public catalogue |
 | **Status** | ⚪ Pending |
 | **Started** | — |
 | **Phase** | 1 (usable library, codes on screen) |
-| **Sprint doc** | [`sprints/sprint-04-admin-and-ingest.md`](sprints/sprint-04-admin-and-ingest.md) |
-| **Milestone** | M4 — I can put a book in |
-| **Next up** | S05 — Public catalogue (S02 runs whenever the VDS is available — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)) |
+| **Sprint doc** | [`sprints/sprint-05-public-catalogue.md`](sprints/sprint-05-public-catalogue.md) |
+| **Milestone** | M5 — I can find a book |
+| **Next up** | S06 — Stars and downloads (S02 runs whenever the VDS is available — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)) |
 
 ## Phase 1 sprints
 
@@ -26,7 +26,7 @@ next.
 | 01 | [Foundations](sprints/sprint-01-foundations.md) | 🟢 Shipped | 2026-09-21 | M1 | …run the app locally and see a page |
 | 02 | [Production ground](sprints/sprint-02-production-ground.md) | 🔴 Blocked — VDS not yet purchased | — | M2 | …open the real domain over HTTPS |
 | 03 | [Accounts](sprints/sprint-03-accounts.md) | 🟢 Shipped | 2026-09-23 | M3 | …sign up with a phone number and stay logged in |
-| 04 | [Admin and ingest](sprints/sprint-04-admin-and-ingest.md) | ⚪ Pending | — | M4 | …put a book into the library |
+| 04 | [Admin and ingest](sprints/sprint-04-admin-and-ingest.md) | 🟢 Shipped | 2026-09-23 | M4 | …put a book into the library |
 | 05 | [Public catalogue](sprints/sprint-05-public-catalogue.md) | ⚪ Pending | — | M5 | …find that book by searching |
 | 06 | [Stars and downloads](sprints/sprint-06-stars-and-downloads.md) | ⚪ Pending | — | M6 | …spend stars and get the PDF |
 | 07 | [Requests](sprints/sprint-07-requests.md) | ⚪ Pending | — | M7 | …ask for a missing book and upvote others |
@@ -83,6 +83,15 @@ If a sprint is 🔴 Blocked, say what it is blocked on in the status cell and op
 ## Shipped log
 
 *Newest first.*
+
+- **2026-09-23** — Sprint 04 (Admin and ingest) shipped. An admin uploads a PDF from the
+  browser with a progress bar. It is stored by SHA-256 under a fanned-out path, gets a cover
+  rendered from its first page, and lands as an unpublished draft with title and author taken
+  from the file's own metadata. The same file uploaded twice is refused, naming the book it
+  duplicates. Books can be searched, edited, priced, published, given a new cover, and deleted
+  after a confirmation. `python -m scripts.seed_fixtures` loads five public-domain books through
+  the same path and refuses to touch a database holding real books. Server memory stays flat
+  during a 150 MB upload. The public pages and the admin got their first real design.
 
 - **2026-09-23** — Sprint 03 (Accounts) shipped. You can sign up or log in with a Turkmen phone
   number typed any common way, get a six-digit code on screen, and stay logged in across browser

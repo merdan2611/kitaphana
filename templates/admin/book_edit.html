@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import cover %}
+
+{% block title %}{{ book.title }}: dolandyryş{% endblock %}
+
+{% block content %}
+<p class="breadcrumb"><a href="/admin/books">Kitaplar</a></p>
+<div class="admin-heading">
+    <h1>{{ book.title }}</h1>
+    {% if book.is_published %}<span class="badge badge-live">Neşir edilen</span>
+    {% else %}<span class="badge">Garalama</span>{% endif %}
+</div>
+
+{% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
+
+<div class="edit-layout">
+    <aside class="edit-side">
+        <div class="edit-cover">{{ cover(book, eager=true) }}</div>
+
+        {% if cover_error %}<p class="field-error">{{ cover_error }}</p>{% endif %}
+        <form method="post" action="/admin/books/{{ book.id }}/cover" enctype="multipart/form-data" class="cover-form">
+            <label for="f-cover">Daşlyk suraty</label>
+            <input id="f-cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" required>
+            <button type="submit" class="button-quiet">Suraty goý</button>
+        </form>
+        <form method="post" action="/admin/books/{{ book.id }}/cover/render">
+            <button type="submit" class="link-button">Birinji sahypadan täzeden döret</button>
+        </form>
+
+        <dl class="file-facts">
+            <div><dt>Faýl</dt><dd>{{ book.original_filename or "—" }}</dd></div>
+            <div><dt>Ölçegi</dt><dd>{{ book.file_size | filesize }}</dd></div>
+            <div><dt>Sahypa</dt><dd>{{ book.page_count or "—" }}</dd></div>
+            <div><dt>SHA-256</dt><dd><code title="{{ book.content_hash }}">{{ book.content_hash[:12] }}…</code></dd></div>
+            <div><dt>Goşuldy</dt><dd>{{ book.created_at[:10] }}</dd></div>
+        </dl>
+    </aside>
+
+    <div class="edit-main">
+        <section class="panel publish-panel">
+            {% if book.is_published %}
+            <p>Okyjylar bu kitaby görýär.</p>
+            <form method="post" action="/admin/books/{{ book.id }}/unpublish">
+                <button type="submit" class="button-quiet">Neşirden aýyr</button>
+            </form>
+            {% else %}
+            <p>Garalama: okyjylar bu kitaby görmeýär.</p>
+            <form method="post" action="/admin/books/{{ book.id }}/publish">
+                <button type="submit">Neşir et</button>
+            </form>
+            {% endif %}
+        </section>
+
+        <form class="panel admin-form" method="post" action="/admin/books/{{ book.id }}">
+            {% set title_hint = ("PDF-de: «" ~ embedded.title ~ "»") if embedded.title and embedded.title != values.get('title') else None %}
+            {% set author_hint = ("PDF-de: «" ~ embedded.author ~ "»") if embedded.author and embedded.author != values.get('author') else None %}
+            {% include "admin/_book_fields.html" %}
+            <div class="form-actions">
+                <button type="submit">Ýatda sakla</button>
+            </div>
+        </form>
+
+        <p class="danger-link"><a href="/admin/books/{{ book.id }}/delete">Bu kitaby poz</a></p>
+    </div>
+</div>
+{% endblock %}

@@ -56,7 +56,8 @@ embarrassment.
 
 ### 2. Server baseline
 
-Create an unprivileged `kitaphana` user. Install Python, nginx, git, sqlite3 and certbot. Set up
+Create an unprivileged `kitaphana` user. Install Python, nginx, git, sqlite3, certbot and
+`poppler-utils` (Sprint 04 renders book covers with its `pdftoppm`). Set up
 the directory layout: application at `/srv/kitaphana`, media outside it, backups outside it.
 Enable a firewall allowing only SSH, 80 and 443. Disable SSH password authentication in favour
 of keys.
@@ -91,6 +92,10 @@ A site configuration that proxies to uvicorn, serves `/static/` directly from di
 sensible upload size limit (large enough for the biggest PDF you expect), and defines the
 `internal` location for media that [ADR-0014](../adr/0014-x-accel-redirect-for-downloads.md)
 will need in Sprint 06. Defining it now costs nothing and means Sprint 06 does not touch nginx.
+
+Set `client_max_body_size` a little above `MAX_UPLOAD_MB` (default 200 MB), or nginx refuses
+large admin uploads before the app sees them. `/covers/` can be aliased to `MEDIA_DIR/covers/`
+so nginx serves cover images directly; the app's own `/covers/` route is the local fallback.
 
 Set `proxy_set_header X-Forwarded-For $remote_addr;` and `X-Forwarded-Proto $scheme` on the
 proxied location. Sprint 03's per-address rate limit on login codes reads the client address,

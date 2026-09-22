@@ -343,16 +343,16 @@ def test_no_code_or_session_token_is_readable_in_the_database(client, db):
 
 def test_banner_is_on_every_page_in_dev_mode(client):
     for path in ("/", "/login"):
-        assert "ÖSÜŞ TERTIBI" in client.get(path).text
+        assert "Ösüş tertibi" in client.get(path).text
     login(client)
-    assert "ÖSÜŞ TERTIBI" in client.get("/account").text
+    assert "Ösüş tertibi" in client.get("/account").text
 
 
 def test_banner_vanishes_entirely_when_dev_mode_is_off(client, test_settings):
     test_settings(dev_otp_mode=False)
     for path in ("/", "/login"):
         text = client.get(path).text
-        assert "ÖSÜŞ TERTIBI" not in text
+        assert "Ösüş tertibi" not in text
         assert "dev-banner" not in text
 
 
