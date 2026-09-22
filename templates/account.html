@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Hasabym — Kitaphana{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <h1>Hasabym</h1>
+    <dl class="account-details">
+        <dt>Telefon belgisi</dt>
+        <dd>{{ user.phone | phone }}</dd>
+        <dt>Ýyldyz balansy</dt>
+        <dd class="placeholder">Ýakyn wagtda goşular</dd>
+    </dl>
+    <form method="post" action="/logout">
+        <button type="submit">Çykyş</button>
+    </form>
+</section>
+{% endblock %}

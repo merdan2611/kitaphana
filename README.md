@@ -3,9 +3,9 @@
 A digital library for books in Turkmen. Readers browse a catalogue, spend **stars** (a
 prepaid credit) to download PDFs, and request books that are not in the library yet.
 
-Status: **Sprint 01 shipped** — the skeleton runs locally: a home page, a health check, and a
-migrated SQLite database. Nothing user-facing yet; see
-[`docs/03-roadmap.md`](docs/03-roadmap.md) for what's next.
+Status: **Sprint 03 shipped** — runs locally with phone-number login (the code is shown on
+screen while `DEV_OTP_MODE` is on). See [`docs/03-roadmap.md`](docs/03-roadmap.md) for what's
+next.
 
 ## Stack
 
@@ -32,7 +32,15 @@ python -m scripts.migrate     # creates and migrates kitaphana.db
 uvicorn app.main:app --reload
 ```
 
-Then open http://127.0.0.1:8000, or check http://127.0.0.1:8000/health.
+Then open http://127.0.0.1:8000, or check http://127.0.0.1:8000/health. Use `localhost` or
+`127.0.0.1` rather than a LAN address: the session cookie is `Secure`, and browsers accept that
+over plain HTTP only for those two.
+
+To make yourself an admin, log in once, then:
+
+```bash
+python -m scripts.make_admin "+993 61 234567"
+```
 
 ## Tests
 

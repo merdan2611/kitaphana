@@ -7,7 +7,7 @@ def test_health_reports_ok_status_migration_and_version(client):
     assert response.status_code == 200
     body = response.json()
     assert body["status"] == "ok"
-    assert body["migration"] == 1
+    assert body["migration"] == 2
     assert body["version"]
 
 

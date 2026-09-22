@@ -10,6 +10,7 @@ once, here, and followed everywhere else in the project.
 from __future__ import annotations
 
 import sqlite3
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
 
@@ -30,6 +31,15 @@ def connect(database_path: Path | str | None = None) -> sqlite3.Connection:
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute(f"PRAGMA busy_timeout = {BUSY_TIMEOUT_MS}")
     return conn
+
+
+def timestamp(offset: timedelta = timedelta()) -> str:
+    """UTC now (plus `offset`) in the same text format as SQLite's datetime('now').
+
+    Every stored time uses this one format, so comparing them as strings in SQL is correct.
+    """
+    moment = datetime.now(timezone.utc) + offset
+    return moment.strftime("%Y-%m-%d %H:%M:%S")
 
 
 def get_db() -> Iterator[sqlite3.Connection]:

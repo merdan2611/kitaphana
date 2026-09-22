@@ -9,8 +9,11 @@
     --color-accent: #7a4a2b;
     --color-accent-contrast: #fdfcfb;
     --color-border: #e2d9d0;
-    --color-banner-bg: #fff4d6;
-    --color-banner-text: #5c4a12;
+    --color-banner-bg: #b3261e;
+    --color-banner-text: #ffffff;
+    --color-error-bg: #fdecea;
+    --color-error-text: #8c1d18;
+    --color-code-bg: #fff4d6;
     --space-1: 0.5rem;
     --space-2: 1rem;
     --space-3: 1.5rem;
@@ -42,6 +45,14 @@ a {
 .site-nav {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+}
+
+.site-nav-links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
 }
 
 .site-title {
@@ -51,7 +62,12 @@ a {
     color: var(--color-text);
 }
 
+/* Deliberately loud (ADR-0013): dev-OTP mode must never run quietly. Sticky, so it stays
+   on screen while scrolling. */
 .dev-banner {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     margin: 0;
     padding: var(--space-1) var(--space-2);
     background: var(--color-banner-bg);
@@ -81,6 +97,90 @@ a {
 
 .hero p {
     color: var(--color-muted);
+}
+
+.form-page h1 {
+    font-size: 1.5rem;
+    margin-top: 0;
+}
+
+.stack-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin: var(--space-2) 0;
+}
+
+.stack-form input {
+    font: inherit;
+    font-size: 1.1rem;
+    padding: 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+}
+
+button {
+    font: inherit;
+    padding: 0.6rem var(--space-2);
+    border: 0;
+    border-radius: 4px;
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+    cursor: pointer;
+}
+
+.inline-form {
+    display: inline;
+    margin: 0;
+}
+
+.link-button {
+    padding: 0;
+    background: none;
+    color: var(--color-accent);
+    text-decoration: underline;
+}
+
+.secondary-form {
+    align-items: flex-start;
+}
+
+.form-error {
+    padding: var(--space-1) var(--space-2);
+    background: var(--color-error-bg);
+    color: var(--color-error-text);
+    border-radius: 4px;
+}
+
+.dev-code {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-2);
+    background: var(--color-code-bg);
+    border: 2px dashed var(--color-banner-bg);
+    border-radius: 4px;
+}
+
+.dev-code-value {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    font-variant-numeric: tabular-nums;
+}
+
+.account-details dt {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+}
+
+.account-details dd {
+    margin: 0 0 var(--space-2);
+    font-size: 1.1rem;
+}
+
+.placeholder {
+    color: var(--color-muted);
+    font-style: italic;
 }
 
 @media (min-width: 48rem) {

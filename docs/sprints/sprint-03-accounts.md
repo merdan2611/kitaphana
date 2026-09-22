@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | ⚪ Pending |
+| **Status** | 🟢 Shipped — 2026-09-23 |
 | **Phase** | 1 (usable library, codes on screen) |
 | **Milestone** | M3 — I can log in |
 | **Estimated time** | ~1 week (5-10 hours) |
@@ -113,13 +113,13 @@ the page exists.
 
 ## Done when (sprint acceptance)
 
-- [ ] A new number becomes an account through the on-screen code with no other step.
-- [ ] Sessions persist across browser restarts and end properly on logout.
-- [ ] Codes expire, cannot be reused, and cannot be brute-forced.
-- [ ] Rate limits fire and say so clearly.
-- [ ] No code or session token is readable in the database.
-- [ ] The dev-mode banner is visible on every page, and vanishes when the flag is off.
-- [ ] Verified end-to-end on localhost — deployment happens in Sprint 02's catch-up pass once the VDS is available (see [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)).
+- [x] A new number becomes an account through the on-screen code with no other step.
+- [x] Sessions persist across browser restarts and end properly on logout.
+- [x] Codes expire, cannot be reused, and cannot be brute-forced.
+- [x] Rate limits fire and say so clearly.
+- [x] No code or session token is readable in the database.
+- [x] The dev-mode banner is visible on every page, and vanishes when the flag is off.
+- [x] Verified end-to-end on localhost — deployment happens in Sprint 02's catch-up pass once the VDS is available (see [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)).
 
 ## Tests
 
@@ -146,6 +146,31 @@ the page exists.
 - No profile: no name, no avatar, no preferences.
 - No admin pages yet — only the flag and the guard.
 - No stars. The balance placeholder stays a placeholder until Sprint 06.
+
+## Notes from the sprint
+
+- **One file more than planned:** `app/templating.py` holds the shared `Jinja2Templates`
+  with a context processor, so `dev_otp_mode` and `current_user` reach every page without each
+  handler passing them. That is what makes "the banner is on every page" true by construction.
+  `current_user` runs as an app-wide dependency for the same reason.
+- **Admin flag:** `python -m scripts.make_admin "+993 6X XXXXXX"` (`--revoke` to undo). It
+  normalises the number like the login form does, and refuses unknown numbers so a typo cannot
+  create an admin nobody owns. The user must have logged in once first.
+- **Mobile prefixes** accepted are `6X` and `71`. This is deliberately broad: rejecting a real
+  reader costs more than accepting an unassigned prefix. Tighten `_MOBILE` in `app/phone.py` if
+  it turns out to matter.
+- **Codes are HMAC'd with `SECRET_KEY`**, not plainly hashed. A plain hash of a six-digit code
+  can be reversed by trying all million values. The cost: rotating `SECRET_KEY` invalidates
+  outstanding codes and every session, which is acceptable.
+- **The `otp_codes` table doubles as the rate-limit log.** Rows older than the longest window
+  are pruned on each code request, so it stays small without a cron job.
+- **Session cookie is `Secure`**, which works on `http://localhost` and `http://127.0.0.1`
+  because browsers treat those as secure. `COOKIE_SECURE=false` exists only for testing from
+  another device on the LAN over plain HTTP.
+- **Sprint 02 gained a line**: nginx must pass `X-Forwarded-For`, or the per-address limit sees
+  every reader as 127.0.0.1.
+- **Not verified yet:** everything behind real HTTPS and nginx. That waits for Sprint 02's
+  catch-up pass.
 
 ## References
 

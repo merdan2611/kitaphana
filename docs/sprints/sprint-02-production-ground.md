@@ -92,8 +92,15 @@ sensible upload size limit (large enough for the biggest PDF you expect), and de
 `internal` location for media that [ADR-0014](../adr/0014-x-accel-redirect-for-downloads.md)
 will need in Sprint 06. Defining it now costs nothing and means Sprint 06 does not touch nginx.
 
+Set `proxy_set_header X-Forwarded-For $remote_addr;` and `X-Forwarded-Proto $scheme` on the
+proxied location. Sprint 03's per-address rate limit on login codes reads the client address,
+which uvicorn only takes from that header when the request comes from 127.0.0.1 (its default
+`--forwarded-allow-ips`). Without it every reader appears to come from 127.0.0.1 and one busy
+hour locks everyone out of logging in at once.
+
 **Done when:** the site answers on port 80 through nginx, static files are served by nginx
-rather than the application, and `nginx -t` passes.
+rather than the application, `nginx -t` passes, and a code request logs the real client
+address in `otp_codes.request_ip`, not 127.0.0.1.
 
 ### 6. TLS
 

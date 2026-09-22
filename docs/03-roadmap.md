@@ -2,19 +2,20 @@
 
 **The "where am I?" file. Open this first in every session.**
 
-Sprint 01 has shipped: the skeleton runs locally. Sprint 03 — Accounts is next.
+Sprint 01 has shipped: the skeleton runs locally. Sprint 03 has shipped: you can log in with a phone number. Sprint 04 — Admin and ingest is
+next.
 
 ## Current sprint
 
 | | |
 |---|---|
-| **Sprint** | S03 — Accounts |
+| **Sprint** | S04 — Admin and ingest |
 | **Status** | ⚪ Pending |
 | **Started** | — |
 | **Phase** | 1 (usable library, codes on screen) |
-| **Sprint doc** | [`sprints/sprint-03-accounts.md`](sprints/sprint-03-accounts.md) |
-| **Milestone** | M3 — I can log in |
-| **Next up** | S04 — Admin and ingest (S02 runs whenever the VDS is available — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)) |
+| **Sprint doc** | [`sprints/sprint-04-admin-and-ingest.md`](sprints/sprint-04-admin-and-ingest.md) |
+| **Milestone** | M4 — I can put a book in |
+| **Next up** | S05 — Public catalogue (S02 runs whenever the VDS is available — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)) |
 
 ## Phase 1 sprints
 
@@ -24,7 +25,7 @@ Sprint 01 has shipped: the skeleton runs locally. Sprint 03 — Accounts is next
 |---|---|---|---|---|---|
 | 01 | [Foundations](sprints/sprint-01-foundations.md) | 🟢 Shipped | 2026-09-21 | M1 | …run the app locally and see a page |
 | 02 | [Production ground](sprints/sprint-02-production-ground.md) | 🔴 Blocked — VDS not yet purchased | — | M2 | …open the real domain over HTTPS |
-| 03 | [Accounts](sprints/sprint-03-accounts.md) | ⚪ Pending | — | M3 | …sign up with a phone number and stay logged in |
+| 03 | [Accounts](sprints/sprint-03-accounts.md) | 🟢 Shipped | 2026-09-23 | M3 | …sign up with a phone number and stay logged in |
 | 04 | [Admin and ingest](sprints/sprint-04-admin-and-ingest.md) | ⚪ Pending | — | M4 | …put a book into the library |
 | 05 | [Public catalogue](sprints/sprint-05-public-catalogue.md) | ⚪ Pending | — | M5 | …find that book by searching |
 | 06 | [Stars and downloads](sprints/sprint-06-stars-and-downloads.md) | ⚪ Pending | — | M6 | …spend stars and get the PDF |
@@ -82,6 +83,13 @@ If a sprint is 🔴 Blocked, say what it is blocked on in the status cell and op
 ## Shipped log
 
 *Newest first.*
+
+- **2026-09-23** — Sprint 03 (Accounts) shipped. You can sign up or log in with a Turkmen phone
+  number typed any common way, get a six-digit code on screen, and stay logged in across browser
+  restarts for 180 days. Wrong codes burn after five tries, code requests are rate-limited per
+  number and per address, and codes and session tokens are only stored hashed. A loud banner
+  marks dev-OTP mode on every page. `python -m scripts.make_admin` sets the admin flag that
+  Sprint 04's pages will check.
 
 - **2026-09-21** — Sprint 01 (Foundations) shipped. `uvicorn app.main:app` serves a home page
   through the real base layout, `GET /health` reports the applied migration number, and SQLite

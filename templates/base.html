@@ -7,17 +7,28 @@
     <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
 </head>
 <body>
+    {% if dev_otp_mode %}
+    <div class="dev-banner" role="alert">
+        <strong>ÖSÜŞ TERTIBI</strong> — giriş kodlary SMS bilen iberilmeýär, ekranda görkezilýär.
+        Bu hakyky goragly giriş däl: saýt diňe çakylyk boýunça.
+    </div>
+    {% endif %}
+
     <header class="site-header">
         <nav class="site-nav">
             <a class="site-title" href="/">Kitaphana</a>
+            <div class="site-nav-links">
+                {% if current_user %}
+                <a href="/account">Hasabym</a>
+                <form class="inline-form" method="post" action="/logout">
+                    <button class="link-button" type="submit">Çykyş</button>
+                </form>
+                {% else %}
+                <a href="/login">Giriş</a>
+                {% endif %}
+            </div>
         </nav>
     </header>
-
-    {% if dev_otp_mode %}
-    <p class="dev-banner">
-        ÖSÜŞ TERTIBI: giriş kody SMS bilen iberilmeýär, ekranda görkezilýär.
-    </p>
-    {% endif %}
 
     <main class="site-content">
         {% block content %}{% endblock %}
