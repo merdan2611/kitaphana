@@ -175,6 +175,8 @@ against the live server once Sprint 02 has happened.
 - **Frontend pass:** a new public design (madder red, göl carpet-border strip, serif headings,
   no webfonts) and a visually separate admin (indigo bar, grey desk). The dev banner is now
   saffron with a hazard edge, a colour nothing else on the site uses.
+  *Replaced the same day:* the owner preferred classic colours and asked for separate website
+  and phone designs — see [ADR-0018](../adr/0018-responsive-website-and-phone-layout.md).
 - **Deliberately not done:** there is no admin preview of the stored PDF, because serving PDFs
   through Python is ruled out (ADR-0014); Sprint 06 builds the download path. Admin search is
   `LIKE`, which is ASCII-only for case-folding, so Cyrillic search is case-sensitive; Sprint 05

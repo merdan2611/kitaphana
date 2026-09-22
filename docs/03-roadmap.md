@@ -84,6 +84,12 @@ If a sprint is 🔴 Blocked, say what it is blocked on in the status cell and op
 
 *Newest first.*
 
+- **2026-09-23** — Between sprints: the site became responsive in earnest. On desktop it is a
+  website (top navigation, wide pages, two columns where they help); on a phone it feels like an
+  app (top bar and a bottom tab bar), all in the browser and not installable
+  ([ADR-0018](adr/0018-responsive-website-and-phone-layout.md)). Colours are now classic and
+  neutral, each one a single variable so they can be changed one at a time.
+
 - **2026-09-23** — Sprint 04 (Admin and ingest) shipped. An admin uploads a PDF from the
   browser with a progress bar. It is stored by SHA-256 under a fanned-out path, gets a cover
   rendered from its first page, and lands as an unpublished draft with title and author taken

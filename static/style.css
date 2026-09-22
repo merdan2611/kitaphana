@@ -1,23 +1,47 @@
 /* Kitaphana — one hand-written stylesheet, no framework (ADR-0003).
-   Mobile-first: base rules target a 360px screen; wider layouts are added with min-width
-   queries, never the reverse. No webfonts: every byte is paid for on a metered connection.
 
-   Palette, from Turkmen carpet dyes: madder red is the one brand colour; indigo is for the
-   admin side; saffron is reserved for the dev-mode warning so it can never read as branding. */
+   One set of templates, two designs (ADR-0018):
+   - Phones, below 48rem: app-style. A compact top bar, a fixed tab bar along the bottom and
+     full-width content. These are the base rules.
+   - 48rem and wider: a website. Top navigation, a wide container, a footer, and two-column
+     pages from 64rem. Added in min-width blocks below, never the reverse.
+   No webfonts: every byte is paid for on a metered connection. */
+
+/* --- Colours ---------------------------------------------------------------------------------
+   Classic, neutral colours for now, to be changed one at a time later. Every colour on the site
+   comes from one of these variables, and each has one job, so changing one line recolours that
+   role everywhere. tests/test_style.py fails if a colour is written anywhere else in the CSS.
+   The one place CSS cannot reach: <meta name="theme-color"> in templates/base.html repeats
+   --color-header. */
 
 :root {
-    --ink: #1b2130;
-    --muted: #5a6070;
-    --paper: #ffffff;
-    --surface: #f3f4f6;
-    --line: #dcdfe5;
-    --madder: #9e1b22;
-    --madder-dark: #7c141a;
-    --indigo: #22335e;
-    --pistachio: #2e5b4f;
-    --saffron: #f5b81c;
-    --error-bg: #fbeaea;
-    --ok-bg: #e6f0ec;
+    --color-page: #ffffff;           /* page background */
+    --color-surface: #f8f9fa;        /* grey desk behind cards, the admin desk, the footer */
+    --color-text: #212529;           /* body text and headings */
+    --color-text-muted: #5c636a;     /* secondary text and hints */
+    --color-border: #dee2e6;         /* dividers and card edges */
+    --color-input-border: #868e96;   /* form field outlines */
+    --color-primary: #0d6efd;        /* links, main buttons, the active tab */
+    --color-primary-hover: #0b5ed7;  /* primary when hovered or pressed */
+    --color-on-primary: #ffffff;     /* text on primary buttons */
+    --color-header: #ffffff;         /* site header and the phone top bar */
+    --color-tab-bar: #ffffff;        /* phone tab bar */
+    --color-ornament: #0d6efd;       /* the carpet-border strip under the website header */
+    --color-admin-bar: #212529;      /* admin top bar */
+    --color-on-admin-bar: #ffffff;   /* text on the admin bar */
+    --color-success: #146c43;        /* "published" and success messages */
+    --color-success-bg: #d1e7dd;
+    --color-danger: #b02a37;         /* errors and deleting */
+    --color-danger-bg: #f8d7da;
+    --color-warning: #ffc107;        /* the dev-mode banner, and nothing else */
+    --color-on-warning: #212529;
+    --color-cover-1: #495057;        /* stand-in covers for books without an image */
+    --color-cover-2: #0b5ed7;
+    --color-cover-3: #146c43;
+    --color-cover-4: #842029;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06), 0 2px 6px rgb(0 0 0 / 0.04);
+    --shadow-bar: 0 -1px 4px rgb(0 0 0 / 0.06);
+    --shadow-cover: 0 1px 2px rgb(0 0 0 / 0.2), 0 0 0 1px rgb(0 0 0 / 0.05);
 
     --serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, "Noto Serif", Georgia, serif;
     --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
@@ -29,15 +53,23 @@
     --step-2: 1.563rem;
     --step-3: 1.953rem;
     --step-4: 2.441rem;
+    --step-5: 3.052rem;
 
     --space-1: 0.5rem;
     --space-2: 1rem;
     --space-3: 1.5rem;
     --space-4: 2.5rem;
     --space-5: 4rem;
-    --radius: 6px;
-    --measure: 40rem;
+
+    --radius: 8px;
+    --radius-small: 4px;
+    --gutter: 1rem;
+    --container: 72rem;
+    --app-bar-height: 3.5rem;
+    --tab-bar-height: 3.75rem;
 }
+
+/* --- Base ------------------------------------------------------------------------------------ */
 
 *,
 *::before,
@@ -45,17 +77,23 @@
     box-sizing: border-box;
 }
 
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
     margin: 0;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     font-family: var(--sans);
     font-size: var(--step-0);
     line-height: 1.55;
-    background: var(--paper);
-    color: var(--ink);
-    -webkit-text-size-adjust: 100%;
+    color: var(--color-text);
+    background: var(--color-page);
+    /* Room for the fixed tab bar. */
+    padding-bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0px));
 }
 
 h1,
@@ -76,89 +114,115 @@ p {
 }
 
 a {
-    color: var(--madder);
+    color: var(--color-primary);
     text-underline-offset: 0.15em;
 }
 
 a:hover {
-    color: var(--madder-dark);
+    color: var(--color-primary-hover);
 }
 
 :focus-visible {
-    outline: 3px solid var(--indigo);
+    outline: 3px solid var(--color-primary);
+    outline: 3px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
     outline-offset: 2px;
 }
 
 img {
-    max-width: 100%;
     display: block;
+    max-width: 100%;
 }
 
-/* --- Dev-mode banner (ADR-0013) -------------------------------------------------------------
-   Loud on purpose, and in a colour nothing else uses. Sticky so it stays on screen. */
+.container {
+    width: 100%;
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+code {
+    font-size: 0.9em;
+    padding: 0.1em 0.3em;
+    border-radius: var(--radius-small);
+    background: var(--color-surface);
+}
+
+/* --- Dev-mode banner (ADR-0013) --------------------------------------------------------------
+   On phones it scrolls away with the page, so the top bar keeps a small pill as a reminder.
+   On the website it stays pinned to the top instead. */
 
 .dev-banner {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    padding: var(--space-1) var(--space-2);
+    padding: calc(var(--space-1) + 5px) var(--gutter) var(--space-1);
     background:
-        repeating-linear-gradient(-45deg, var(--ink) 0 10px, transparent 10px 20px) top / 100% 5px no-repeat,
-        var(--saffron);
-    padding-top: calc(var(--space-1) + 5px);
-    color: var(--ink);
+        repeating-linear-gradient(-45deg, var(--color-on-warning) 0 10px, transparent 10px 20px) top / 100% 5px no-repeat,
+        var(--color-warning);
+    color: var(--color-on-warning);
     font-size: var(--step--1);
     line-height: 1.4;
     text-align: center;
 }
 
-/* --- Header and the göl strip ---------------------------------------------------------------- */
-
-.site-header {
-    background: var(--paper);
+.dev-pill {
+    margin-left: auto;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    background: var(--color-warning);
+    color: var(--color-on-warning);
+    font-size: var(--step--1);
+    font-weight: 600;
+    white-space: nowrap;
 }
 
-.site-nav {
+/* --- Header: an app bar on phones, a website header from 48rem ------------------------------- */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--color-header);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.site-header-inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: var(--space-2);
-    /* Same column as the page content, so the title and the text below share a left edge. */
-    max-width: var(--measure);
-    margin: 0 auto;
-    padding: var(--space-2);
+    min-height: var(--app-bar-height);
 }
 
 .site-title {
     font-family: var(--serif);
     font-size: var(--step-1);
     font-weight: 700;
-    color: var(--ink);
+    color: var(--color-text);
     text-decoration: none;
 }
 
-.site-nav-links {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 0.95rem;
+.site-title:hover {
+    color: var(--color-text);
 }
 
-.site-nav-links a {
-    text-decoration: none;
+.site-nav {
+    display: none;
 }
 
-.site-nav-links a:hover {
-    text-decoration: underline;
-}
-
-/* A carpet border: madder göl octagons with an indigo heart, small indigo diamonds between.
-   One 32x16 SVG tile, repeated; about 600 bytes, no request. */
+/* A carpet border: göl octagons with small diamonds between. The SVG is only a stencil
+   (mask); the colour comes from --color-ornament. */
 .gol-strip {
+    display: none;
     height: 16px;
-    background: var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='16' viewBox='0 0 32 16'%3E%3Cpolygon points='8,2 16,2 20,6 20,10 16,14 8,14 4,10 4,6' fill='%239e1b22'/%3E%3Cpolygon points='12,4.5 15.5,8 12,11.5 8.5,8' fill='%23fff'/%3E%3Crect x='11' y='7' width='2' height='2' fill='%2322335e'/%3E%3Cpolygon points='26,5 29,8 26,11 23,8' fill='%2322335e'/%3E%3C/svg%3E") repeat-x center / 32px 16px;
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
+    background-color: var(--color-ornament);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='16' viewBox='0 0 32 16'%3E%3Cpath fill-rule='evenodd' d='M8 2h8l4 4v4l-4 4H8l-4-4V6zM12 4.5 8.5 8 12 11.5 15.5 8zM11 7h2v2h-2zM26 5l3 3-3 3-3-3z'/%3E%3C/svg%3E") repeat-x center / 32px 16px;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='16' viewBox='0 0 32 16'%3E%3Cpath fill-rule='evenodd' d='M8 2h8l4 4v4l-4 4H8l-4-4V6zM12 4.5 8.5 8 12 11.5 15.5 8zM11 7h2v2h-2zM26 5l3 3-3 3-3-3z'/%3E%3C/svg%3E") repeat-x center / 32px 16px;
 }
 
 /* --- Page frame ------------------------------------------------------------------------------ */
@@ -166,120 +230,131 @@ img {
 .site-content {
     flex: 1;
     width: 100%;
-    max-width: var(--measure);
+    max-width: var(--container);
     margin: 0 auto;
-    padding: var(--space-4) var(--space-2) var(--space-5);
+    padding: var(--space-3) var(--gutter) var(--space-4);
+}
+
+/* The grey desk behind cards. The login page gets it only on the website: on a phone its form
+   sits straight on the page, like an app screen. */
+.page-desk {
+    background: var(--color-surface);
 }
 
 .site-footer {
-    border-top: 1px solid var(--line);
-    padding: var(--space-3) var(--space-2);
-    color: var(--muted);
-    font-size: var(--step--1);
-    text-align: center;
+    display: none;
 }
 
 .site-footer p {
     margin: 0;
 }
 
-/* --- Home ------------------------------------------------------------------------------------ */
+/* --- Phone tab bar --------------------------------------------------------------------------- */
 
-.home-lead h1 {
-    font-size: var(--step-4);
-    letter-spacing: -0.01em;
-    max-width: 14ch;
-}
-
-.home-lead p {
-    font-size: var(--step-1);
-    color: var(--muted);
-    max-width: 34ch;
-    font-family: var(--serif);
-    line-height: 1.5;
-}
-
-.home-ways {
-    list-style: none;
-    margin: var(--space-4) 0;
-    padding: 0;
+.tab-bar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 20;
     display: grid;
-    gap: var(--space-3);
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--color-tab-bar);
+    border-top: 1px solid var(--color-border);
+    box-shadow: var(--shadow-bar);
 }
 
-.home-ways li {
-    padding-left: var(--space-2);
-    border-left: 3px solid var(--madder);
+.tab-bar a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    min-height: var(--tab-bar-height);
+    padding: 0 0.25rem;
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
 }
 
-.home-ways h2 {
-    font-size: var(--step-1);
-    margin-bottom: 0.25rem;
+.tab-bar a[aria-current="page"] {
+    color: var(--color-primary);
+    font-weight: 600;
 }
 
-.home-ways p {
-    margin: 0;
-    color: var(--muted);
+.tab-bar svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
-.home-status {
-    padding: var(--space-2);
-    background: var(--surface);
-    border-radius: var(--radius);
-}
-
-.home-status p:last-child {
-    margin-bottom: 0;
-}
-
-/* --- Buttons and forms ----------------------------------------------------------------------- */
+/* --- Buttons --------------------------------------------------------------------------------- */
 
 button,
 .button {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0.6rem 1.25rem;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-small);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
     font: inherit;
     font-weight: 600;
     line-height: 1.2;
-    padding: 0.75rem 1.25rem;
-    border: 2px solid var(--madder);
-    border-radius: var(--radius);
-    background: var(--madder);
-    color: var(--paper);
-    text-decoration: none;
     text-align: center;
+    text-decoration: none;
     cursor: pointer;
 }
 
 button:hover,
 .button:hover {
-    background: var(--madder-dark);
-    border-color: var(--madder-dark);
-    color: var(--paper);
+    border-color: var(--color-primary-hover);
+    background: var(--color-primary-hover);
+    color: var(--color-on-primary);
 }
 
 .button-quiet {
     background: transparent;
-    color: var(--madder);
+    color: var(--color-primary);
 }
 
 .button-quiet:hover {
-    background: var(--surface);
-    color: var(--madder-dark);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
+.button-danger,
+.button-danger:hover {
+    border-color: var(--color-danger);
+    background: var(--color-danger);
 }
 
 .link-button {
+    min-height: 0;
     padding: 0;
     border: 0;
     background: none;
-    color: var(--madder);
+    color: var(--color-primary);
     font-weight: 400;
     text-decoration: underline;
     text-underline-offset: 0.15em;
 }
 
 .link-button:hover {
+    border: 0;
     background: none;
-    color: var(--madder-dark);
+    color: var(--color-primary-hover);
 }
 
 .inline-form {
@@ -287,12 +362,7 @@ button:hover,
     margin: 0;
 }
 
-.stack-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    margin: var(--space-3) 0;
-}
+/* --- Forms ----------------------------------------------------------------------------------- */
 
 label {
     font-weight: 600;
@@ -305,60 +375,284 @@ input[type="search"],
 select,
 textarea {
     width: 100%;
+    min-height: 2.75rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-small);
+    background: var(--color-page);
+    color: var(--color-text);
     font: inherit;
-    font-size: 1.1rem; /* 16px+ stops iOS zooming into the field */
-    padding: 0.65rem 0.75rem;
-    border: 1px solid #b9bec9;
-    border-radius: var(--radius);
-    background: var(--paper);
-    color: var(--ink);
+    font-size: 1.1rem; /* 16px or more stops iOS zooming into the field */
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-    outline: 3px solid color-mix(in srgb, var(--indigo) 35%, transparent);
+    border-color: var(--color-primary);
+    outline: 3px solid var(--color-primary);
+    outline: 3px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
     outline-offset: 0;
-    border-color: var(--indigo);
+}
+
+input[type="file"] {
+    max-width: 100%;
+    font: inherit;
+    font-size: 0.95rem;
+}
+
+.stack-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin: 0 0 var(--space-3);
+}
+
+.stack-form button {
+    width: 100%;
+    margin-top: var(--space-1);
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.field-hint {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
 }
 
 .field-error {
-    color: var(--madder);
-    font-size: 0.9rem;
     margin: 0;
+    color: var(--color-danger);
+    font-size: 0.9rem;
 }
 
-.form-error,
-.notice {
+.field-invalid input,
+.field-invalid select,
+.field-invalid textarea {
+    border-color: var(--color-danger);
+}
+
+/* --- Messages, badges, cards ----------------------------------------------------------------- */
+
+.notice,
+.form-error {
+    margin: 0 0 var(--space-2);
     padding: 0.75rem var(--space-2);
-    border-radius: var(--radius);
-    border-left: 4px solid var(--madder);
-    background: var(--error-bg);
-    color: var(--madder-dark);
+    border-left: 4px solid var(--color-success);
+    border-radius: var(--radius-small);
+    background: var(--color-success-bg);
+    color: var(--color-text);
 }
 
-.notice {
-    border-left-color: var(--pistachio);
-    background: var(--ok-bg);
-    color: var(--pistachio);
+.form-error {
+    border-left-color: var(--color-danger);
+    background: var(--color-danger-bg);
+}
+
+.notice p:last-child,
+.form-error p:last-child {
+    margin-bottom: 0;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    background: var(--color-border);
+    color: var(--color-text);
+    font-size: var(--step--1);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge-live {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.card {
+    padding: var(--space-3) var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-page);
+    box-shadow: var(--shadow-card);
+}
+
+.card > :last-child {
+    margin-bottom: 0;
+}
+
+/* --- Covers ----------------------------------------------------------------------------------
+   Shared by the admin and, from Sprint 05, the catalogue. A book with no cover image gets a
+   typeset one — title and author on a plain colour — never a broken image. */
+
+.cover {
+    container-type: inline-size;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    border-radius: 3px;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-cover);
+}
+
+.cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cover-blank {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 12% 10%;
+    background: var(--color-cover-1);
+    color: var(--color-page);
+    font-family: var(--serif);
+}
+
+.cover-blank-1 { background: var(--color-cover-2); }
+.cover-blank-2 { background: var(--color-cover-3); }
+.cover-blank-3 { background: var(--color-cover-4); }
+
+.cover-blank-title {
+    font-size: clamp(0.75rem, 11cqi, 1.3rem);
+    font-weight: 700;
+    line-height: 1.15;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.cover-blank-author {
+    font-size: clamp(0.6rem, 7cqi, 0.9rem);
+    opacity: 0.85;
+}
+
+.cover-blank-initial {
+    display: none;
+}
+
+/* Too narrow for a readable title (list thumbnails): show the initial alone. */
+@container (max-width: 6rem) {
+    .cover-blank {
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .cover-blank-title,
+    .cover-blank-author {
+        display: none;
+    }
+
+    .cover-blank-initial {
+        display: block;
+        font-size: 55cqi;
+        font-weight: 700;
+    }
+}
+
+/* --- Home ------------------------------------------------------------------------------------ */
+
+.home-hero {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.home-hero h1 {
+    font-size: var(--step-4);
+    letter-spacing: -0.01em;
+}
+
+.home-lead {
+    color: var(--color-text-muted);
+    font-family: var(--serif);
+    font-size: var(--step-1);
+    line-height: 1.5;
+}
+
+.home-actions {
+    margin: var(--space-3) 0 var(--space-2);
+}
+
+.home-actions .button {
+    width: 100%;
+}
+
+.home-note {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.home-ways h2 {
+    font-size: var(--step-1);
+}
+
+.home-ways ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.home-ways li {
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--color-border);
+}
+
+.home-ways li:last-child {
+    padding-bottom: 0;
+}
+
+.home-ways h3 {
+    margin-bottom: 0.25rem;
+    font-size: var(--step-0);
+}
+
+.home-ways p {
+    margin: 0;
+    color: var(--color-text-muted);
 }
 
 /* --- Login ----------------------------------------------------------------------------------- */
 
-.form-page {
-    max-width: 26rem;
+.auth-layout {
+    display: grid;
+    gap: var(--space-2);
 }
 
-.form-page .lead {
-    color: var(--muted);
+.auth-intro h1 {
+    margin-bottom: var(--space-1);
+}
+
+.lead {
+    color: var(--color-text-muted);
+}
+
+.auth-steps {
+    display: none;
+}
+
+/* On phones the form sits straight on the page, like an app screen. */
+.auth-card {
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
 }
 
 .dev-code {
-    margin: var(--space-3) 0;
+    margin: 0 0 var(--space-3);
     padding: var(--space-2);
-    border: 2px dashed var(--ink);
-    border-radius: var(--radius);
-    background: color-mix(in srgb, var(--saffron) 22%, var(--paper));
+    border: 2px dashed var(--color-on-warning);
+    border-radius: var(--radius-small);
+    background: color-mix(in srgb, var(--color-warning) 22%, var(--color-page));
 }
 
 .dev-code-label {
@@ -383,28 +677,40 @@ textarea:focus {
 .form-aside {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-1) var(--space-3);
     align-items: center;
+    gap: var(--space-1) var(--space-3);
     font-size: 0.95rem;
 }
 
 /* --- Account --------------------------------------------------------------------------------- */
 
+.account-layout {
+    max-width: 36rem;
+}
+
+.account-card {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
 .account-details {
-    margin: var(--space-3) 0;
-    border-top: 1px solid var(--line);
+    margin: 0;
 }
 
 .account-details div {
     display: flex;
     justify-content: space-between;
     gap: var(--space-2);
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--line);
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.account-details div:last-child {
+    border-bottom: 0;
 }
 
 .account-details dt {
-    color: var(--muted);
+    color: var(--color-text-muted);
 }
 
 .account-details dd {
@@ -414,94 +720,216 @@ textarea:focus {
 }
 
 .placeholder {
-    color: var(--muted);
+    color: var(--color-text-muted);
     font-weight: 400 !important;
     font-style: italic;
 }
 
-/* --- Covers ----------------------------------------------------------------------------------
-   Shared by the admin and, from Sprint 05, the catalogue. A book with no cover image gets a
-   typeset one: title and author on a carpet colour, never a broken image. */
+.account-logout {
+    margin-top: var(--space-3);
+}
 
-.cover {
-    aspect-ratio: 2 / 3;
+.account-logout button {
     width: 100%;
-    border-radius: 3px;
-    overflow: hidden;
-    background: var(--surface);
-    box-shadow: 0 1px 2px rgb(27 33 48 / 0.18), 0 0 0 1px rgb(27 33 48 / 0.06);
 }
 
-.cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+/* === The website: 48rem and wider ============================================================ */
 
-.cover-blank {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 12% 10%;
-    color: var(--paper);
-    font-family: var(--serif);
-    background: var(--madder);
-    border-top: 8px solid rgb(255 255 255 / 0.2);
-}
-
-.cover-blank-1 { background: var(--indigo); }
-.cover-blank-2 { background: var(--pistachio); }
-.cover-blank-3 { background: #6b3e26; }
-
-.cover-blank-title {
-    font-size: clamp(0.75rem, 11cqi, 1.3rem);
-    font-weight: 700;
-    line-height: 1.15;
-    overflow-wrap: break-word;
-    hyphens: auto;
-}
-
-.cover-blank-author {
-    font-size: clamp(0.6rem, 7cqi, 0.9rem);
-    opacity: 0.85;
-}
-
-.cover-blank-initial {
-    display: none;
-}
-
-/* Too narrow for a readable title (list thumbnails): show the initial alone. */
-@container (max-width: 6rem) {
-    .cover-blank {
-        justify-content: center;
-        align-items: center;
-        padding: 0;
+@media (min-width: 48rem) {
+    :root {
+        --gutter: 2rem;
     }
 
-    .cover-blank-title,
-    .cover-blank-author {
+    body {
+        padding-bottom: 0;
+    }
+
+    .tab-bar,
+    .dev-pill {
         display: none;
     }
 
-    .cover-blank-initial {
+    .dev-banner {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+    }
+
+    .site-header {
+        position: static;
+    }
+
+    .site-header-inner {
+        min-height: 4.5rem;
+    }
+
+    .site-title {
+        font-size: var(--step-2);
+    }
+
+    .site-nav {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin-left: auto;
+    }
+
+    .site-nav a:not(.button) {
+        color: var(--color-text);
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .site-nav a:not(.button):hover,
+    .site-nav a[aria-current="page"] {
+        color: var(--color-primary);
+    }
+
+    .site-nav .link-button {
+        color: var(--color-text-muted);
+        text-decoration: none;
+    }
+
+    .site-nav .link-button:hover {
+        color: var(--color-primary);
+    }
+
+    .gol-strip {
         display: block;
-        font-size: 55cqi;
+    }
+
+    .site-content {
+        padding-top: var(--space-5);
+        padding-bottom: var(--space-5);
+    }
+
+    .site-footer {
+        display: block;
+        border-top: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text-muted);
+        font-size: 0.9rem;
+    }
+
+    .site-footer-inner {
+        padding-top: var(--space-3);
+        padding-bottom: var(--space-3);
+    }
+
+    .card {
+        padding: var(--space-3) 2rem;
+    }
+
+    /* Home */
+    .home-hero h1 {
+        font-size: var(--step-5);
+        max-width: 16ch;
+    }
+
+    .home-lead {
+        max-width: 34ch;
+    }
+
+    .home-actions .button {
+        width: auto;
+    }
+
+    /* Login: the form becomes a card on the grey desk. */
+    .page-auth {
+        background: var(--color-surface);
+    }
+
+    .auth-layout {
+        max-width: 30rem;
+        margin: 0 auto;
+    }
+
+    .auth-card {
+        padding: var(--space-3) 2rem;
+        border: 1px solid var(--color-border);
+        background: var(--color-page);
+        box-shadow: var(--shadow-card);
+    }
+
+    /* Account */
+    .account-layout {
+        margin: 0 auto;
+    }
+
+    .account-card {
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+
+    .account-logout button {
+        width: auto;
+    }
+}
+
+/* Two columns once there is room for them. */
+@media (min-width: 64rem) {
+    .home-hero {
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+        gap: var(--space-5);
+        align-items: center;
+    }
+
+    .auth-layout {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+        gap: var(--space-5);
+        max-width: none;
+        align-items: start;
+    }
+
+    .auth-intro {
+        padding-top: var(--space-2);
+    }
+
+    .auth-intro h1 {
+        font-size: var(--step-4);
+    }
+
+    .auth-steps {
+        display: grid;
+        gap: var(--space-2);
+        margin: var(--space-4) 0 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: step;
+        max-width: 30rem;
+    }
+
+    .auth-steps li {
+        position: relative;
+        padding-left: 3rem;
+        color: var(--color-text-muted);
+        counter-increment: step;
+    }
+
+    .auth-steps li strong {
+        color: var(--color-text);
+    }
+
+    .auth-steps li::before {
+        content: counter(step);
+        position: absolute;
+        top: -0.1rem;
+        left: 0;
+        display: grid;
+        place-items: center;
+        width: 2rem;
+        height: 2rem;
+        border: 2px solid var(--color-border);
+        border-radius: 50%;
+        background: var(--color-page);
+        color: var(--color-text-muted);
         font-weight: 700;
     }
-}
 
-.cover {
-    container-type: inline-size;
-}
-
-@media (min-width: 48rem) {
-    .home-lead h1 {
-        font-size: 3.2rem;
-    }
-
-    .home-ways {
-        grid-template-columns: repeat(3, 1fr);
+    .auth-steps li[aria-current="step"]::before {
+        border-color: var(--color-primary);
+        background: var(--color-primary);
+        color: var(--color-on-primary);
     }
 }
 

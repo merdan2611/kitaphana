@@ -23,6 +23,11 @@ brought forward if the star work stalls.
 
 ## Tasks
 
+> **Layout (added 2026-09-23, [ADR-0018](../adr/0018-responsive-website-and-phone-layout.md)):**
+> every page in this sprint needs both designs — the website from 48rem and the app-style
+> phone layout below it — checked with screenshots at both widths. The request list also gets a
+> **Soraglar** tab in the phone tab bar (`templates/base.html`) and a link in the website header.
+
 ### 1. Schema
 
 `migrations/005-requests.sql`:

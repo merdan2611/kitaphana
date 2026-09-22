@@ -1,50 +1,68 @@
 {% extends "base.html" %}
 
 {% block title %}Giriş: Kitaphana{% endblock %}
+{% block body_class %}page-auth{% endblock %}
 
 {% block content %}
-<section class="form-page">
-    {% if step == "code" %}
-    <h1>Kody giriziň</h1>
-    <p class="lead"><strong>{{ phone | phone }}</strong> belgisi üçin 6 sanly kod döredildi.</p>
+<div class="auth-layout">
+    <section class="auth-intro">
+        {% if step == "code" %}
+        <h1>Kody giriziň</h1>
+        <p class="lead"><strong>{{ phone | phone }}</strong> belgisi üçin 6 sanly kod döredildi.</p>
+        {% else %}
+        <h1>Giriş</h1>
+        <p class="lead">Telefon belgiňizi giriziň. Hasabyňyz ýok bolsa, ol şu wagt döredilýär: parol gerek däl.</p>
+        {% endif %}
 
-    {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+        {# A real sequence, so it is numbered. Shown on the website only; phones keep it short. #}
+        <ol class="auth-steps">
+            <li {% if step != "code" %}aria-current="step"{% endif %}>
+                <strong>Telefon belgiňizi giriziň.</strong> Türkmenistanyň islendik ykjam belgisi bolýar.
+            </li>
+            <li {% if step == "code" %}aria-current="step"{% endif %}>
+                <strong>Kody giriziň.</strong> Kod birnäçe minut işleýär we diňe bir gezek ulanylýar.
+            </li>
+            <li>
+                <strong>Boldy.</strong> Bu enjamda uzak wagtlap girilen bolup galýarsyňyz.
+            </li>
+        </ol>
+    </section>
 
-    {% if shown_code %}
-    <div class="dev-code">
-        <span class="dev-code-label">Ösüş tertibinde kod SMS-iň ýerine şu ýerde görkezilýär:</span>
-        <span class="dev-code-value">{{ shown_code }}</span>
-    </div>
-    {% endif %}
+    <section class="card auth-card">
+        {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
 
-    <form method="post" action="/login/verify" class="stack-form">
-        <input type="hidden" name="phone" value="{{ phone }}">
-        <label for="code">Kod</label>
-        <input id="code" class="code-input" name="code" type="text" inputmode="numeric"
-               autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="7" required autofocus>
-        <button type="submit">Gir</button>
-    </form>
+        {% if step == "code" %}
+        {% if shown_code %}
+        <div class="dev-code">
+            <span class="dev-code-label">Ösüş tertibinde kod SMS-iň ýerine şu ýerde görkezilýär:</span>
+            <span class="dev-code-value">{{ shown_code }}</span>
+        </div>
+        {% endif %}
 
-    <div class="form-aside">
-        <form method="post" action="/login" class="inline-form">
+        <form method="post" action="/login/verify" class="stack-form">
             <input type="hidden" name="phone" value="{{ phone }}">
-            <button class="link-button" type="submit">Täze kod sora</button>
+            <label for="code">Kod</label>
+            <input id="code" class="code-input" name="code" type="text" inputmode="numeric"
+                   autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="7" required autofocus>
+            <button type="submit">Gir</button>
         </form>
-        <a href="/login">Başga belgi bilen gir</a>
-    </div>
 
-    {% else %}
-    <h1>Giriş</h1>
-    <p class="lead">Telefon belgiňizi giriziň. Hasabyňyz ýok bolsa, ol şu wagt döredilýär: parol gerek däl.</p>
+        <div class="form-aside">
+            <form method="post" action="/login" class="inline-form">
+                <input type="hidden" name="phone" value="{{ phone }}">
+                <button class="link-button" type="submit">Täze kod sora</button>
+            </form>
+            <a href="/login">Başga belgi bilen gir</a>
+        </div>
 
-    {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
-
-    <form method="post" action="/login" class="stack-form">
-        <label for="phone">Telefon belgisi</label>
-        <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel"
-               placeholder="+993 61 234567" value="{{ phone or '' }}" required autofocus>
-        <button type="submit">Kod al</button>
-    </form>
-    {% endif %}
-</section>
+        {% else %}
+        <form method="post" action="/login" class="stack-form">
+            <label for="phone">Telefon belgisi</label>
+            <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel"
+                   placeholder="+993 61 234567" value="{{ phone or '' }}" required autofocus>
+            <button type="submit">Kod al</button>
+        </form>
+        {% endif %}
+    </section>
+</div>
 {% endblock %}

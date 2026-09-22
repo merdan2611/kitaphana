@@ -1,79 +1,59 @@
-/* Admin panel. Loaded only by templates/admin/base.html, on top of style.css.
-   Deliberately unlike the public site — indigo bar, grey desk, denser type — so it is never
-   unclear which side you are on. */
+/* Admin panel. Loaded only by templates/admin/base.html, on top of style.css, whose colour
+   tokens it uses exclusively. Deliberately unlike the public site — dark bar, grey desk,
+   denser type — so it is never unclear which side you are on. Phones get their own tab bar
+   (templates/admin/base.html) in place of the bar's navigation. */
 
 body.admin {
-    background: var(--surface);
+    background: var(--color-surface);
 }
 
 .admin-bar {
-    background: var(--indigo);
-    color: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--color-admin-bar);
+    color: var(--color-on-admin-bar);
 }
 
 .admin-bar-inner {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-1) var(--space-3);
-    max-width: 72rem;
-    margin: 0 auto;
-    padding: 0.75rem var(--space-2);
+    gap: var(--space-2);
+    min-height: var(--app-bar-height);
 }
 
 .admin-bar a {
-    color: var(--paper);
+    color: var(--color-on-admin-bar);
     text-decoration: none;
 }
 
 .admin-brand {
     font-family: var(--serif);
-    font-weight: 700;
     font-size: var(--step-1);
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 .admin-brand span {
     font-family: var(--sans);
-    font-weight: 400;
     font-size: var(--step-0);
+    font-weight: 400;
     opacity: 0.75;
 }
 
-.admin-nav {
-    display: flex;
-    gap: var(--space-2);
-    order: 3;
-    width: 100%;
-    overflow-x: auto;
-}
-
-.admin-nav a {
-    padding: 0.35rem 0;
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-    opacity: 0.85;
-}
-
-.admin-nav a:hover,
-.admin-nav a[aria-current="page"] {
-    opacity: 1;
-    border-bottom-color: var(--saffron);
-}
-
+.admin-nav,
 .admin-exit {
-    margin-left: auto;
-    font-size: 0.9rem;
-    opacity: 0.85;
+    display: none;
 }
 
 .admin-content {
-    max-width: 72rem;
     padding-top: var(--space-3);
 }
 
 .admin h1 {
-    font-size: var(--step-2);
     margin: 0;
+    font-size: var(--step-2);
+    overflow-wrap: anywhere;
 }
 
 .admin h2 {
@@ -99,59 +79,15 @@ body.admin {
 }
 
 .panel {
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: var(--space-3) var(--space-2);
     margin-bottom: var(--space-3);
+    padding: var(--space-3) var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-page);
 }
 
 .panel-foot {
     margin: var(--space-2) 0 0;
-}
-
-.button {
-    padding: 0.6rem 1rem;
-}
-
-.admin button:not(.link-button) {
-    padding: 0.6rem 1rem;
-}
-
-.button-danger {
-    background: var(--madder);
-}
-
-.badge {
-    display: inline-block;
-    padding: 0.15rem 0.55rem;
-    border-radius: 999px;
-    background: var(--line);
-    color: var(--ink);
-    font-size: var(--step--1);
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.badge-live {
-    background: var(--ok-bg);
-    color: var(--pistachio);
-}
-
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-}
-
-code {
-    font-size: 0.9em;
-    background: var(--surface);
-    padding: 0.1em 0.3em;
-    border-radius: 3px;
 }
 
 /* --- Index ----------------------------------------------------------------------------------- */
@@ -164,15 +100,15 @@ code {
 }
 
 .admin-counts div {
-    background: var(--paper);
-    border: 1px solid var(--line);
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
     border-radius: var(--radius);
-    padding: 0.75rem var(--space-2);
+    background: var(--color-page);
 }
 
 .admin-counts dt {
-    color: var(--muted);
-    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
 }
 
 .admin-counts dd {
@@ -183,19 +119,19 @@ code {
 }
 
 .book-rows {
-    list-style: none;
     margin: 0;
     padding: 0;
+    list-style: none;
 }
 
 .book-row {
     display: grid;
     grid-template-columns: 2.5rem 1fr auto;
-    gap: var(--space-2);
     align-items: center;
+    gap: var(--space-2);
     padding: 0.6rem 0;
-    border-bottom: 1px solid var(--line);
-    color: var(--ink);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
     text-decoration: none;
 }
 
@@ -203,8 +139,12 @@ code {
     border-bottom: 0;
 }
 
+.book-row:hover {
+    color: var(--color-text);
+}
+
 .book-row:hover strong {
-    color: var(--madder);
+    color: var(--color-primary);
     text-decoration: underline;
 }
 
@@ -215,7 +155,7 @@ code {
 }
 
 .book-row-text span {
-    color: var(--muted);
+    color: var(--color-text-muted);
     font-size: 0.9rem;
 }
 
@@ -233,30 +173,29 @@ code {
 }
 
 .result-count {
-    color: var(--muted);
+    color: var(--color-text-muted);
     font-size: 0.9rem;
 }
 
 .book-table {
     width: 100%;
     border-collapse: collapse;
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+    background: var(--color-page);
 }
 
 .book-table th {
-    text-align: left;
-    font-size: var(--step--1);
-    color: var(--muted);
-    font-weight: 600;
     padding: 0.6rem 0.75rem;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: var(--step--1);
+    font-weight: 600;
+    text-align: left;
 }
 
 .book-table td {
     padding: 0.6rem 0.75rem;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--color-border);
     vertical-align: middle;
 }
 
@@ -283,12 +222,12 @@ code {
 
 .book-table-title span {
     display: block;
-    color: var(--muted);
+    color: var(--color-text-muted);
     font-size: 0.9rem;
 }
 
 /* On a phone the table becomes a stack of rows: cover on the left, everything else beside it. */
-@media (max-width: 40rem) {
+@media (max-width: 47.99rem) {
     .book-table thead {
         display: none;
     }
@@ -303,7 +242,7 @@ code {
         grid-template-columns: 3.5rem 1fr;
         column-gap: var(--space-2);
         padding: 0.75rem;
-        border-bottom: 1px solid var(--line);
+        border-bottom: 1px solid var(--color-border);
     }
 
     .book-table tr:last-child {
@@ -311,21 +250,21 @@ code {
     }
 
     .book-table td {
+        grid-column: 2;
         padding: 0;
         border: 0;
-        grid-column: 2;
-        text-align: left !important;
         font-size: 0.9rem;
+        text-align: left !important;
     }
 
     .book-table td.book-table-cover {
-        grid-column: 1;
         grid-row: 1 / span 4;
+        grid-column: 1;
     }
 
     .book-table td[data-label]::before {
         content: attr(data-label) ": ";
-        color: var(--muted);
+        color: var(--color-text-muted);
     }
 
     .book-table-title {
@@ -342,10 +281,10 @@ code {
 
 .empty {
     padding: var(--space-4) var(--space-2);
-    text-align: center;
-    background: var(--paper);
-    border: 1px dashed var(--line);
+    border: 1px dashed var(--color-border);
     border-radius: var(--radius);
+    background: var(--color-page);
+    text-align: center;
 }
 
 /* --- Forms ----------------------------------------------------------------------------------- */
@@ -356,34 +295,9 @@ code {
     gap: var(--space-2);
 }
 
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    min-width: 0;
-}
-
 .field-row {
     display: grid;
     gap: var(--space-2);
-}
-
-.field-hint {
-    margin: 0;
-    color: var(--muted);
-    font-size: 0.85rem;
-}
-
-.field-invalid input,
-.field-invalid select,
-.field-invalid textarea {
-    border-color: var(--madder);
-}
-
-input[type="file"] {
-    font: inherit;
-    font-size: 0.95rem;
-    max-width: 100%;
 }
 
 .form-actions {
@@ -401,12 +315,12 @@ input[type="file"] {
     flex: 1;
     min-width: 8rem;
     height: 0.6rem;
-    accent-color: var(--indigo);
+    accent-color: var(--color-primary);
 }
 
 .upload-status {
+    color: var(--color-text-muted);
     font-size: 0.9rem;
-    color: var(--muted);
 }
 
 /* --- Edit ------------------------------------------------------------------------------------ */
@@ -443,17 +357,17 @@ input[type="file"] {
     justify-content: space-between;
     gap: var(--space-2);
     padding: 0.35rem 0;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--color-border);
 }
 
 .file-facts dt {
-    color: var(--muted);
+    color: var(--color-text-muted);
 }
 
 .file-facts dd {
     margin: 0;
-    text-align: right;
     overflow-wrap: anywhere;
+    text-align: right;
 }
 
 .publish-panel {
@@ -471,15 +385,15 @@ input[type="file"] {
 }
 
 .danger-link a {
-    color: var(--madder);
+    color: var(--color-danger);
     font-size: 0.9rem;
 }
 
 .confirm-panel {
     display: grid;
     grid-template-columns: 5rem 1fr;
-    gap: var(--space-3);
     align-items: start;
+    gap: var(--space-3);
     max-width: 40rem;
 }
 
@@ -487,20 +401,42 @@ input[type="file"] {
     margin-bottom: var(--space-2);
 }
 
+/* === Wide screens ============================================================================ */
+
 @media (min-width: 48rem) {
     .admin-bar-inner {
-        flex-wrap: nowrap;
-        padding: 0.75rem var(--space-4);
+        min-height: 4rem;
+        gap: var(--space-3);
     }
 
     .admin-nav {
-        order: 0;
-        width: auto;
+        display: flex;
+        gap: var(--space-3);
+    }
+
+    .admin-nav a {
+        padding: 0.35rem 0;
+        border-bottom: 2px solid transparent;
+        opacity: 0.8;
+        white-space: nowrap;
+    }
+
+    .admin-nav a:hover,
+    .admin-nav a[aria-current="page"] {
+        border-bottom-color: var(--color-on-admin-bar);
+        opacity: 1;
+    }
+
+    .admin-exit {
+        display: inline;
+        margin-left: auto;
+        font-size: 0.9rem;
+        opacity: 0.8;
     }
 
     .admin-content {
-        padding-left: var(--space-4);
-        padding-right: var(--space-4);
+        padding-top: var(--space-4);
+        padding-bottom: var(--space-5);
     }
 
     .filter-bar {

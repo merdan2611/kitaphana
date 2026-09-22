@@ -3,32 +3,36 @@
 {% block title %}Kitaphana: türkmen dilindäki kitaplar{% endblock %}
 
 {% block content %}
-<section class="home-lead">
-    <h1>Türkmen dilindäki kitaplar bir ýerde</h1>
-    <p>Çat toparlarynda ýitip gidýän PDF-ler däl-de, gözläp tapyp boljak, tertipli kitaphana.</p>
+<section class="home-hero">
+    <div class="home-hero-text">
+        <h1>Türkmen dilindäki kitaplar bir ýerde</h1>
+        <p class="home-lead">Çat toparlarynda ýitip gidýän PDF-ler däl-de, gözläp tapyp boljak, tertipli kitaphana.</p>
+        <div class="home-actions">
+            {% if current_user %}
+            <a class="button" href="/account">Hasabyma geç</a>
+            {% else %}
+            <a class="button" href="/login">Telefon belgisi bilen giriň</a>
+            {% endif %}
+        </div>
+        <p class="home-note">Katalog häzir taýýarlanýar. Hasap açmak üçin diňe telefon belgiňiz gerek.</p>
+    </div>
+
+    <section class="card home-ways" aria-labelledby="home-ways-title">
+        <h2 id="home-ways-title">Nähili işleýär</h2>
+        <ul>
+            <li>
+                <h3>Gözläň</h3>
+                <p>Kitaby ady ýa-da awtory boýunça tapyň.</p>
+            </li>
+            <li>
+                <h3>Ýükläp alyň</h3>
+                <p>Käbir kitaplar mugt, käbirleri üçin ýyldyz gerek.</p>
+            </li>
+            <li>
+                <h3>Soraň</h3>
+                <p>Ýok kitaby soraň. Başgalar hem ses berse, ol öňe geçýär.</p>
+            </li>
+        </ul>
+    </section>
 </section>
-
-<ul class="home-ways">
-    <li>
-        <h2>Gözläň</h2>
-        <p>Kitaby ady ýa-da awtory boýunça tapyň.</p>
-    </li>
-    <li>
-        <h2>Ýükläp alyň</h2>
-        <p>Käbir kitaplar mugt, käbirleri üçin ýyldyz gerek.</p>
-    </li>
-    <li>
-        <h2>Soraň</h2>
-        <p>Ýok kitaby soraň. Başgalar hem ses berse, ol öňe geçýär.</p>
-    </li>
-</ul>
-
-<div class="home-status">
-    <p>Katalog häzir taýýarlanýar. Hasap açmak üçin diňe telefon belgiňiz gerek.</p>
-    {% if current_user %}
-    <a class="button button-quiet" href="/account">Hasabyma geç</a>
-    {% else %}
-    <a class="button" href="/login">Telefon belgisi bilen giriň</a>
-    {% endif %}
-</div>
 {% endblock %}

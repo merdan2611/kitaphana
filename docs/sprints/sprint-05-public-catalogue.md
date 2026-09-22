@@ -20,6 +20,11 @@ site is usable on a phone on a slow connection.
 
 ## Tasks
 
+> **Layout (added 2026-09-23, [ADR-0018](../adr/0018-responsive-website-and-phone-layout.md)):**
+> every page in this sprint needs both designs — the website from 48rem and the app-style
+> phone layout below it — checked with screenshots at both widths. The catalogue also gets a
+> **Katalog** tab in the phone tab bar (`templates/base.html`) and a link in the website header.
+
 ### 1. Catalogue page
 
 A paginated grid or list of published books: cover, title, author, year, price in stars. Server

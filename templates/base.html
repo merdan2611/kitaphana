@@ -1,9 +1,11 @@
+{% from "_macros.html" import icon %}
 <!doctype html>
 <html lang="tk">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#9e1b22">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    {# The one colour CSS cannot reach: keep it equal to --color-header in static/style.css. #}
+    <meta name="theme-color" content="#ffffff">
     <title>{% block title %}Kitaphana{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
     {% block head %}{% endblock %}
@@ -18,20 +20,22 @@
 
     {% block header %}
     <header class="site-header">
-        <nav class="site-nav" aria-label="Esasy">
+        <div class="container site-header-inner">
             <a class="site-title" href="/">Kitaphana</a>
-            <div class="site-nav-links">
+            {% if dev_otp_mode %}<span class="dev-pill">Ösüş tertibi</span>{% endif %}
+            {# Website navigation; on phones the tab bar at the bottom takes its place. #}
+            <nav class="site-nav" aria-label="Esasy">
                 {% if current_user %}
                 {% if current_user.is_admin %}<a href="/admin">Dolandyryş</a>{% endif %}
-                <a href="/account">Hasabym</a>
+                <a href="/account" {% if request.url.path.startswith("/account") %}aria-current="page"{% endif %}>Hasabym</a>
                 <form class="inline-form" method="post" action="/logout">
                     <button class="link-button" type="submit">Çykyş</button>
                 </form>
-                {% else %}
-                <a href="/login">Giriş</a>
+                {% elif not request.url.path.startswith("/login") %}
+                <a class="button" href="/login">Giriş</a>
                 {% endif %}
-            </div>
-        </nav>
+            </nav>
+        </div>
         <div class="gol-strip" aria-hidden="true"></div>
     </header>
     {% endblock %}
@@ -42,8 +46,25 @@
 
     {% block footer %}
     <footer class="site-footer">
-        <p>Kitaphana: türkmen dilindäki kitaplaryň sanly kitaphanasy.</p>
+        <div class="container site-footer-inner">
+            <p>Kitaphana: türkmen dilindäki kitaplaryň sanly kitaphanasy.</p>
+        </div>
     </footer>
+    {% endblock %}
+
+    {% block tabbar %}
+    {# Phone navigation, app-style. New top-level sections add a tab here (ADR-0018). #}
+    <nav class="tab-bar" aria-label="Bölümler">
+        <a href="/" {% if request.url.path == "/" %}aria-current="page"{% endif %}>{{ icon("home") }}<span>Baş sahypa</span></a>
+        {% if current_user %}
+        <a href="/account" {% if request.url.path.startswith("/account") %}aria-current="page"{% endif %}>{{ icon("user") }}<span>Hasabym</span></a>
+        {% if current_user.is_admin %}
+        <a href="/admin">{{ icon("settings") }}<span>Dolandyryş</span></a>
+        {% endif %}
+        {% else %}
+        <a href="/login" {% if request.url.path.startswith("/login") %}aria-current="page"{% endif %}>{{ icon("user") }}<span>Giriş</span></a>
+        {% endif %}
+    </nav>
     {% endblock %}
 </body>
 </html>

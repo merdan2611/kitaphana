@@ -1,3 +1,22 @@
+{# Line icons for the phone tab bar. 24px, drawn with currentColor so they follow the colour tokens. #}
+{% macro icon(name) -%}
+<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+{%- if name == "home" -%}
+<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9"/>
+{%- elif name == "user" -%}
+<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>
+{%- elif name == "settings" -%}
+<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>
+{%- elif name == "grid" -%}
+<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>
+{%- elif name == "book" -%}
+<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19"/>
+{%- elif name == "plus" -%}
+<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>
+{%- endif -%}
+</svg>
+{%- endmacro %}
+
 {# A book's cover, or a typeset stand-in when it has none. Never a broken image. #}
 {% macro cover(book, eager=false) -%}
 {% set url = cover_url(book) %}

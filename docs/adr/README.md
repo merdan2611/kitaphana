@@ -50,3 +50,4 @@ because it was a mistake or annoying because it was the price of something that 
 | [0015](0015-turkmentelecom-vds-hosting.md) | Host on a single Turkmentelecom VDS | Accepted | 2026-09-20 |
 | [0016](0016-sqlite-wal-and-migrations.md) | SQLite in WAL mode with plain SQL migrations | Accepted | 2026-09-20 |
 | [0017](0017-local-dev-with-placeholder-fixtures.md) | Develop locally with placeholder fixtures before the VDS is available | Accepted | 2026-09-21 |
+| [0018](0018-responsive-website-and-phone-layout.md) | A website on wide screens, an app-style layout on phones | Accepted | 2026-09-23 |
