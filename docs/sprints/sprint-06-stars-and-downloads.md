@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | ⚪ Pending |
+| **Status** | 🟢 Shipped 2026-09-23 |
 | **Phase** | 1 (usable library, codes on screen) |
 | **Milestone** | M6 — I can download a book |
 | **Estimated time** | ~1-2 weeks |
@@ -109,20 +109,56 @@ expensive, but a limit costs nothing to add and covers the case of a free-book s
 **Done when:** exceeding the limit is refused with a clear message, and free books are limited
 too.
 
+## What changed while building it (2026-09-23)
+
+Recorded here so the plan above still matches what exists:
+
+- **A book is paid for once.** Decided by the product owner during the sprint: downloading a
+  book already paid for is free, so a download that fails on mobile data never costs twice. Each
+  re-download still writes a zero-star `spend` row. A `refund` for the book cancels this, and the
+  next download is paid again. Step 4 therefore also checks "paid before?" inside the same
+  transaction, so three simultaneous first downloads of one book charge once.
+- **A download is two requests.** `POST /books/{id}/download` does steps 1-4 and redirects to
+  `GET /books/{id}/file`, which does step 5 for a reader whose download is already recorded and
+  never writes anything. POST, so that neither a link prefetcher nor another site (the cookie is
+  SameSite=Lax) can spend stars; a separate GET, so that a browser resuming an interrupted
+  download asks the file URL again without being charged or rate-limited.
+- **No balance may go below zero**, for spends and for the admin's negative corrections alike.
+- **The ledger is the download log.** The rate limit (`DOWNLOAD_LIMITS`, default 10 an hour and
+  30 a day) counts `spend` rows, so it needs no table of its own. Resuming does not count.
+- **Append-only is enforced by the database too:** migration 005 adds triggers that refuse any
+  UPDATE or DELETE on `star_ledger`, and CHECK constraints on the sign of each reason.
+- **Every piece of SQL that touches the ledger is in `app/stars.py`**, reads included, and
+  `tests/test_stars.py` fails if any other module mentions the table.
+- **The setting is `DOWNLOADS_VIA_NGINX`.** It defaults to on, which is what production needs;
+  `.env.example` turns it off for local development. The nginx location is `/_protected/`
+  (`app/downloads.py`, `ACCEL_PREFIX`), now written into Sprint 02's nginx task.
+- **Refunds have no admin page.** `stars.append_entry` supports them and the history page shows
+  them. Until an admin page is needed, a refund is one call in a Python shell, or a positive
+  grant with a note.
+- **Admin pages:** `/admin/stars` grants and corrects, looks a reader up by phone, and lists the
+  newest entries across all readers. It is the fifth admin tab, so the admin tab bar is now full
+  ([ADR-0018](../adr/0018-responsive-website-and-phone-layout.md)).
+
 ## Done when (sprint acceptance)
 
-- [ ] A reader with stars downloads a priced book and the balance falls by exactly the price.
-- [ ] A reader without enough stars is refused, with an explanation.
-- [ ] Free books download for any signed-in reader and still write a zero-amount ledger row, so
+- [x] A reader with stars downloads a priced book and the balance falls by exactly the price.
+- [x] A reader without enough stars is refused, with an explanation.
+- [x] Free books download for any signed-in reader and still write a zero-amount ledger row, so
       the download is recorded.
-- [ ] Concurrent downloads cannot overdraw a balance.
-- [ ] nginx serves the bytes: the uvicorn worker is free within milliseconds.
-- [ ] The media directory is not reachable by direct URL.
-- [ ] The history page accounts for every star the reader has ever had.
-- [ ] Verified end-to-end on localhost, including the direct-serve fallback for downloads —
+- [x] Concurrent downloads cannot overdraw a balance.
+- [ ] nginx serves the bytes: the uvicorn worker is free within milliseconds. *The app side is
+      tested (an empty response with the right `X-Accel-Redirect`); nginx is not installed
+      locally, so the real check moves to Sprint 02's catch-up pass.*
+- [x] The media directory is not reachable by direct URL. *Through the app, tested; through
+      nginx's `internal` location, checked again in Sprint 02.*
+- [x] The history page accounts for every star the reader has ever had.
+- [x] Verified end-to-end on localhost, including the direct-serve fallback for downloads —
       and will be exercised for real, over mobile data with pausing and resuming, once deployed
       in Sprint 02's catch-up pass (see
-      [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)).
+      [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)). *By hand under uvicorn:
+      grant, download at a price, free re-download, resume from a byte offset (206), refusal
+      when underfunded, sign-in redirect; the downloaded file's SHA-256 matched the stored one.*
 
 ## Tests
 

@@ -38,7 +38,9 @@ python -m scripts.seed_fixtures  # optional: five public-domain placeholder book
 uvicorn app.main:app --reload
 ```
 
-Then open http://127.0.0.1:8000, or check http://127.0.0.1:8000/health. Use `localhost` or
+Then open http://127.0.0.1:8000, or check http://127.0.0.1:8000/health. Keep
+`DOWNLOADS_VIA_NGINX=false` in a local `.env`: without nginx in front, a download would
+otherwise arrive as an empty file (ADR-0014). Use `localhost` or
 `127.0.0.1` rather than a LAN address: the session cookie is `Secure`, and browsers accept that
 over plain HTTP only for those two.
 
@@ -49,6 +51,8 @@ python -m scripts.make_admin "+993 61 234567"
 ```
 
 The admin panel is at http://127.0.0.1:8000/admin (a 404 for anyone who is not an admin).
+Stars are granted at http://127.0.0.1:8000/admin/stars. Ledger rows can never be deleted, so
+try things out on a throwaway `DATABASE_PATH` rather than a database you want to keep clean.
 
 ## Tests
 

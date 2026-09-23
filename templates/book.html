@@ -22,12 +22,25 @@
             <div><dt>Bahasy</dt><dd>{% if book.price_stars %}{{ book.price_stars }} ýyldyz{% else %}Mugt{% endif %}</dd></div>
         </dl>
 
-        {# Sprint 06 makes this button work and checks the reader's star balance. #}
+        {# POST, because it can spend stars (app/downloads.py). #}
         <section class="download-panel" aria-label="Ýükläp almak">
+            {% if download_error %}<p class="form-error" role="alert">{{ download_error }}</p>{% endif %}
             {% if current_user %}
-            <button type="button" disabled>Ýükle</button>
-            <p>Ýükläp almak indiki tapgyrda goşular.{% if book.price_stars %} Şonda bu kitap üçin
-                {{ book.price_stars }} ýyldyz gerek bolar.{% endif %}</p>
+            {% set price = book.price_stars %}
+            <form method="post" action="/books/{{ book.id }}/download">
+                <button type="submit">
+                    {%- if not price or paid_for %}Ýükle{% else %}Ýükle: {{ price }} ýyldyz{% endif -%}
+                </button>
+            </form>
+            <p>
+                {% if not price %}Bu kitap mugt: ýyldyz gerek däl.
+                {% elif paid_for %}Siz bu kitaby eýýäm satyn aldyňyz: täzeden ýüklemek mugt.
+                {% elif star_balance >= price %}Balansyňyz {{ star_balance }} ýyldyz. Ýükläniňizden
+                    soň {{ star_balance - price }} ýyldyz galar.
+                {% else %}Balansyňyz {{ star_balance }} ýyldyz, bu kitap üçin {{ price }} ýyldyz
+                    gerek. <a href="/account/stars">Ýyldyzlar barada</a>
+                {% endif %}
+            </p>
             {% else %}
             <a class="button" href="{{ login_url }}">Ýüklemek üçin giriň</a>
             <p>Diňe telefon belgiňiz gerek, parol ýok. Girenden soň şu sahypa gaýdyp gelersiňiz.</p>

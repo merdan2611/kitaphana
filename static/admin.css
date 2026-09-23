@@ -380,6 +380,39 @@ body.admin {
     margin-bottom: var(--space-2);
 }
 
+/* --- Stars ----------------------------------------------------------------------------------- */
+
+.grant-layout {
+    display: grid;
+    gap: 0 var(--space-3);
+}
+
+.reader-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-2);
+}
+
+.reader-head h2 {
+    margin-bottom: var(--space-1);
+}
+
+.reader-balance {
+    font-size: var(--step-1);
+}
+
+.lookup-bar input {
+    grid-column: auto;
+}
+
+/* The ledger runs edge to edge inside a panel, like the book list. */
+.panel .ledger {
+    margin: 0 calc(-1 * var(--space-2));
+    width: calc(100% + 2 * var(--space-2));
+}
+
 /* === Wide screens ============================================================================ */
 
 @media (min-width: 48rem) {
@@ -445,5 +478,21 @@ body.admin {
 
     .panel {
         padding: var(--space-3);
+    }
+
+    .panel .ledger {
+        margin: 0;
+        width: 100%;
+    }
+
+    .lookup-bar {
+        grid-template-columns: 1fr auto;
+    }
+}
+
+@media (min-width: 64rem) {
+    .grant-layout {
+        grid-template-columns: minmax(0, 26rem) minmax(0, 1fr);
+        align-items: start;
     }
 }

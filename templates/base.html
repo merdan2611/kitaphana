@@ -37,6 +37,13 @@
                 <a class="button" href="/login">Giriş</a>
                 {% endif %}
             </nav>
+            {% if current_user %}
+            {# In the app bar on phones and at the end of the navigation on the website. #}
+            <a class="star-balance" href="/account/stars" title="Ýyldyz balansyňyz"
+               {% if request.url.path == "/account/stars" %}aria-current="page"{% endif %}>
+                {{ icon("star") }}<span><span class="visually-hidden">Ýyldyz balansyňyz: </span>{{ star_balance }}</span>
+            </a>
+            {% endif %}
         </div>
         <div class="gol-strip" aria-hidden="true"></div>
     </header>

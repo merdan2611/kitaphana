@@ -17,7 +17,7 @@ from urllib.parse import urlsplit
 from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 
-from app import config, ratelimit, sessions
+from app import config, ratelimit, sessions, stars
 from app.db import get_db, timestamp
 from app.phone import InvalidPhone, normalize_phone
 from app.templating import templates
@@ -145,12 +145,19 @@ def verify_code(conn: sqlite3.Connection, phone: str, code: str) -> int:
 # --- Dependencies ----------------------------------------------------------------------------
 
 
+def identify(request: Request, conn: sqlite3.Connection) -> sqlite3.Row | None:
+    """Look up the signed-in reader and their star balance, and keep both on request.state,
+    where every page's header reads them (app/templating.py)."""
+    user = sessions.user_for_cookie(conn, request.cookies.get(sessions.COOKIE_NAME))
+    request.state.user = user
+    request.state.star_balance = stars.balance(conn, user["id"]) if user is not None else None
+    return user
+
+
 def current_user(request: Request, conn: sqlite3.Connection = Depends(get_db)) -> sqlite3.Row | None:
     """The signed-in reader, or None. Registered app-wide in main.py so templates always see it;
     FastAPI caches it per request, so depending on it again in a route costs nothing."""
-    user = sessions.user_for_cookie(conn, request.cookies.get(sessions.COOKIE_NAME))
-    request.state.user = user
-    return user
+    return identify(request, conn)
 
 
 def require_user(user: sqlite3.Row | None = Depends(current_user)) -> sqlite3.Row:
@@ -266,6 +273,17 @@ def login_verify(
 @router.get("/account")
 def account(request: Request, user=Depends(require_user)):
     return templates.TemplateResponse(request, "account.html", {"user": user})
+
+
+@router.get("/account/stars")
+def account_stars(
+    request: Request, user=Depends(require_user), conn: sqlite3.Connection = Depends(get_db)
+):
+    """Every ledger entry the reader has, so they can see what happened to their stars
+    without having to ask (Sprint 06 task 4)."""
+    return templates.TemplateResponse(
+        request, "account_history.html", {"user": user, "entries": stars.history(conn, user["id"])}
+    )
 
 
 @router.post("/logout")

@@ -27,6 +27,12 @@ brought forward if the star work stalls.
 > (003-005 are taken). The no-results page already shows a "Bu kitaby soraň" placeholder panel
 > (`templates/catalogue.html`); task 8 turns it into a request link prefilled with the search.
 
+> **Carried in from Sprint 06 (2026-09-23):** the admin tab bar has five tabs (overview,
+> books, add book, stars, site), which is as many as fit. If fulfilling requests needs its own
+> admin section, make room first, e.g. merge "add book" into the books page, rather than adding
+> a sixth tab ([ADR-0018](../adr/0018-responsive-website-and-phone-layout.md)). Signed-in pages
+> also show the star balance chip in the header.
+
 > **Layout (added 2026-09-23, [ADR-0018](../adr/0018-responsive-website-and-phone-layout.md)):**
 > every page in this sprint needs both designs — the website from 48rem and the app-style
 > phone layout below it — checked with screenshots at both widths. The request list also gets a

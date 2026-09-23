@@ -1,0 +1,56 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import field, ledger %}
+
+{% block title %}Ýyldyzlar: dolandyryş{% endblock %}
+
+{% block content %}
+<div class="admin-heading">
+    <h1>Ýyldyzlar</h1>
+</div>
+
+{% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
+
+<div class="grant-layout">
+    <section class="panel">
+        <h2>Ýyldyz ber ýa-da düzet</h2>
+        <form class="admin-form" method="post" action="/admin/stars" novalidate>
+            {{ field("phone", "Okyjynyň telefon belgisi", values, errors, type="tel") }}
+            {{ field("amount", "Ýyldyz", values, errors,
+                     hint="Aýyrmak üçin minus goýuň, mysal üçin -3. Ýazgy hiç haçan üýtgedilmeýär: düzediş täze ýazgy bolup goşulýar.") }}
+            {{ field("note", "Sebäbi", values, errors, type="textarea",
+                     hint="Hökman. Okyjy bu belligi öz taryhynda görýär.") }}
+            <div class="form-actions">
+                <button type="submit">Ýazgyny goş</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="panel">
+        {% if reader %}
+        <div class="reader-head">
+            <h2>{{ reader.phone | phone }}</h2>
+            <a href="/admin/stars">Başga okyjy</a>
+        </div>
+        <p class="reader-balance">Balansy: <strong>{{ reader_balance }} ýyldyz</strong></p>
+        {% if reader_entries %}{{ ledger(reader_entries) }}
+        {% else %}<p class="muted">Entek ýazgy ýok.</p>{% endif %}
+        {% else %}
+        <h2>Okyjyny tap</h2>
+        <form class="filter-bar lookup-bar" method="get" action="/admin/stars" role="search">
+            <label class="visually-hidden" for="lookup-phone">Telefon belgisi</label>
+            <input id="lookup-phone" type="tel" name="phone" value="{{ lookup_phone }}" placeholder="+993 61 234567"
+                   {% if lookup_error %}aria-invalid="true" aria-describedby="lookup-error"{% endif %}>
+            <button type="submit" class="button-quiet">Tap</button>
+        </form>
+        {% if lookup_error %}<p class="field-error" id="lookup-error">{{ lookup_error }}</p>{% endif %}
+        <p class="muted">Belgisini ýazyp, okyjynyň balansyny we ähli ýazgylaryny görüň.</p>
+        {% endif %}
+    </section>
+</div>
+
+<section class="panel">
+    <h2>Soňky ýazgylar</h2>
+    {% if recent %}{{ ledger(recent, readers=true) }}
+    {% else %}<p class="muted">Entek hiç kime ýyldyz berilmedi we hiç kitap ýüklenmedi.</p>{% endif %}
+</section>
+{% endblock %}

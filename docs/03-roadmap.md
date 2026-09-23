@@ -2,20 +2,21 @@
 
 **The "where am I?" file. Open this first in every session.**
 
-Sprints 01, 03, 04 and 05 have shipped: anyone can browse and search the library, and an admin
-can add books to it. Sprint 06 — Stars and downloads is next; Sprint 02 still waits for the VDS.
+Sprints 01 and 03-06 have shipped: anyone can browse and search the library, an admin can add
+books and grant stars, and a signed-in reader can spend stars to download a book. Sprint 07 —
+Requests is next; Sprint 02 still waits for the VDS.
 
 ## Current sprint
 
 | | |
 |---|---|
-| **Sprint** | S06 — Stars and downloads |
+| **Sprint** | S07 — Requests |
 | **Status** | ⚪ Pending |
 | **Started** | — |
 | **Phase** | 1 (usable library, codes on screen) |
-| **Sprint doc** | [`sprints/sprint-06-stars-and-downloads.md`](sprints/sprint-06-stars-and-downloads.md) |
-| **Milestone** | M6 — I can download a book |
-| **Next up** | S07 — Requests (S02 runs whenever the VDS is available — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)) |
+| **Sprint doc** | [`sprints/sprint-07-requests.md`](sprints/sprint-07-requests.md) |
+| **Milestone** | M7 — I can ask for a book |
+| **Next up** | S08 — Beta hardening (S02 runs whenever the VDS is available — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)) |
 
 ## Phase 1 sprints
 
@@ -28,7 +29,7 @@ can add books to it. Sprint 06 — Stars and downloads is next; Sprint 02 still 
 | 03 | [Accounts](sprints/sprint-03-accounts.md) | 🟢 Shipped | 2026-09-23 | M3 | …sign up with a phone number and stay logged in |
 | 04 | [Admin and ingest](sprints/sprint-04-admin-and-ingest.md) | 🟢 Shipped | 2026-09-23 | M4 | …put a book into the library |
 | 05 | [Public catalogue](sprints/sprint-05-public-catalogue.md) | 🟢 Shipped | 2026-09-23 | M5 | …find that book by searching |
-| 06 | [Stars and downloads](sprints/sprint-06-stars-and-downloads.md) | ⚪ Pending | — | M6 | …spend stars and get the PDF |
+| 06 | [Stars and downloads](sprints/sprint-06-stars-and-downloads.md) | 🟢 Shipped | 2026-09-23 | M6 | …spend stars and get the PDF |
 | 07 | [Requests](sprints/sprint-07-requests.md) | ⚪ Pending | — | M7 | …ask for a missing book and upvote others |
 | 08 | [Beta hardening](sprints/sprint-08-beta-hardening.md) | ⚪ Pending | — | M8 | …hand the link to a tester without apologising |
 
@@ -83,6 +84,18 @@ If a sprint is 🔴 Blocked, say what it is blocked on in the status cell and op
 ## Shipped log
 
 *Newest first.*
+
+- **2026-09-23** — Sprint 06 (Stars and downloads) shipped. An admin can give a reader stars by
+  phone number, with a note the reader also sees, and correct a mistake with a negative entry.
+  A signed-in reader sees their balance in the header, downloads a free book for nothing or a
+  priced one for exactly its price, and gets a PDF named after the book («Älem.pdf»), not its
+  hash. A book paid for once downloads again for free. Without enough stars, a page explains
+  the price, the balance and that stars come from the admin, and nothing is charged. The
+  history page lists every star movement with the balance after each. Every movement is a row
+  in an append-only ledger that the database itself refuses to edit or delete; simultaneous
+  downloads cannot overdraw a balance or charge twice; downloads are limited to 10 an hour and
+  30 a day. nginx sending the bytes is ready in the app and waits for Sprint 02 to be checked
+  for real; under a bare uvicorn the app sends the file itself.
 
 - **2026-09-23** — Sprint 05 (Public catalogue) shipped. Anyone, signed in or not, can browse the
   published books, filter by language, sort newest-first or by title, and search by title or

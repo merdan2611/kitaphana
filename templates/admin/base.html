@@ -14,6 +14,7 @@
             <a href="/admin" {% if section == "index" %}aria-current="page"{% endif %}>Umumy</a>
             <a href="/admin/books" {% if section == "books" %}aria-current="page"{% endif %}>Kitaplar</a>
             <a href="/admin/books/new" {% if section == "new" %}aria-current="page"{% endif %}>Kitap goş</a>
+            <a href="/admin/stars" {% if section == "stars" %}aria-current="page"{% endif %}>Ýyldyzlar</a>
         </nav>
         <a class="admin-exit" href="/">Saýta dolan</a>
     </div>
@@ -27,6 +28,7 @@
     <a href="/admin" {% if section == "index" %}aria-current="page"{% endif %}>{{ icon("grid") }}<span>Umumy</span></a>
     <a href="/admin/books" {% if section == "books" %}aria-current="page"{% endif %}>{{ icon("book") }}<span>Kitaplar</span></a>
     <a href="/admin/books/new" {% if section == "new" %}aria-current="page"{% endif %}>{{ icon("plus") }}<span>Kitap goş</span></a>
+    <a href="/admin/stars" {% if section == "stars" %}aria-current="page"{% endif %}>{{ icon("star") }}<span>Ýyldyzlar</span></a>
     <a href="/">{{ icon("home") }}<span>Saýt</span></a>
 </nav>
 {% endblock %}

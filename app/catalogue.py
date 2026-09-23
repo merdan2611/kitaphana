@@ -14,7 +14,7 @@ from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from app import search
+from app import search, stars
 from app.db import get_db
 from app.templating import templates
 
@@ -135,20 +135,54 @@ def catalogue(
     )
 
 
-@router.get("/books/{book_id}")
-def book_page(request: Request, book_id: str, conn: sqlite3.Connection = Depends(get_db)):
-    if not _BOOK_ID.fullmatch(book_id) or int(book_id) > MAX_BOOK_ID:
+def published_book_or_404(conn: sqlite3.Connection, book_id: str) -> sqlite3.Row:
+    """The published book with this id as it appears in a URL, or a 404.
+
+    Unknown, unpublished and malformed ids all look exactly the same from outside.
+    """
+    if not valid_book_id(book_id):
         raise HTTPException(status_code=404)
     book = conn.execute("SELECT * FROM published_books WHERE id = ?", (int(book_id),)).fetchone()
     if book is None:
-        # Unknown and unpublished look exactly the same from outside.
         raise HTTPException(status_code=404)
+    return book
+
+
+def valid_book_id(book_id: str) -> bool:
+    """Canonical digits within SQLite's integer range: nothing else reaches the database."""
+    return bool(_BOOK_ID.fullmatch(book_id)) and int(book_id) <= MAX_BOOK_ID
+
+
+def login_url_for(book_id: int) -> str:
+    """Sign in, then come back to this book's page."""
+    return "/login?" + urlencode({"next": f"/books/{book_id}"})
+
+
+def book_page_response(
+    request: Request,
+    conn: sqlite3.Connection,
+    book: sqlite3.Row,
+    status_code: int = 200,
+    download_error: str | None = None,
+):
+    """The book page. Also rendered by app/downloads.py when a download is refused there."""
+    user = getattr(request.state, "user", None)
     return templates.TemplateResponse(
         request,
         "book.html",
         {
             "book": book,
             "language_name": LANGUAGES.get(book["language"], book["language"]),
-            "login_url": "/login?" + urlencode({"next": f"/books/{book['id']}"}),
+            "login_url": login_url_for(book["id"]),
+            # A book paid for once downloads again for free (app/downloads.py).
+            "paid_for": user is not None and stars.has_paid_for(conn, user["id"], book["id"]),
+            "download_error": download_error,
         },
+        status_code=status_code,
     )
+
+
+@router.get("/books/{book_id}")
+def book_page(request: Request, book_id: str, conn: sqlite3.Connection = Depends(get_db)):
+    book = published_book_or_404(conn, book_id)
+    return book_page_response(request, conn, book)

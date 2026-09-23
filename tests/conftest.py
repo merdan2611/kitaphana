@@ -54,6 +54,8 @@ def test_settings(monkeypatch, tmp_path):
         # the test's database, never the developer's kitaphana.db. Same file as `db_path`.
         database_path=tmp_path / "test.db",
         max_upload_mb=200,
+        download_limits=((10, 3600), (30, 86400)),
+        downloads_via_nginx=True,
     )
     return override
 

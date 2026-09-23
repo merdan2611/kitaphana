@@ -1,4 +1,4 @@
-"""Rate limits on code requests (Sprint 03 task 5).
+"""Rate limits on code requests (Sprint 03 task 5), and the arithmetic downloads share (Sprint 06).
 
 In Phase 1 this is anti-abuse; in Phase 2 every code is a paid SMS, so it becomes a financial
 control (ADR-0006). The otp_codes table is the log: each issued code is one row carrying its
@@ -26,16 +26,33 @@ class RateLimited(Exception):
 
     @property
     def message(self) -> str:
-        minutes = math.ceil(self.retry_after_seconds / 60)
-        if minutes >= 120:
-            wait = f"{math.ceil(minutes / 60)} sagatdan"
-        else:
-            wait = f"{minutes} minutdan"
-        return f"Kod gaty köp soraldy. {wait} soň täzeden synanyşyň."
+        return f"Kod gaty köp soraldy. {wait_phrase(self.retry_after_seconds)} soň täzeden synanyşyň."
+
+
+def wait_phrase(seconds: int) -> str:
+    """"5 minutdan" or "3 sagatdan": how long to wait, for "… soň täzeden synanyşyň"."""
+    minutes = math.ceil(seconds / 60)
+    if minutes >= 120:
+        return f"{math.ceil(minutes / 60)} sagatdan"
+    return f"{minutes} minutdan"
 
 
 def _parse(stored: str) -> datetime:
     return datetime.strptime(stored, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+
+
+def seconds_until_allowed(times: list[str], count: int, seconds: int) -> int:
+    """0 if one more event is within the limit, else how many seconds until it is (at least 1).
+
+    `times` are the stored timestamps of the events inside the window, oldest first. The next
+    event becomes allowed once enough of them age out that fewer than `count` remain: i.e. when
+    event number (n - count), oldest first, leaves the window.
+    """
+    if len(times) < count:
+        return 0
+    frees_at = _parse(times[len(times) - count]) + timedelta(seconds=seconds)
+    wait = (frees_at - datetime.now(timezone.utc)).total_seconds()
+    return max(math.ceil(wait), 1)
 
 
 def check_code_request(conn: sqlite3.Connection, phone: str, ip: str | None) -> None:
@@ -53,18 +70,13 @@ def check_code_request(conn: sqlite3.Connection, phone: str, ip: str | None) -> 
     for column, value, limits in checks:
         for count, seconds in limits:
             since = timestamp(-timedelta(seconds=seconds))
-            # The request becomes allowed again once enough of the in-window rows age out that
-            # fewer than `count` remain: i.e. when row number (n - count), oldest first, leaves.
             rows = conn.execute(
                 f"SELECT created_at FROM otp_codes WHERE {column} = ? AND created_at > ?"
                 " ORDER BY created_at",
                 (value, since),
             ).fetchall()
-            if len(rows) < count:
-                continue
-            frees_at = _parse(rows[len(rows) - count]["created_at"]) + timedelta(seconds=seconds)
-            wait = (frees_at - datetime.now(timezone.utc)).total_seconds()
-            retry_after = max(retry_after, math.ceil(wait), 1)
+            times = [row["created_at"] for row in rows]
+            retry_after = max(retry_after, seconds_until_allowed(times, count, seconds))
     if retry_after:
         raise RateLimited(retry_after)
 

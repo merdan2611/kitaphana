@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, ledger %}
+
+{% block title %}Ýyldyzlarym: Kitaphana{% endblock %}
+{% block body_class %}page-desk{% endblock %}
+
+{% block content %}
+<p class="breadcrumb"><a href="/account">Hasabym</a></p>
+<h1>Ýyldyzlarym</h1>
+
+<div class="history-layout">
+    <section class="card balance-card" aria-label="Balans">
+        <p class="balance-label">Häzirki balansyňyz</p>
+        <p class="balance-figure">{{ icon("star") }}<strong>{{ star_balance }}</strong> <span>ýyldyz</span></p>
+        <p class="balance-help">Häzirlikçe ýyldyzlary satyn alyp bolmaýar: olary administrator berýär.
+            Ýyldyz gerek bolsa, administratora ýüz tutuň we telefon belgiňizi aýdyň:
+            <strong class="nowrap">{{ user.phone | phone }}</strong>.</p>
+        <p class="balance-help">Mugt kitaplar üçin ýyldyz gerek däl. Bir gezek satyn alan kitabyňyzy
+            täzeden mugt ýükläp bilersiňiz.</p>
+    </section>
+
+    <section class="history-main" aria-labelledby="history-title">
+        <h2 id="history-title">Taryhy</h2>
+        {% if entries %}
+        <div class="card ledger-card">{{ ledger(entries) }}</div>
+        <p class="history-foot">Her ýazgy hemişe saklanýar: hiç biri pozulmaýar ýa-da üýtgedilmeýär.
+            Ýalňyşlyk bolsa, ol täze ýazgy bilen düzedilýär.</p>
+        {% else %}
+        <div class="card history-empty">
+            <p>Entek hiç hili ýazgy ýok. Ýyldyz berlende ýa-da kitap ýüklände, ol şu ýerde görüner.</p>
+            <a class="button" href="/books">Kataloga geç</a>
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -91,7 +91,23 @@ than tested.
 A site configuration that proxies to uvicorn, serves `/static/` directly from disk, sets a
 sensible upload size limit (large enough for the biggest PDF you expect), and defines the
 `internal` location for media that [ADR-0014](../adr/0014-x-accel-redirect-for-downloads.md)
-will need in Sprint 06. Defining it now costs nothing and means Sprint 06 does not touch nginx.
+needs.
+
+> **Carried in from Sprint 06 (2026-09-23):** the app sends `X-Accel-Redirect:
+> /_protected/books/ab/cd/<hash>.pdf`, so the location must be exactly
+>
+> ```nginx
+> location /_protected/ {
+>     internal;
+>     alias /path/to/MEDIA_DIR/;   # trailing slashes on both, or paths join wrongly
+> }
+> ```
+>
+> and `.env` on the server must have `DOWNLOADS_VIA_NGINX=true` (the default; `.env.example`
+> sets it to false for development). The prefix lives in `app/downloads.py` as `ACCEL_PREFIX`;
+> if downloads 404 after a deployment, compare the two first. In the catch-up pass, check that
+> `curl https://<domain>/_protected/...` gives 404, that a download arrives complete with the
+> book's title as its file name, and that one interrupted and resumed on a phone completes.
 
 Turn on `gzip` for HTML and CSS: a catalogue page is 18 KB of HTML but 3.4 KB gzipped, and the
 stylesheet 30 KB but 6.6 KB, which matters on metered connections (measured in Sprint 05).

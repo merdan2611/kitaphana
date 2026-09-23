@@ -202,13 +202,12 @@ def test_anonymous_visitor_is_invited_to_log_in_and_come_back(client, db):
     assert "Ýüklemek üçin giriň" in html
 
 
-def test_signed_in_reader_sees_the_download_button_waiting_for_sprint_06(client, db):
+def test_signed_in_reader_sees_a_download_button_with_the_price(client, db):
     book_id = add_book(db, "Görogly", price=2)
     login(client)
     html = client.get(f"/books/{book_id}").text
-    assert re.search(r"<button type=\"button\" disabled>Ýükle</button>", html)
-    assert "indiki tapgyrda" in html
-    assert "2 ýyldyz gerek bolar" in html
+    assert f'<form method="post" action="/books/{book_id}/download">' in html
+    assert "Ýükle: 2 ýyldyz" in html
     assert "Ýüklemek üçin giriň" not in html
 
 

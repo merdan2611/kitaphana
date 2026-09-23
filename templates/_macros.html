@@ -1,4 +1,4 @@
-{# Line icons for the phone tab bar. 24px, drawn with currentColor so they follow the colour tokens. #}
+{# Line icons for the phone tab bar and the star balance. 24px, drawn with currentColor so they follow the colour tokens. #}
 {% macro icon(name) -%}
 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 {%- if name == "home" -%}
@@ -13,6 +13,8 @@
 <path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19"/>
 {%- elif name == "plus" -%}
 <circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>
+{%- elif name == "star" -%}
+<path d="m12 3.5 2.6 5.3 5.9.9-4.25 4.1 1 5.8L12 16.9l-5.25 2.7 1-5.8L3.5 9.7l5.9-.9z"/>
 {%- endif -%}
 </svg>
 {%- endmacro %}
@@ -51,4 +53,54 @@
     {% if hint %}<p class="field-hint">{{ hint }}</p>{% endif %}
     {% if errors.get(name) %}<p class="field-error" id="e-{{ name }}">{{ errors[name] }}</p>{% endif %}
 </div>
+{%- endmacro %}
+
+{# A signed star amount: "+10", "−3" (a real minus sign), "0". #}
+{% macro signed(amount) -%}
+{% if amount > 0 %}+{{ amount }}{% elif amount < 0 %}−{{ -amount }}{% else %}0{% endif %}
+{%- endmacro %}
+
+{# What a ledger entry was, in words (reasons: migration 005). #}
+{% macro ledger_reason(entry) -%}
+{% if entry.reason == "grant" %}{{ "Administrator berdi" if entry.amount > 0 else "Administrator düzetdi" }}
+{%- elif entry.reason == "spend" %}{{ "Kitap satyn alyndy" if entry.amount < 0 else "Kitap ýüklendi" }}
+{%- elif entry.reason == "topup" %}Ýyldyz satyn alyndy
+{%- elif entry.reason == "refund" %}Yzyna gaýtaryldy
+{%- else %}{{ entry.reason }}{% endif %}
+{%- endmacro %}
+
+{# Star ledger entries, newest first: the reader's history (account_history.html) and the admin
+   (admin/grant.html). A table on the website; on phones each row becomes a list item. With
+   `readers`, a phone column for the all-readers view replaces the running balance. #}
+{% macro ledger(entries, readers=false) -%}
+<table class="ledger">
+    <thead>
+        <tr>
+            <th scope="col">Wagty</th>
+            {% if readers %}<th scope="col">Okyjy</th>{% endif %}
+            <th scope="col">Näme boldy</th>
+            <th scope="col" class="num">Ýyldyz</th>
+            {% if not readers %}<th scope="col" class="num">Galan</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in entries %}
+        <tr>
+            <td class="ledger-when"><time datetime="{{ entry.created_at | replace(' ', 'T') }}Z">{{ entry.created_at | localtime }}</time></td>
+            {% if readers %}
+            <td class="ledger-reader"><a href="/admin/stars?phone={{ entry.phone | urlencode }}">{{ entry.phone | phone }}</a></td>
+            {% endif %}
+            <td class="ledger-what">
+                <strong>{{ ledger_reason(entry) }}</strong>
+                {% if entry.note %}
+                {% if entry.book_id %}<a href="/books/{{ entry.book_id }}">{{ entry.note }}</a>
+                {% else %}<span>{{ entry.note }}</span>{% endif %}
+                {% endif %}
+            </td>
+            <td class="num ledger-amount{% if entry.amount > 0 %} ledger-plus{% endif %}">{{ signed(entry.amount) }}</td>
+            {% if not readers %}<td class="num ledger-after" data-label="Galan">{{ entry.balance_after }}</td>{% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {%- endmacro %}

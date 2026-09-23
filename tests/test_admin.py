@@ -50,6 +50,8 @@ ADMIN_REQUESTS = [
     ("post", "/admin/books/1/cover"),
     ("post", "/admin/books/1/cover/render"),
     ("post", "/admin/books/1/delete"),
+    ("get", "/admin/stars"),
+    ("post", "/admin/stars"),
 ]
 
 

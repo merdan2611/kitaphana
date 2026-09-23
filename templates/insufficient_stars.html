@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "_macros.html" import cover %}
+
+{% block title %}Ýyldyz ýetmeýär: Kitaphana{% endblock %}
+{% block body_class %}page-desk{% endblock %}
+
+{% block content %}
+<p class="breadcrumb"><a href="/books/{{ book.id }}">{{ book.title }}</a></p>
+
+<section class="card shortfall">
+    <div class="shortfall-cover">{{ cover(book, eager=true) }}</div>
+    <div class="shortfall-main">
+        <h1>Ýyldyz ýetmeýär</h1>
+        <p>«{{ book.title }}» kitabyny ýüklemek üçin {{ book.price_stars }} ýyldyz gerek. Hiç zat
+            tölenmedi we balansyňyz üýtgemedi.</p>
+
+        <dl class="shortfall-sums">
+            <div><dt>Kitabyň bahasy</dt><dd>{{ book.price_stars }} ýyldyz</dd></div>
+            <div><dt>Balansyňyz</dt><dd>{{ balance }} ýyldyz</dd></div>
+            <div><dt>Ýetmeýär</dt><dd>{{ missing }} ýyldyz</dd></div>
+        </dl>
+
+        <h2>Nädip ýyldyz almaly?</h2>
+        <p>Häzirlikçe ýyldyzlary satyn alyp bolmaýar: olary diňe administrator berýär.
+            Administratora ýüz tutuň we telefon belgiňizi aýdyň:
+            <strong class="nowrap">{{ current_user.phone | phone }}</strong>. Ýyldyzlar goşulandan
+            soň, şu kitaba gaýdyp geliň.</p>
+
+        <div class="shortfall-actions">
+            <a class="button" href="/books/{{ book.id }}">Kitaba dolan</a>
+            <a href="/account/stars">Ýyldyzlarym</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

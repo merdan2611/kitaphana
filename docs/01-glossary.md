@@ -36,7 +36,7 @@ before they ship, and they are the only Turkmen in this documentation.
 | **Balance** | The sum of a reader's ledger entries. Derived, never stored as a mutable field. |
 | **Grant** | Stars added by an admin by hand — a welcome bonus, a correction, an apology. |
 | **Top-up** | Stars added because a payment arrived. Phase 2. |
-| **Spend** | Stars removed by a download. Always negative, always references the book. |
+| **Spend** | Stars removed by a download. Never positive, always references the book. Zero for a free book and for downloading again a book already paid for, so every download is recorded. |
 | **Star package** | A fixed amount of TMT buying a fixed number of stars. Phase 2. |
 
 ## Requests

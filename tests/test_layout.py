@@ -125,7 +125,12 @@ def test_account_tab_is_marked_on_the_account_page(client):
 
 @pytest.mark.parametrize(
     "path, expected",
-    [("/admin", "/admin"), ("/admin/books", "/admin/books"), ("/admin/books/new", "/admin/books/new")],
+    [
+        ("/admin", "/admin"),
+        ("/admin/books", "/admin/books"),
+        ("/admin/books/new", "/admin/books/new"),
+        ("/admin/stars", "/admin/stars"),
+    ],
 )
 def test_admin_pages_have_their_own_tab_bar(client, db, path, expected):
     login(client)

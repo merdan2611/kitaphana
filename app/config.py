@@ -78,6 +78,11 @@ class Settings:
     session_ttl_days: int = 180
     max_upload_mb: int = 200
     cookie_secure: bool = True
+    # Downloads per reader, as (count, window_seconds) pairs; free books count too (Sprint 06).
+    download_limits: tuple[tuple[int, int], ...] = ((10, 3600), (30, 86400))
+    # True: nginx sends the file (X-Accel-Redirect, ADR-0014). False: the app streams it itself,
+    # which is only for development under a bare uvicorn, where there is no nginx.
+    downloads_via_nginx: bool = True
     app_version: str = "0.1.0"
 
 
@@ -95,6 +100,8 @@ def load_settings() -> Settings:
         session_ttl_days=_int_env("SESSION_TTL_DAYS", 180),
         max_upload_mb=_int_env("MAX_UPLOAD_MB", 200),
         cookie_secure=_bool_env("COOKIE_SECURE", default=True),
+        download_limits=_limits_env("DOWNLOAD_LIMITS", "10/3600,30/86400"),
+        downloads_via_nginx=_bool_env("DOWNLOADS_VIA_NGINX", default=True),
     )
 
 

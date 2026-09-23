@@ -1,4 +1,5 @@
-"""The admin panel (Sprint 04): upload, list, edit, publish and delete books.
+"""The admin panel: upload, list, edit, publish and delete books (Sprint 04), and grant stars
+(Sprint 06).
 
 Every route here sits behind auth.require_admin at the router level, so a normal reader gets a
 404 from all of them — including the POST handlers, not only the pages that link to them.
@@ -12,18 +13,21 @@ pool by hand. Handlers without a body stay plain `def`.
 from __future__ import annotations
 
 import math
+import re
 import sqlite3
 from datetime import date
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from starlette.concurrency import run_in_threadpool
 from starlette.datastructures import UploadFile
 
-from app import pdfmeta, storage
+from app import pdfmeta, stars, storage
 from app.auth import require_admin
 from app.catalogue import LANGUAGES, MAX_BOOK_ID
 from app.db import get_db, timestamp
+from app.phone import InvalidPhone, normalize_phone
 from app.search import book_search_text
 from app.templating import templates
 
@@ -45,7 +49,12 @@ NOTICES = {
     "cover": "Täze daşlyk goýuldy.",
     "cover-failed": "PDF-iň birinji sahypasyndan daşlyk döredip bolmady.",
     "deleted": "Kitap we onuň faýly pozuldy.",
+    "granted": "Ýazgy goşuldy: okyjynyň balansy täzelendi.",
 }
+
+# A grant is added or, for a correction, taken away; either way at most this many at once.
+MAX_GRANT = 1000
+MAX_GRANT_NOTE = 500
 
 
 # --- Form handling ---------------------------------------------------------------------------
@@ -363,3 +372,91 @@ def admin_book_delete(book_id: int, conn: sqlite3.Connection = Depends(get_db)):
     _book_or_404(conn, book_id)
     storage.delete_book(conn, book_id)
     return _redirect("/admin/books?notice=deleted")
+
+
+# --- Stars -----------------------------------------------------------------------------------
+
+
+def _reader_by_phone(conn: sqlite3.Connection, raw_phone: str) -> tuple[sqlite3.Row | None, str | None]:
+    """(the account for a phone number as typed, None) or (None, why it could not be found)."""
+    try:
+        phone = normalize_phone(raw_phone)
+    except InvalidPhone as exc:
+        return None, exc.message
+    reader = conn.execute("SELECT * FROM users WHERE phone = ?", (phone,)).fetchone()
+    if reader is None:
+        return None, "Bu belgi bilen hasap ýok. Okyjy ilki bir gezek saýta girmeli."
+    return reader, None
+
+
+def _stars_page(
+    request: Request, conn: sqlite3.Connection, status_code: int = 200, reader=None, **context
+):
+    context.setdefault("values", {})
+    context.setdefault("errors", {})
+    if reader is not None:
+        context.update(
+            reader=reader,
+            reader_balance=stars.balance(conn, reader["id"]),
+            reader_entries=stars.history(conn, reader["id"]),
+        )
+    context.update(recent=stars.recent_entries(conn), section="stars")
+    return templates.TemplateResponse(request, "admin/grant.html", context, status_code=status_code)
+
+
+@router.get("/stars")
+def admin_stars(
+    request: Request, phone: str = "", notice: str = "", conn: sqlite3.Connection = Depends(get_db)
+):
+    """Look a reader up by phone to see their balance and history, and grant them stars."""
+    reader, error = _reader_by_phone(conn, phone) if phone.strip() else (None, None)
+    return _stars_page(
+        request,
+        conn,
+        reader=reader,
+        values={"phone": reader["phone"] if reader else ""},
+        lookup_phone=phone,
+        lookup_error=error,
+        notice=NOTICES.get(notice),
+    )
+
+
+def _grant(request: Request, conn: sqlite3.Connection, form):
+    values = {key: str(form.get(key) or "").strip() for key in ("phone", "amount", "note")}
+    errors: dict[str, str] = {}
+
+    reader, error = _reader_by_phone(conn, values["phone"])
+    if error:
+        errors["phone"] = error
+
+    # Strictly ASCII digits: int() would also take "1_000" or Arabic-Indic digits.
+    amount = int(values["amount"]) if re.fullmatch(r"[+-]?[0-9]{1,7}", values["amount"]) else 0
+    if amount == 0 or abs(amount) > MAX_GRANT:
+        errors["amount"] = (
+            f"1 bilen {MAX_GRANT} aralygynda san giriziň. Ýyldyz aýyrmak üçin minus goýuň: -3."
+        )
+
+    if not values["note"]:
+        errors["note"] = "Näme üçin berilýändigini ýazyň: bu ýazgy hemişe saklanýar."
+    elif len(values["note"]) > MAX_GRANT_NOTE:
+        errors["note"] = f"Bellik {MAX_GRANT_NOTE} harpdan uzyn bolmaly däl."
+
+    if not errors:
+        try:
+            stars.grant(conn, reader["id"], amount, values["note"])
+        except stars.InsufficientStars as exc:
+            errors["amount"] = (
+                f"Okyjynyň balansy {exc.balance} ýyldyz: ondan köp aýryp bolmaýar."
+            )
+    if errors:
+        return _stars_page(request, conn, 400, reader=reader, values=values, errors=errors)
+    return _redirect(f"/admin/stars?{urlencode({'phone': reader['phone'], 'notice': 'granted'})}")
+
+
+@router.post("/stars")
+async def admin_grant(request: Request, conn: sqlite3.Connection = Depends(get_db)):
+    form = await request.form(max_files=0, max_fields=10)
+    try:
+        return await run_in_threadpool(_grant, request, conn, form)
+    finally:
+        await form.close()

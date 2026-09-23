@@ -723,12 +723,6 @@ input[type="file"] {
     text-align: right;
 }
 
-.placeholder {
-    color: var(--color-text-muted);
-    font-weight: 400 !important;
-    font-style: italic;
-}
-
 .account-logout {
     margin-top: var(--space-3);
 }
@@ -1030,6 +1024,285 @@ input[type="file"] {
     white-space: pre-line; /* descriptions are plain text; keep the admin's line breaks */
 }
 
+/* --- Stars: the header balance, the history page, "not enough stars" (Sprint 06) ------------- */
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.muted {
+    color: var(--color-text-muted);
+}
+
+/* A small chip in the app bar on phones; at the end of the navigation on the website. */
+.star-balance {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-height: 2.25rem;
+    margin-left: auto;
+    padding: 0.2rem 0.75rem 0.2rem 0.55rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    color: var(--color-text);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* The dev-mode pill already pushes itself to the right; sit beside it rather than splitting
+   the space with it. */
+.dev-pill ~ .star-balance {
+    margin-left: var(--space-1);
+}
+
+.star-balance:hover,
+.star-balance[aria-current="page"] {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.star-balance svg,
+.balance-figure svg {
+    flex: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linejoin: round;
+}
+
+.download-panel form {
+    margin: 0;
+}
+
+.download-panel .form-error {
+    margin: 0 0 var(--space-2);
+    color: var(--color-text);
+    font-size: var(--step-0);
+}
+
+.account-link {
+    margin: var(--space-2) 0 0;
+}
+
+.history-layout {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.history-layout h2 {
+    font-size: var(--step-1);
+}
+
+.balance-label {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.balance-figure {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 0 var(--space-2);
+    font-variant-numeric: tabular-nums;
+}
+
+.balance-figure strong {
+    font-family: var(--serif);
+    font-size: var(--step-4);
+    line-height: 1.1;
+}
+
+.balance-figure svg {
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--color-primary);
+}
+
+.balance-help {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.ledger-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.history-foot {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
+
+.history-empty .button {
+    margin-top: var(--space-1);
+}
+
+/* The ledger: a table on the website; on phones each row is an app-style list item with what
+   happened on the left and the stars on the right. Shared with the admin. */
+.ledger {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+}
+
+.ledger th {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: var(--step--1);
+    font-weight: 600;
+    text-align: left;
+}
+
+.ledger td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+}
+
+.ledger tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.ledger .num {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.ledger-what strong {
+    display: block;
+    font-weight: 600;
+}
+
+.ledger-what a,
+.ledger-what span {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
+.ledger-what a {
+    color: var(--color-primary);
+}
+
+.ledger-when {
+    color: var(--color-text-muted);
+    white-space: nowrap;
+}
+
+.ledger-amount {
+    font-weight: 700;
+}
+
+.ledger-plus {
+    color: var(--color-success);
+}
+
+@media (max-width: 47.99rem) {
+    .ledger thead {
+        display: none;
+    }
+
+    .ledger,
+    .ledger tbody {
+        display: block;
+    }
+
+    .ledger tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        column-gap: var(--space-2);
+        padding: 0.75rem var(--gutter);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .ledger tbody tr:last-child {
+        border-bottom: 0;
+    }
+
+    .ledger td {
+        padding: 0;
+        border: 0;
+    }
+
+    .ledger-what { grid-area: 1 / 1; }
+    .ledger-amount { grid-area: 1 / 2; font-size: var(--step-1); }
+    .ledger-reader { grid-area: 2 / 1 / 3 / 3; font-size: 0.9rem; }
+    .ledger-when { grid-area: 3 / 1; font-size: 0.85rem; }
+    .ledger-after { grid-area: 3 / 2; color: var(--color-text-muted); font-size: 0.85rem; }
+
+    .ledger-after::before {
+        content: attr(data-label) ": ";
+    }
+}
+
+/* "Not enough stars": the sums, then how to get more. */
+.shortfall {
+    display: grid;
+    gap: var(--space-3);
+    max-width: 48rem;
+    margin: 0 auto;
+}
+
+.shortfall-cover {
+    width: 6rem;
+}
+
+.shortfall-main h1 {
+    overflow-wrap: break-word;
+}
+
+.shortfall-main h2 {
+    margin-top: var(--space-3);
+    font-size: var(--step-1);
+}
+
+.shortfall-sums {
+    margin: var(--space-3) 0 0;
+    border-top: 1px solid var(--color-border);
+}
+
+.shortfall-sums div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--color-border);
+    font-variant-numeric: tabular-nums;
+}
+
+.shortfall-sums dt {
+    color: var(--color-text-muted);
+}
+
+.shortfall-sums dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.shortfall-sums div:last-child dd {
+    color: var(--color-danger);
+}
+
+.shortfall-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    margin-top: var(--space-3);
+}
+
+.shortfall-actions .button {
+    width: 100%;
+}
+
 /* --- Not found ------------------------------------------------------------------------------- */
 
 .not-found {
@@ -1282,6 +1555,33 @@ input[type="file"] {
         flex: 1 1 16rem;
         margin: 0;
     }
+
+    .download-panel .form-error {
+        flex-basis: 100%;
+    }
+
+    /* Stars */
+    .star-balance {
+        margin-left: var(--space-1);
+    }
+
+    .balance-card {
+        align-self: start;
+    }
+
+    .shortfall {
+        grid-template-columns: 9rem minmax(0, 1fr);
+        gap: var(--space-4);
+        padding: var(--space-4);
+    }
+
+    .shortfall-cover {
+        width: 100%;
+    }
+
+    .shortfall-actions .button {
+        width: auto;
+    }
 }
 
 /* Two columns once there is room for them. */
@@ -1301,6 +1601,17 @@ input[type="file"] {
 
     .auth-intro {
         padding-top: var(--space-2);
+    }
+
+    .history-layout {
+        grid-template-columns: 20rem minmax(0, 1fr);
+        gap: var(--space-4);
+        align-items: start;
+    }
+
+    .history-layout .balance-card {
+        position: sticky;
+        top: var(--space-3);
     }
 
     .auth-intro h1 {
