@@ -446,6 +446,10 @@ body.admin {
         opacity: 0.8;
     }
 
+    .admin-exit ~ .theme-toggle {
+        margin-left: 0;
+    }
+
     .admin-content {
         padding-top: var(--space-4);
         padding-bottom: var(--space-5);

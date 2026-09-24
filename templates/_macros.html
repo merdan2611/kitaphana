@@ -13,10 +13,22 @@
 <path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19"/>
 {%- elif name == "plus" -%}
 <circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>
+{%- elif name == "moon" -%}
+<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>
+{%- elif name == "sun" -%}
+<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>
 {%- elif name == "star" -%}
 <path d="m12 3.5 2.6 5.3 5.9.9-4.25 4.1 1 5.8L12 16.9l-5.25 2.7 1-5.8L3.5 9.7l5.9-.9z"/>
 {%- endif -%}
 </svg>
+{%- endmacro %}
+
+{# The light/dark switch at the end of the header. Hidden until the script in base.html is
+   running; that script also keeps aria-pressed in step with the theme. #}
+{% macro theme_toggle() -%}
+<button class="theme-toggle" type="button" aria-label="Garaňky tertip" aria-pressed="false" title="Ýagty ýa-da garaňky tertip" hidden>
+    <span class="icon-moon">{{ icon("moon") }}</span><span class="icon-sun">{{ icon("sun") }}</span>
+</button>
 {%- endmacro %}
 
 {# A book's cover, or a typeset stand-in when it has none. Never a broken image. #}

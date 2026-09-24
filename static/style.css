@@ -8,40 +8,52 @@
    No webfonts: every byte is paid for on a metered connection. */
 
 /* --- Colours ---------------------------------------------------------------------------------
-   Classic, neutral colours for now, to be changed one at a time later. Every colour on the site
-   comes from one of these variables, and each has one job, so changing one line recolours that
-   role everywhere. tests/test_style.py fails if a colour is written anywhere else in the CSS.
-   The one place CSS cannot reach: <meta name="theme-color"> in templates/base.html repeats
-   --color-header. */
+   "Midnight & blue": near-black ink, one blue for everything you can click, gold for stars only.
+   Every colour on the site comes from one of these variables, and each has one job, so changing
+   one line recolours that role everywhere. tests/test_layout.py fails if a colour is written
+   anywhere else in the CSS.
+
+   Two themes. :root holds the light one; :root[data-theme="dark"] below redefines only the
+   tokens that change in the dark. The small script in templates/base.html sets data-theme from
+   the reader's saved choice, else from the system setting, before the page is drawn.
+   The header, tab bar and stars look the same in both themes. The one place CSS cannot
+   reach: <meta name="theme-color"> in templates/base.html repeats --color-header. */
 
 :root {
-    --color-page: #ffffff;           /* page background */
-    --color-surface: #f8f9fa;        /* grey desk behind cards, the admin desk, the footer */
-    --color-text: #212529;           /* body text and headings */
-    --color-text-muted: #5c636a;     /* secondary text and hints */
-    --color-border: #dee2e6;         /* dividers and card edges */
-    --color-input-border: #868e96;   /* form field outlines */
-    --color-primary: #0d6efd;        /* links, main buttons, the active tab */
-    --color-primary-hover: #0b5ed7;  /* primary when hovered or pressed */
+    color-scheme: light;
+    --color-page: #ffffff;           /* raised things: cards, form fields, chips */
+    --color-surface: #f4f6fa;        /* the page background, the admin desk, the footer */
+    --color-text: #0b1220;           /* body text and headings */
+    --color-text-muted: #536075;     /* secondary text and hints */
+    --color-border: #dce2ec;         /* dividers and card edges */
+    --color-input-border: #536075;   /* form field outlines */
+    --color-primary: #1d4ed8;        /* links, main buttons, "free" */
+    --color-primary-hover: #1639a8;  /* primary when hovered or pressed */
     --color-on-primary: #ffffff;     /* text on primary buttons */
-    --color-header: #ffffff;         /* site header and the phone top bar */
-    --color-tab-bar: #ffffff;        /* phone tab bar */
-    --color-ornament: #0d6efd;       /* the carpet-border strip under the website header */
-    --color-admin-bar: #212529;      /* admin top bar */
+    --color-header: #0b1220;         /* site header and the phone top bar */
+    --color-on-header: #ffffff;      /* the site name and current link on the header */
+    --color-on-header-muted: #9aa6ba; /* other links and tabs on the header and tab bar */
+    --color-header-raised: #1a2436;  /* pills and buttons sitting on the header */
+    --color-header-accent: #7da2ff;  /* the active tab, and hovered pills on the header */
+    --color-tab-bar: #0b1220;        /* phone tab bar */
+    --color-star: #f5c45e;           /* the star balance, and nothing else */
+    --color-ornament: #1d4ed8;       /* the carpet-border strip under the website header */
+    --color-admin-bar: #0b1220;      /* admin top bar */
     --color-on-admin-bar: #ffffff;   /* text on the admin bar */
     --color-success: #146c43;        /* "published" and success messages */
     --color-success-bg: #d1e7dd;
-    --color-danger: #b02a37;         /* errors and deleting */
-    --color-danger-bg: #f8d7da;
+    --color-danger: #b42318;         /* errors and deleting */
+    --color-danger-bg: #fbe5e3;
     --color-warning: #ffc107;        /* the dev-mode banner, and nothing else */
-    --color-on-warning: #212529;
-    --color-cover-1: #495057;        /* stand-in covers for books without an image */
-    --color-cover-2: #0b5ed7;
-    --color-cover-3: #146c43;
-    --color-cover-4: #842029;
-    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06), 0 2px 6px rgb(0 0 0 / 0.04);
-    --shadow-bar: 0 -1px 4px rgb(0 0 0 / 0.06);
-    --shadow-cover: 0 1px 2px rgb(0 0 0 / 0.2), 0 0 0 1px rgb(0 0 0 / 0.05);
+    --color-on-warning: #0b1220;
+    --color-cover-1: #0b1220;        /* stand-in covers for books without an image */
+    --color-cover-2: #1d4ed8;
+    --color-cover-3: #2a3b5c;
+    --color-cover-4: #1639a8;
+    --color-on-cover: #ffffff;       /* title and author on a stand-in cover */
+    --shadow-card: 0 1px 2px rgb(11 18 32 / 0.06), 0 2px 6px rgb(11 18 32 / 0.04);
+    --shadow-bar: 0 -1px 4px rgb(11 18 32 / 0.12);
+    --shadow-cover: 0 1px 2px rgb(11 18 32 / 0.2), 0 0 0 1px rgb(11 18 32 / 0.05);
 
     --serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, "Noto Serif", Georgia, serif;
     --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
@@ -69,6 +81,27 @@
     --tab-bar-height: 3.75rem;
 }
 
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --color-page: #172036;
+    --color-surface: #0e1526;
+    --color-text: #e6ebf3;
+    --color-text-muted: #9aa6ba;
+    --color-border: #273250;
+    --color-input-border: #6b7892;
+    --color-primary: #7da2ff;
+    --color-primary-hover: #a3bdff;
+    --color-on-primary: #0b1220;
+    --color-success: #6fcf97;
+    --color-success-bg: #123524;
+    --color-danger: #ff8f80;
+    --color-danger-bg: #3d1a17;
+    --color-cover-1: #22304a;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 6px rgb(0 0 0 / 0.2);
+    --shadow-bar: 0 -1px 4px rgb(0 0 0 / 0.4);
+    --shadow-cover: 0 1px 2px rgb(0 0 0 / 0.4), 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
 /* --- Base ------------------------------------------------------------------------------------ */
 
 *,
@@ -91,7 +124,7 @@ body {
     font-size: var(--step-0);
     line-height: 1.55;
     color: var(--color-text);
-    background: var(--color-page);
+    background: var(--color-surface);
     /* Room for the fixed tab bar. */
     padding-bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0px));
 }
@@ -189,7 +222,7 @@ code {
     top: 0;
     z-index: 20;
     background: var(--color-header);
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-header-raised);
 }
 
 .site-header-inner {
@@ -203,12 +236,12 @@ code {
     font-family: var(--serif);
     font-size: var(--step-1);
     font-weight: 700;
-    color: var(--color-text);
+    color: var(--color-on-header);
     text-decoration: none;
 }
 
 .site-title:hover {
-    color: var(--color-text);
+    color: var(--color-on-header);
 }
 
 .site-nav {
@@ -262,7 +295,7 @@ code {
     grid-auto-flow: column;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     background: var(--color-tab-bar);
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-header-raised);
     box-shadow: var(--shadow-bar);
 }
 
@@ -274,7 +307,7 @@ code {
     gap: 0.15rem;
     min-height: var(--tab-bar-height);
     padding: 0 0.25rem;
-    color: var(--color-text-muted);
+    color: var(--color-on-header-muted);
     font-size: 0.75rem;
     line-height: 1.2;
     text-align: center;
@@ -282,7 +315,7 @@ code {
 }
 
 .tab-bar a[aria-current="page"] {
-    color: var(--color-primary);
+    color: var(--color-header-accent);
     font-weight: 600;
 }
 
@@ -522,7 +555,7 @@ input[type="file"] {
     height: 100%;
     padding: 12% 10%;
     background: var(--color-cover-1);
-    color: var(--color-page);
+    color: var(--color-on-cover);
     font-family: var(--serif);
 }
 
@@ -930,7 +963,7 @@ input[type="file"] {
 }
 
 .price-free {
-    color: var(--color-success);
+    color: var(--color-primary);
     font-weight: 600;
 }
 
@@ -1042,9 +1075,10 @@ input[type="file"] {
     min-height: 2.25rem;
     margin-left: auto;
     padding: 0.2rem 0.75rem 0.2rem 0.55rem;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-header-raised);
     border-radius: 999px;
-    color: var(--color-text);
+    background: var(--color-header-raised);
+    color: var(--color-star);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     text-decoration: none;
@@ -1059,8 +1093,57 @@ input[type="file"] {
 
 .star-balance:hover,
 .star-balance[aria-current="page"] {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
+    border-color: var(--color-header-accent);
+    color: var(--color-star);
+}
+
+/* The light/dark switch: the last thing on the header. It stays hidden until the script in
+   templates/base.html is running, since without it the button would do nothing. */
+.theme-toggle {
+    flex: none;
+    width: 2.25rem;
+    min-height: 2.25rem;
+    margin-left: auto;
+    padding: 0;
+    border: 1px solid var(--color-header-raised);
+    border-radius: 999px;
+    background: var(--color-header-raised);
+    color: var(--color-on-header-muted);
+}
+
+.theme-toggle:hover {
+    border-color: var(--color-header-accent);
+    background: var(--color-header-raised);
+    color: var(--color-on-header);
+}
+
+.theme-toggle[hidden] {
+    display: none;
+}
+
+.dev-pill ~ .theme-toggle,
+.star-balance ~ .theme-toggle {
+    margin-left: 0;
+}
+
+.theme-toggle svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Shows what a press switches to: a moon in the light theme, a sun in the dark. */
+.theme-toggle .icon-sun,
+[data-theme="dark"] .theme-toggle .icon-moon {
+    display: none;
+}
+
+[data-theme="dark"] .theme-toggle .icon-sun {
+    display: block;
 }
 
 .star-balance svg,
@@ -1363,23 +1446,23 @@ input[type="file"] {
     }
 
     .site-nav a:not(.button) {
-        color: var(--color-text);
+        color: var(--color-on-header-muted);
         font-weight: 500;
         text-decoration: none;
     }
 
     .site-nav a:not(.button):hover,
     .site-nav a[aria-current="page"] {
-        color: var(--color-primary);
+        color: var(--color-on-header);
     }
 
     .site-nav .link-button {
-        color: var(--color-text-muted);
+        color: var(--color-on-header-muted);
         text-decoration: none;
     }
 
     .site-nav .link-button:hover {
-        color: var(--color-primary);
+        color: var(--color-on-header);
     }
 
     .gol-strip {

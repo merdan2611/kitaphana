@@ -21,9 +21,16 @@ def _without_comments(css: str) -> str:
     return re.sub(r"/\*.*?\*/", "", css, flags=re.S)
 
 
-def _token_block(css: str) -> str:
-    start = css.index(":root {")
-    return css[start : css.index("}", start) + 1]
+def _token_blocks(css: str) -> list[str]:
+    """The light tokens in `:root {`, the dark ones in `:root[data-theme="dark"] {`, and any
+    other `:root` block (the wider gutter on the website)."""
+    return re.findall(r":root[^{]*\{[^}]*\}", css)
+
+
+def _dark_block(css: str) -> str:
+    match = re.search(r':root\[data-theme="dark"\] \{[^}]*\}', css)
+    assert match, "style.css should define a dark theme"
+    return match.group(0)
 
 
 def tab_bar(html: str) -> str:
@@ -43,7 +50,9 @@ def current_tab(html: str) -> str | None:
 def test_colours_appear_only_in_the_token_block():
     """So any colour can be changed on its own by editing one line (static/style.css)."""
     css = _without_comments((STATIC / "style.css").read_text())
-    outside = css.replace(_token_block(css), "")
+    outside = css
+    for block in _token_blocks(css):
+        outside = outside.replace(block, "")
     assert COLOUR.findall(outside) == []
     assert NAMED_COLOUR.findall(outside) == []
 
@@ -63,11 +72,42 @@ def test_theme_color_meta_matches_the_header_token():
 
 def test_every_token_used_is_defined():
     style = (STATIC / "style.css").read_text()
-    defined = set(re.findall(r"(--[\w-]+):", _token_block(style)))
+    defined = set(re.findall(r"(--[\w-]+):", "".join(_token_blocks(style))))
     used = set()
     for name in ("style.css", "admin.css"):
         used |= set(re.findall(r"var\((--[\w-]+)", (STATIC / name).read_text()))
     assert used - defined == set()
+
+
+def test_dark_theme_only_redefines_existing_colours():
+    """The dark block may change a token, never invent one the light theme lacks."""
+    css = _without_comments((STATIC / "style.css").read_text())
+    light = set(re.findall(r"(--[\w-]+):", _token_blocks(css)[0]))
+    dark = set(re.findall(r"(--[\w-]+):", _dark_block(css)))
+    assert dark and dark <= light
+
+
+def test_header_keeps_its_colour_in_the_dark_theme():
+    """So <meta name="theme-color"> is right in both themes."""
+    assert "--color-header:" not in _dark_block((STATIC / "style.css").read_text())
+
+
+# --- Light and dark switch -------------------------------------------------------------------
+
+
+def test_every_page_has_the_theme_switch_and_script(client):
+    html = client.get("/").text
+    assert 'class="theme-toggle"' in html
+    assert 'localStorage.getItem("theme")' in html
+    # The script sets the theme before the stylesheet is read, so the page never flashes.
+    assert html.index("root.dataset.theme") < html.index("/static/style.css")
+
+
+def test_admin_pages_have_the_theme_switch(client, db):
+    login(client)
+    db.execute("UPDATE users SET is_admin = 1 WHERE phone = ?", (PHONE,))
+    db.commit()
+    assert 'class="theme-toggle"' in client.get("/admin").text
 
 
 # --- Phone tab bar ---------------------------------------------------------------------------

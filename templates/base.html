@@ -1,13 +1,38 @@
-{% from "_macros.html" import icon %}
+{% from "_macros.html" import icon, theme_toggle %}
 <!doctype html>
 <html lang="tk">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     {# The one colour CSS cannot reach: keep it equal to --color-header in static/style.css. #}
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#0b1220">
     <title>{% block title %}Kitaphana{% endblock %}</title>
     <meta name="description" content="{% block description %}Türkmen dilindäki kitaplaryň sanly kitaphanasy: gözläň, tapyň we PDF görnüşinde ýükläp alyň.{% endblock %}">
+    {# Light or dark theme (static/style.css). Runs before the stylesheet so the page is drawn in
+       the right colours from the start: the reader's saved choice, else the system setting. #}
+    <script>
+    (function () {
+        var root = document.documentElement;
+        var saved = null;
+        try { saved = localStorage.getItem("theme"); } catch (e) {}
+        var dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+        root.dataset.theme = dark ? "dark" : "light";
+
+        function sync() {
+            document.querySelectorAll(".theme-toggle").forEach(function (button) {
+                button.hidden = false;
+                button.setAttribute("aria-pressed", String(root.dataset.theme === "dark"));
+            });
+        }
+        document.addEventListener("DOMContentLoaded", sync);
+        document.addEventListener("click", function (event) {
+            if (!event.target.closest(".theme-toggle")) return;
+            root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+            try { localStorage.setItem("theme", root.dataset.theme); } catch (e) {}
+            sync();
+        });
+    })();
+    </script>
     <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
     {% block head %}{% endblock %}
 </head>
@@ -44,6 +69,7 @@
                 {{ icon("star") }}<span><span class="visually-hidden">Ýyldyz balansyňyz: </span>{{ star_balance }}</span>
             </a>
             {% endif %}
+            {{ theme_toggle() }}
         </div>
         <div class="gol-strip" aria-hidden="true"></div>
     </header>
