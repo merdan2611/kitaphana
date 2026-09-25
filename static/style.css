@@ -1109,6 +1109,8 @@ input[type="file"] {
     border-radius: 999px;
     background: var(--color-header-raised);
     color: var(--color-on-header-muted);
+    /* Phones draw a square flash on tap; the round button shows its own state. */
+    -webkit-tap-highlight-color: transparent;
 }
 
 .theme-toggle:hover {
