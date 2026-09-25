@@ -4,7 +4,9 @@
 
 Sprints 01 and 03-06 have shipped: anyone can browse and search the library, an admin can add
 books and grant stars, and a signed-in reader can spend stars to download a book. Sprint 07 —
-Requests is next; Sprint 02 still waits for the VDS.
+Requests is next. Sprint 02 is unblocked: hosting moved to a DigitalOcean droplet
+([ADR-0019](adr/0019-digitalocean-droplet-hosting.md)), set up on 2026-09-25, so the site can finally
+get a public address.
 
 ## Current sprint
 
@@ -16,7 +18,7 @@ Requests is next; Sprint 02 still waits for the VDS.
 | **Phase** | 1 (usable library, codes on screen) |
 | **Sprint doc** | [`sprints/sprint-07-requests.md`](sprints/sprint-07-requests.md) |
 | **Milestone** | M7 — I can ask for a book |
-| **Next up** | S08 — Beta hardening (S02 runs whenever the VDS is available — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)) |
+| **Next up** | S02 — Production ground, now that the droplet exists; then S08 — Beta hardening |
 
 ## Phase 1 sprints
 
@@ -25,7 +27,7 @@ Requests is next; Sprint 02 still waits for the VDS.
 | # | Sprint | Status | Shipped | Milestone | You can now… |
 |---|---|---|---|---|---|
 | 01 | [Foundations](sprints/sprint-01-foundations.md) | 🟢 Shipped | 2026-09-21 | M1 | …run the app locally and see a page |
-| 02 | [Production ground](sprints/sprint-02-production-ground.md) | 🔴 Blocked — VDS not yet purchased | — | M2 | …open the real domain over HTTPS |
+| 02 | [Production ground](sprints/sprint-02-production-ground.md) | ⚪ Pending — droplet bought, ready to start | — | M2 | …open the real domain over HTTPS |
 | 03 | [Accounts](sprints/sprint-03-accounts.md) | 🟢 Shipped | 2026-09-23 | M3 | …sign up with a phone number and stay logged in |
 | 04 | [Admin and ingest](sprints/sprint-04-admin-and-ingest.md) | 🟢 Shipped | 2026-09-23 | M4 | …put a book into the library |
 | 05 | [Public catalogue](sprints/sprint-05-public-catalogue.md) | 🟢 Shipped | 2026-09-23 | M5 | …find that book by searching |
@@ -52,14 +54,15 @@ Requests is next; Sprint 02 still waits for the VDS.
 S01 ──┬──► S03 ──┬──► S04 ──► S05 ──► S06 ──┐
       │          │                          ├──► S08
       │          └──────────► S07 ──────────┘
-      └──► S02 (needs the VDS — run as soon as it exists; not on this critical path)
+      └──► S02 (needs the droplet — unblocked 2026-09-25; not on this critical path)
 ```
 
 - **S02 no longer gates S03-S07.** The original plan deployed second so the least familiar work
-  happened early; that is still the right move the moment the VDS exists, but it does not exist
-  yet and has no purchase date. Sprints 01 and 03-07 are built and fully tested on localhost with
-  placeholder content in the meantime, and S02 runs whenever it can, independent of sprint order.
-  See [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md).
+  happened early. The Turkmentelecom VDS it was waiting for never got a purchase date, so Sprints
+  01 and 03-06 were built and tested on localhost with placeholder content instead
+  ([ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)). On 2026-09-25 hosting moved to a
+  DigitalOcean droplet ([ADR-0019](adr/0019-digitalocean-droplet-hosting.md)), which exists now:
+  run S02 next, including its catch-up pass over everything already shipped.
 - **S03 gates S04-S07** — admin authentication is built on the same session machinery as
   reader authentication.
 - **S06 needs S05**, because a download button has to live on a book page.

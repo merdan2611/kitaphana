@@ -68,8 +68,8 @@ noted in this document.
 ### 4. Disk and memory visibility
 
 An admin page showing disk usage and free space, database size, book count, total media size,
-and memory use. 120 GB is a ceiling and 2 GB of RAM is a tighter one
-([ADR-0015](../adr/0015-turkmentelecom-vds-hosting.md)); both should be visible before they are
+and memory use. The droplet's 50 GB disk is a ceiling and 2 GB of RAM is a tighter one
+([ADR-0019](../adr/0019-digitalocean-droplet-hosting.md)); both should be visible before they are
 urgent.
 
 **Done when:** the page shows real figures, and you know today's headroom.
@@ -159,5 +159,5 @@ project is.
 [ADR-0011](../adr/0011-backup-policy.md) ·
 [ADR-0013](../adr/0013-dev-otp-mode.md) ·
 [ADR-0014](../adr/0014-x-accel-redirect-for-downloads.md) ·
-[ADR-0015](../adr/0015-turkmentelecom-vds-hosting.md) ·
+[ADR-0019](../adr/0019-digitalocean-droplet-hosting.md) ·
 [`../04-risks-and-research.md`](../04-risks-and-research.md)

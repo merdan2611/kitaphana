@@ -7,8 +7,8 @@
 | **Milestone** | M2 — It is on the internet |
 | **Estimated time** | ~1-2 weeks (the least familiar work in the project) |
 | **Depends on** | Sprint 01 |
-| **Blocked by** | R4 — port 80 reachability and foreign DNS resolution; the VDS itself not yet being purchased |
-| **Runs when** | The VDS is bought — independent of which other sprint is in progress ([ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)) |
+| **Blocked by** | R4 — whether the droplet is reachable, and fast enough, from inside Turkmenistan |
+| **Runs when** | Now: the DigitalOcean droplet was set up on 2026-09-25 ([ADR-0019](../adr/0019-digitalocean-droplet-hosting.md)), independent of which other sprint is in progress |
 
 ## Goal
 
@@ -23,10 +23,10 @@ is a home page and a health endpoint, so anything that breaks is the server, not
 Budget more time than a normal sprint. It is a week of work only if nothing surprises you, and
 something will.
 
-This sprint cannot start until the VDS exists, which does not have a purchase date yet. Sprints
-03-07 are being built and tested on localhost in the meantime, so by the time this sprint
-actually runs, some of them may already be functionally complete. Task 9 exists for exactly
-that case.
+This sprint waited for a Turkmentelecom VDS that never got a purchase date; hosting has moved to
+a DigitalOcean droplet in Frankfurt instead ([ADR-0019](../adr/0019-digitalocean-droplet-hosting.md)).
+Sprints 03-06 were built and tested on localhost in the meantime and are already shipped there.
+Task 9 exists for exactly that case.
 
 ## You can now…
 
@@ -36,34 +36,40 @@ that case.
 
 ### 0. Answer R4 before anything else
 
-Confirm that inbound port 80 reaches the VDS and that a foreign-registrar domain resolves from
-inside Turkmenistan. If port 80 is blocked, Let's Encrypt's HTTP challenge cannot work and task
-7 has to use the DNS challenge instead — which requires a registrar with an API, so this
-changes task 1 as well.
+The server is abroad now, so the first question is whether readers can reach it at all. From
+a phone in Turkmenistan, on mobile data and on a home connection: open `http://<droplet-ip>/`
+(nginx's default page is enough), ping it, and time the download of a large test file served
+from it. Once the domain exists (task 1), check it resolves from there too.
 
-**Done when:** both questions are answered in
-[`../04-risks-and-research.md`](../04-risks-and-research.md) with a date, and task 7's approach
-is chosen.
+If the address does not load from inside the country, stop: that is a hosting decision, not a
+server task — another region, another provider, or back to a local server — and it gets a new
+ADR before this sprint goes on. Port 80 is open on a droplet by default, so Let's Encrypt's
+HTTP challenge will work (task 6).
+
+**Done when:** reachability and the download time are written into
+[`../04-risks-and-research.md`](../04-risks-and-research.md) with a date.
 
 ### 1. Domain
 
 Register the domain ([ADR-0012](../adr/0012-foreign-domain-registrar.md)), point an A record at
-the VDS, enable auto-renew and registrar lock, and put the renewal date in a calendar with a
+the droplet's IPv4 address, enable auto-renew and registrar lock, and put the renewal date in a calendar with a
 reminder. A library that disappears because a renewal email was missed is an avoidable
 embarrassment.
 
-**Done when:** `dig +short <domain>` returns the VDS address from a machine in Turkmenistan.
+**Done when:** `dig +short <domain>` returns the droplet's address from a machine in Turkmenistan.
 
 ### 2. Server baseline
 
-Create an unprivileged `kitaphana` user. Install Python, nginx, git, sqlite3, certbot and
+The droplet is created with Ubuntu LTS and your laptop's SSH public key, so the first login is
+`ssh root@<droplet-ip>` with no password. Create an unprivileged `kitaphana` user. Install Python, nginx, git, sqlite3, certbot and
 `poppler-utils` (Sprint 04 renders book covers with its `pdftoppm`). Set up
 the directory layout: application at `/srv/kitaphana`, media outside it, backups outside it.
-Enable a firewall allowing only SSH, 80 and 443. Disable SSH password authentication in favour
-of keys.
+Enable a firewall allowing only SSH, 80 and 443 — `ufw` on the server, or a DigitalOcean Cloud
+Firewall attached to the droplet; one of the two, written down, not both half-configured. Disable
+SSH password authentication and root login once the `kitaphana` user can log in with the key.
 
-**Done when:** you can log in as the new user with a key, password SSH is refused, and the
-firewall is active with only those three ports open.
+**Done when:** you can log in as the new user with a key, password SSH and root SSH are
+refused, and the firewall is active with only those three ports open.
 
 ### 3. Application on the server
 
@@ -178,6 +184,7 @@ done — not deferred again.
 
 Mostly manual, because what is being tested is a machine rather than a function.
 
+- From a phone in Turkmenistan, the site loads and a book downloads (R4).
 - Reboot and confirm recovery without intervention.
 - `curl -I http://<domain>` returns a redirect to HTTPS.
 - `curl https://<domain>/health` returns the deployed migration number.
@@ -204,5 +211,5 @@ this document
 [ADR-0005](../adr/0005-git-pull-deploy.md) ·
 [ADR-0012](../adr/0012-foreign-domain-registrar.md) ·
 [ADR-0014](../adr/0014-x-accel-redirect-for-downloads.md) ·
-[ADR-0015](../adr/0015-turkmentelecom-vds-hosting.md) ·
-[ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)
+[ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md) ·
+[ADR-0019](../adr/0019-digitalocean-droplet-hosting.md)

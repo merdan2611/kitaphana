@@ -1,6 +1,6 @@
 # Fixtures
 
-Placeholder catalogue content for local development, used until the VDS exists and the real
+Placeholder catalogue content for local development, used until the real
 ~30 GB collection is imported in Phase 3. See
 [ADR-0017](../docs/adr/0017-local-dev-with-placeholder-fixtures.md) for why this exists and
 [`sprint-04-admin-and-ingest.md`](../docs/sprints/sprint-04-admin-and-ingest.md) for the seed
@@ -40,8 +40,8 @@ One entry per placeholder book:
   to run against a database that already contains real, non-fixture books, so these can never
   reach a live catalogue by an accidental re-run.
 - **Not a substitute for the real collection.** These exist so Sprints 01 and 03-07 have
-  something real to upload, search and download while there is no VDS to put the actual
-  collection on. They say nothing about what belongs in the finished library.
+  something real to upload, search and download before the actual collection is
+  imported onto the server. They say nothing about what belongs in the finished library.
 - Keep files small. A handful of short texts is enough to exercise every code path; there is no
   reason for a fixture to be large.
 

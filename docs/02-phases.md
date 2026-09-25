@@ -22,10 +22,11 @@ application on the live server, because server administration is the least famil
 this project and the worst possible time to learn it is the week before launch. From Sprint 02
 onward every sprint ends with a deploy, so deployment is never an event.
 
-That is still the right order once a VDS actually exists. It does not yet, with no purchase date
-set, so Sprints 03-07 are being built and fully tested on localhost first, using placeholder
-public-domain books as catalogue content, and Sprint 02 runs whenever the VDS is available —
-see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md). This changes the order sprints
+The server was late: the Turkmentelecom VDS first planned never got a purchase date, so Sprints
+03-06 were built and fully tested on localhost first, using placeholder public-domain books as
+catalogue content ([ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md)). Hosting has since
+moved to a DigitalOcean droplet ([ADR-0019](adr/0019-digitalocean-droplet-hosting.md)), and
+Sprint 02 runs as soon as it is bought. This changes the order sprints
 happen in, not this phase's exit criteria: Phase 1 still is not done until the loop works on the
 real domain.
 
@@ -89,8 +90,9 @@ Library barely covers them — into a manual entry queue with the PDF's first pa
 alongside the form, so filling it in is fast.
 
 Two practical constraints shape this phase: getting 30 GB onto the server takes real time on
-a real connection, and 120 GB of disk is a ceiling worth measuring against before the import
-rather than after.
+a real connection, and the droplet's 50 GB disk is a ceiling worth measuring against before the
+import rather than after — probably with a Block Storage volume added for the PDFs
+([ADR-0019](adr/0019-digitalocean-droplet-hosting.md)).
 
 **Likely sprints:** ingest pipeline and transport to the server · Open Library matching ·
 manual entry queue interface · catalogue at scale (pagination, browse by author and subject,

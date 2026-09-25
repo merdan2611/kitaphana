@@ -1,6 +1,6 @@
 # ADR-0015: Host on a single Turkmentelecom VDS
 
-- **Status**: Accepted
+- **Status**: Superseded by [ADR-0019](0019-digitalocean-droplet-hosting.md)
 - **Date**: 2026-09-20
 
 ## Context

@@ -125,7 +125,7 @@ this feature is obviously useful.
 - [ ] Duplicates can be merged without losing or double-counting upvotes.
 - [ ] Rate limiting works.
 - [ ] Verified end-to-end on localhost, with the request link reachable from a failed search —
-      deployment happens in Sprint 02's catch-up pass once the VDS is available (see
+      deployment happens in Sprint 02's catch-up pass on the droplet (see
       [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)).
 
 ## Tests
