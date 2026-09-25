@@ -16,7 +16,7 @@ what's next.
 | Database | SQLite, WAL mode |
 | Frontend | Server-rendered HTML + plain CSS/JS, no framework |
 | File storage | Local disk on the VPS |
-| Hosting | DigitalOcean droplet, Frankfurt (2 GB RAM, 50 GB SSD) |
+| Hosting | DigitalOcean droplet, Singapore (2 GB RAM, 50 GB SSD) |
 | Process / proxy | systemd + nginx, no Docker |
 | Accounts | Phone number + SMS OTP |
 

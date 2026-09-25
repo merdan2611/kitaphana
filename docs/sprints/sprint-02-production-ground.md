@@ -7,7 +7,7 @@
 | **Milestone** | M2 — It is on the internet |
 | **Estimated time** | ~1-2 weeks (the least familiar work in the project) |
 | **Depends on** | Sprint 01 |
-| **Blocked by** | R4 — whether the droplet is reachable, and fast enough, from inside Turkmenistan |
+| **Blocked by** | Nothing. The droplet loads from inside Turkmenistan (checked 2026-09-25) |
 | **Runs when** | Now: the DigitalOcean droplet was set up on 2026-09-25 ([ADR-0019](../adr/0019-digitalocean-droplet-hosting.md)), independent of which other sprint is in progress |
 
 ## Goal
@@ -24,7 +24,7 @@ Budget more time than a normal sprint. It is a week of work only if nothing surp
 something will.
 
 This sprint waited for a Turkmentelecom VDS that never got a purchase date; hosting has moved to
-a DigitalOcean droplet in Frankfurt instead ([ADR-0019](../adr/0019-digitalocean-droplet-hosting.md)).
+a DigitalOcean droplet in Singapore instead ([ADR-0019](../adr/0019-digitalocean-droplet-hosting.md)).
 Sprints 03-06 were built and tested on localhost in the meantime and are already shipped there.
 Task 9 exists for exactly that case.
 
@@ -34,19 +34,14 @@ Task 9 exists for exactly that case.
 
 ## Tasks
 
-### 0. Answer R4 before anything else
+### 0. Finish answering R4
 
-The server is abroad now, so the first question is whether readers can reach it at all. From
-a phone in Turkmenistan, on mobile data and on a home connection: open `http://<droplet-ip>/`
-(nginx's default page is enough), ping it, and time the download of a large test file served
-from it. Once the domain exists (task 1), check it resolves from there too.
+The Singapore droplet already loads from inside Turkmenistan (2026-09-25). What is left: from a
+phone there, on mobile data and on a home connection, time the download of a large test file
+served from the droplet, and once the domain exists (task 1), check it resolves from there too.
+Port 80 is open on a droplet by default, so Let's Encrypt's HTTP challenge will work (task 6).
 
-If the address does not load from inside the country, stop: that is a hosting decision, not a
-server task — another region, another provider, or back to a local server — and it gets a new
-ADR before this sprint goes on. Port 80 is open on a droplet by default, so Let's Encrypt's
-HTTP challenge will work (task 6).
-
-**Done when:** reachability and the download time are written into
+**Done when:** the download times and the domain check are written into
 [`../04-risks-and-research.md`](../04-risks-and-research.md) with a date.
 
 ### 1. Domain

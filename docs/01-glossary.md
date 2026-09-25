@@ -74,7 +74,7 @@ before they ship, and they are the only Turkmen in this documentation.
 | **Sprint** | About a week at 5-10 hours. Has a task list, a definition of done, and a No-gos list. |
 | **No-gos** | Explicitly out of scope for that sprint. The mechanism that stops scope creep. |
 | **ADR** | Architecture Decision Record — one settled decision, with its reasoning, in [`adr/`](adr/). |
-| **Droplet** | The DigitalOcean server the whole thing runs on, in Frankfurt. 2 GB RAM, 50 GB SSD. See [ADR-0019](adr/0019-digitalocean-droplet-hosting.md). |
+| **Droplet** | The DigitalOcean server the whole thing runs on, in Singapore. 2 GB RAM, 50 GB SSD. See [ADR-0019](adr/0019-digitalocean-droplet-hosting.md). |
 | **VDS** | The Turkmentelecom server first planned in [ADR-0015](adr/0015-turkmentelecom-vds-hosting.md), replaced by the droplet before it was ever bought. Older documents use the word for "the server". |
 | **Deploy** | `git pull` on the droplet followed by a systemd restart. Nothing is built on the server. |
 | **X-Accel-Redirect** | The nginx header letting the app authorise a download while nginx sends the actual bytes. See [ADR-0014](adr/0014-x-accel-redirect-for-downloads.md). |

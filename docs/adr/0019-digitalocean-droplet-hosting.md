@@ -18,8 +18,8 @@ with an SSH key in minutes.
 ## Decision
 
 Host on **one DigitalOcean Basic droplet with 2 GB of RAM**, running Ubuntu LTS, in the
-**Frankfurt region (FRA1)** — of DigitalOcean's regions, the one with the most direct route
-towards Central Asia. At the time of writing the 2 GB / 1 vCPU size comes with a 50 GB SSD and
+**Singapore region (SGP1)**. It was tested from inside Turkmenistan on 2026-09-25 and loads
+there. At the time of writing the 2 GB / 1 vCPU size comes with a 50 GB SSD and
 2 TB of monthly transfer for about $12 a month; check the current figures when buying.
 
 Everything else stays as it was: one server running the application, nginx, the database and
@@ -40,7 +40,7 @@ reopening.
 - Snapshots, optional paid backups, a cloud firewall and resizing are all in the control panel,
   and documented. The unknown in R1 about what the provider offers mostly goes away.
 - Resizing up is a button press, and a snapshot can recreate the whole server in another region
-  if Frankfurt turns out to be the wrong choice.
+  if Singapore stops working from Turkmenistan.
 - The stack does not care where it runs. Moving to a local server later means replaying the
   Sprint 02 notes on another machine, not rewriting anything.
 
@@ -50,9 +50,10 @@ reopening.
   International bandwidth into the country is limited, so pages and above all large downloads
   will be slower for the readers than a local server would have made them. Accepted for now in
   exchange for being online at all. Measure it in Sprint 02 rather than guess.
-- **Reachability from inside Turkmenistan is not guaranteed.** Foreign cloud address ranges can
-  be filtered. This joins R4 in [`../04-risks-and-research.md`](../04-risks-and-research.md) and
-  has to be answered in Sprint 02 before anything else is built on top.
+- **Reachability from inside Turkmenistan can change without warning.** The droplet works from
+  there today, but foreign cloud address ranges can be filtered at any time. The library has to
+  be able to move to another region or provider quickly, which is a requirement on how the data
+  is kept, not only on the server (R4 in [`../04-risks-and-research.md`](../04-risks-and-research.md)).
 - **Less disk.** 50 GB instead of 120 GB. That is plenty for Phase 1 and 2, but the ~30 GB
   collection in Phase 3 plus growth could outrun it. The remedy is a DigitalOcean Block Storage
   volume mounted as `MEDIA_DIR`, or a larger droplet — decided with R6's answer, before the import,
@@ -71,7 +72,7 @@ reopening.
   with no purchase date it leaves the project with no public URL indefinitely. Worth revisiting
   once it can actually be bought.
 - **Hetzner or Contabo.** More RAM and disk per dollar, but no region closer to Turkmenistan
-  than Frankfurt, and DigitalOcean's snapshots, documentation and firewall are the better fit
+  than Europe, and DigitalOcean's snapshots, documentation and firewall are the better fit
   for someone learning server administration in this very sprint.
 - **A 1 GB droplet** to save money. Too little: cover rendering with `pdftoppm`, uvicorn and
   nginx together would sit near the limit, and every other decision assumes 2 GB.
