@@ -9,7 +9,7 @@ before they ship, and they are the only Turkmen in this documentation.
 | Term | Meaning |
 |---|---|
 | **Reader** | Someone with an account, identified solely by a phone number. The only kind of end user. |
-| **Anonymous visitor** | Someone browsing without an account. Can search, browse and upvote; cannot download. |
+| **Anonymous visitor** | Someone browsing without an account. Can search, browse and read the request list; cannot download, request or upvote. |
 | **Admin** | The developer. Adds books, fulfils requests, grants stars, sees the ledger. There is exactly one admin role and no permission tiers. |
 | **Beta tester** | An invited reader during Phase 1, using the library while OTP codes still appear on screen. |
 
@@ -44,8 +44,10 @@ before they ship, and they are the only Turkmen in this documentation.
 | Term | Meaning |
 |---|---|
 | **Request** | A reader asking for a book the library does not have. Published anonymously: the requester is stored so it cannot be spammed, but is never displayed. |
-| **Upvote** | A signal that someone else wants that book too. One per reader per request. |
+| **Upvote** | A signal that someone else wants that book too. One per reader per request, and can be taken back. The reader who posts a request is its first upvote. |
 | **Fulfilment** | An admin linking a request to a newly added book, which closes it. |
+| **Rejection** | An admin closing a request that will not be fulfilled, with a reason everyone can read. |
+| **Merge** | Folding a duplicate request into another open one. Its upvotes move across, a reader who upvoted both counts once, and the duplicate's page redirects. Cannot be undone. |
 | **Priority request** | Phase 4: spending stars to push a request up the queue. Does not exist yet. |
 
 ## Accounts

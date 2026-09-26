@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "_macros.html" import icon, theme_toggle %}
 
-{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='admin.css') }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ static_url('admin.css') }}">{% endblock %}
 {% block body_class %}admin{% endblock %}
 {% block main_class %}admin-content{% endblock %}
 
@@ -14,6 +14,7 @@
             <a href="/admin" {% if section == "index" %}aria-current="page"{% endif %}>Umumy</a>
             <a href="/admin/books" {% if section == "books" %}aria-current="page"{% endif %}>Kitaplar</a>
             <a href="/admin/books/new" {% if section == "new" %}aria-current="page"{% endif %}>Kitap goş</a>
+            <a href="/admin/requests" {% if section == "requests" %}aria-current="page"{% endif %}>Soraglar</a>
             <a href="/admin/stars" {% if section == "stars" %}aria-current="page"{% endif %}>Ýyldyzlar</a>
         </nav>
         <a class="admin-exit" href="/">Saýta dolan</a>
@@ -27,8 +28,10 @@
 {% block tabbar %}
 <nav class="tab-bar" aria-label="Dolandyryş">
     <a href="/admin" {% if section == "index" %}aria-current="page"{% endif %}>{{ icon("grid") }}<span>Umumy</span></a>
-    <a href="/admin/books" {% if section == "books" %}aria-current="page"{% endif %}>{{ icon("book") }}<span>Kitaplar</span></a>
-    <a href="/admin/books/new" {% if section == "new" %}aria-current="page"{% endif %}>{{ icon("plus") }}<span>Kitap goş</span></a>
+    {# Five tabs is as many as fit (ADR-0018). "Kitap goş" has no tab of its own: it is the
+       first button on the books page, so that tab stays marked while adding a book. #}
+    <a href="/admin/books" {% if section in ("books", "new") %}aria-current="page"{% endif %}>{{ icon("book") }}<span>Kitaplar</span></a>
+    <a href="/admin/requests" {% if section == "requests" %}aria-current="page"{% endif %}>{{ icon("request") }}<span>Soraglar</span></a>
     <a href="/admin/stars" {% if section == "stars" %}aria-current="page"{% endif %}>{{ icon("star") }}<span>Ýyldyzlar</span></a>
     <a href="/">{{ icon("home") }}<span>Saýt</span></a>
 </nav>

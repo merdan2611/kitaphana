@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% from "_macros.html" import vote, request_badge %}
+
+{% block title %}Soraglar: Kitaphana{% endblock %}
+{% block description %}Kitaphanada ýok kitaplar: okyjylaryň soraglary we goldawlary.{% endblock %}
+
+{% block content %}
+<div class="requests-layout">
+    <div class="requests-main">
+        <div class="requests-head">
+            <h1>Soraglar</h1>
+            <a class="button" href="/requests/new">Kitap sora</a>
+        </div>
+
+        <nav class="chip-row requests-tabs" aria-label="Sanawlar">
+            {% for key, label in lists.items() %}
+            {% if key != "mine" or current_user %}
+            <a class="chip" href="{{ list_url(key) }}" {% if key == list_name %}aria-current="true"{% endif %}>{{ label }}
+                {% if key in counts %}<span class="chip-count">{{ counts[key] }}</span>{% endif %}</a>
+            {% endif %}
+            {% endfor %}
+        </nav>
+
+        {% if requests %}
+        <ol class="request-list">
+            {% for req in requests %}
+            <li class="request-item">
+                {{ vote(req, current_user, here) }}
+                <a class="request-text" href="/requests/{{ req.id }}">
+                    <strong>{{ req.title }}</strong>
+                    {% if req.author %}<span class="request-author">{{ req.author }}</span>{% endif %}
+                    <span class="request-meta">{{ request_badge(req) }} {{ req.created_at | ago }}</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ol>
+
+        {% if pages > 1 %}
+        <nav class="pager" aria-label="Sahypalar">
+            {% if page > 1 %}<a class="button button-quiet" href="{{ list_url(list_name, page - 1) }}" rel="prev">Öňki</a>{% endif %}
+            <span>Sahypa {{ page }} / {{ pages }}</span>
+            {% if page < pages %}<a class="button button-quiet" href="{{ list_url(list_name, page + 1) }}" rel="next">Indiki</a>{% endif %}
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state">
+            {% if list_name == "open" %}
+            <h2>Häzir açyk sorag ýok</h2>
+            <p>Gözlän kitabyňyz kitaphanada ýok bolsa, ilkinji bolup soraň.</p>
+            {% elif list_name == "fulfilled" %}
+            <h2>Entek tapylan sorag ýok</h2>
+            <p>Soralan kitap kitaphana goşulanda, ol şu ýerde görüner.</p>
+            {% else %}
+            <h2>Siz entek hiç bir soragy goldamadyňyz</h2>
+            <p>Goldan ýa-da goşan soraglaryňyz şu ýerde görüner, ýapylandan soň hem.</p>
+            {% endif %}
+            <a class="button" href="/requests/new">Kitap sora</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <aside class="card requests-aside" aria-labelledby="requests-how">
+        <h2 id="requests-how">Nähili işleýär</h2>
+        <ul>
+            <li><strong>Ýok kitaby soraň.</strong> Ady ýeterlik, awtory bilseňiz has gowy.</li>
+            <li><strong>Başgalaryňkyny goldaň.</strong> Iň köp goldanan soraglar ilki goşulýar.</li>
+            <li><strong>Adyňyz görünmeýär.</strong> Kimiň soranyny ýa-da goldanyny hiç kim görmeýär.</li>
+        </ul>
+    </aside>
+</div>
+{% endblock %}

@@ -83,11 +83,11 @@
     {% endif %}
     <p><a href="{{ link(q='', lang='', page=1) }}">Ähli kitaplara serediň</a></p>
     {% if q %}
-    {# Sprint 07 turns this into a request form, prefilled with the search. #}
-    <div class="placeholder-panel">
+    {# The one moment requests are obviously useful: the reader looked and it is not here. #}
+    <div class="ask-panel">
         <h3>Bu kitaby soraň</h3>
-        <p>Kitaphanada ýok kitaby soramak ýakyn wagtda mümkin bolar. Şonda şu gözlegden bir
-            basyşda sorap bilersiňiz.</p>
+        <p>Kitaphanada ýok bolsa, soraň: başgalar hem goldasa, ol öňe geçýär. Adyňyz görünmeýär.</p>
+        <a class="button" href="/requests/new?{{ {'title': q} | urlencode }}">«{{ q }}» kitabyny sora</a>
     </div>
     {% endif %}
 </div>

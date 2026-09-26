@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "_macros.html" import cover, field, vote %}
+
+{% block title %}Kitap sora: Kitaphana{% endblock %}
+{% block body_class %}page-desk{% endblock %}
+
+{% block content %}
+<p class="breadcrumb"><a href="/requests">Soraglar</a></p>
+
+<div class="request-new-layout">
+    <div class="request-new-intro">
+        <h1>Kitap sora</h1>
+        <p>Kitaphanada ýok kitaby soraň. Soragyňyz sanawda adsyz görkezilýär: kimiň soranyny hiç
+            kim görmeýär. Başgalar hem goldasa, ol öňe geçýär.</p>
+    </div>
+
+    <section class="card request-new-card">
+        {% if blocked %}
+        <div class="form-error" role="alert"><p>{{ blocked }}</p></div>
+        <p><a href="/requests">Soraglara dolan</a></p>
+        {% else %}
+
+        {% if limited %}<div class="form-error" role="alert"><p>{{ limited }}</p></div>{% endif %}
+
+        {% if confirm %}
+        <div class="suggestions">
+            {% if books %}
+            <h2>Bu kitaplar eýýäm bar</h2>
+            <ul class="suggest-list">
+                {% for book in books %}
+                <li>
+                    <a class="suggest-book" href="/books/{{ book.id }}">
+                        <span class="suggest-cover">{{ cover(book) }}</span>
+                        <span><strong>{{ book.title }}</strong>{% if book.author %}<span>{{ book.author }}</span>{% endif %}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if similar %}
+            <h2>Meňzeş soraglar</h2>
+            <p class="muted">Olaryň biri siziň gözleýän kitabyňyz bolsa, täze sorag goşmaň-da, ony goldaň.</p>
+            <ul class="suggest-list">
+                {% for req in similar %}
+                <li class="request-item">
+                    {{ vote(req, current_user, here) }}
+                    <a class="request-text" href="/requests/{{ req.id }}">
+                        <strong>{{ req.title }}</strong>
+                        {% if req.author %}<span class="request-author">{{ req.author }}</span>{% endif %}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <h2 class="suggest-confirm">Gözleýän kitabyňyz bu ýerde ýok bolsa</h2>
+        </div>
+        {% endif %}
+
+        <form class="stack-form request-form" method="post" action="/requests/new" novalidate>
+            {{ field("title", "Kitabyň ady", values, errors) }}
+            {{ field("author", "Awtory (hökman däl)", values, errors) }}
+            {{ field("note", "Bellik (hökman däl)", values, errors, type="textarea",
+                     hint="Meselem: haýsy neşir, haýsy dilde. Bellik hemmä görünýär, şonuň üçin oňa adyňyzy ýazmaň.") }}
+            {% if confirm %}<input type="hidden" name="confirmed" value="1">{% endif %}
+            <button type="submit">{{ "Hawa, täze sorag goş" if confirm else "Soragy goş" }}</button>
+        </form>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

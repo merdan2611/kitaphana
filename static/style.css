@@ -871,24 +871,28 @@ input[type="file"] {
     font-size: var(--step-2);
 }
 
-/* A feature that is announced but not built yet (downloads, requests). */
-.placeholder-panel {
+/* After a search that found nothing: ask for the book instead. */
+.ask-panel {
     margin-top: var(--space-3);
     padding: var(--space-3) var(--space-2);
-    border: 1px dashed var(--color-input-border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius);
     background: var(--color-surface);
     text-align: left;
 }
 
-.placeholder-panel h3 {
+.ask-panel h3 {
     margin-bottom: 0.25rem;
-    font-size: var(--step-0);
+    font-size: var(--step-1);
 }
 
-.placeholder-panel p {
-    margin: 0;
+.ask-panel p {
     color: var(--color-text-muted);
+}
+
+.ask-panel .button {
+    width: 100%;
+    overflow-wrap: anywhere;
 }
 
 /* --- Catalogue: list rows on phones, a cover grid on the website ----------------------------- */
@@ -1388,6 +1392,287 @@ input[type="file"] {
     width: 100%;
 }
 
+/* --- Requests (Sprint 07): an app-style list on phones, list and sidebar on the website ------- */
+
+.requests-layout,
+.request-new-layout {
+    display: grid;
+    /* minmax(0, …): otherwise the sideways-scrolling chip row widens the column past the
+       screen, and the whole page scrolls sideways on a phone. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+}
+
+.requests-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+.requests-head h1 {
+    margin: 0;
+}
+
+.requests-tabs {
+    margin-bottom: var(--space-2);
+}
+
+.request-list,
+.suggest-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.request-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.request-item:last-child {
+    border-bottom: 0;
+}
+
+.request-text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.request-text strong {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.request-text:hover strong {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.request-author {
+    color: var(--color-text-muted);
+    overflow-wrap: anywhere;
+}
+
+.request-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
+
+/* The upvote control: a tall pill with an arrow and the count, pressed when it is yours. */
+.vote-form {
+    margin: 0;
+}
+
+.vote {
+    display: inline-flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 3.25rem;
+    min-height: 3.5rem;
+    padding: 0.3rem 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-page);
+    color: var(--color-text);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+    text-decoration: none;
+}
+
+.vote:hover {
+    border-color: var(--color-primary);
+    background: var(--color-page);
+    color: var(--color-primary);
+}
+
+.vote svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.vote-on,
+.vote-on:hover {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
+.vote-static {
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+}
+
+.vote-word {
+    font-size: 0.7rem;
+    font-weight: 400;
+}
+
+.requests-aside h2 {
+    font-size: var(--step-1);
+}
+
+.requests-aside ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.requests-aside li {
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+}
+
+.requests-aside li:last-child {
+    padding-bottom: 0;
+}
+
+.requests-aside strong {
+    display: block;
+    color: var(--color-text);
+}
+
+/* One request */
+.request-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+}
+
+.request-page-main h1 {
+    margin: var(--space-1) 0 0.25rem;
+    overflow-wrap: anywhere;
+}
+
+.request-page-author {
+    margin-bottom: var(--space-1);
+    color: var(--color-text-muted);
+    font-family: var(--serif);
+    font-size: var(--step-1);
+}
+
+.request-page-meta {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.request-outcome {
+    margin: var(--space-2) 0;
+}
+
+.request-outcome .button {
+    white-space: normal;
+}
+
+.request-note h2 {
+    font-size: var(--step-1);
+}
+
+.request-note p {
+    max-width: 40rem;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.request-vote-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.request-vote-card p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+/* Asking */
+.request-new-intro h1 {
+    margin-bottom: var(--space-1);
+}
+
+.request-new-intro p {
+    color: var(--color-text-muted);
+}
+
+.request-form {
+    margin-bottom: 0;
+}
+
+.suggestions h2 {
+    font-size: var(--step-1);
+}
+
+.suggestions .suggest-list {
+    margin-bottom: var(--space-3);
+}
+
+.suggest-list li {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.suggest-list li:last-child {
+    border-bottom: 0;
+}
+
+.suggest-book {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.6rem 0;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.suggest-book strong {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.suggest-book span span {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.suggest-book:hover strong {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.suggest-cover {
+    flex: none;
+    width: 2.5rem;
+}
+
+.suggest-confirm {
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-border);
+}
+
 /* --- Not found ------------------------------------------------------------------------------- */
 
 .not-found {
@@ -1667,6 +1952,32 @@ input[type="file"] {
     .shortfall-actions .button {
         width: auto;
     }
+
+    /* Requests */
+    .ask-panel .button {
+        width: auto;
+    }
+
+    .request-list {
+        border-top: 1px solid var(--color-border);
+    }
+
+    .request-item {
+        align-items: center;
+        padding: 1rem 0;
+    }
+
+    .request-text strong {
+        font-size: var(--step-1);
+    }
+
+    .request-page-main h1 {
+        font-size: var(--step-4);
+    }
+
+    .request-new-card {
+        max-width: 40rem;
+    }
 }
 
 /* Two columns once there is room for them. */
@@ -1697,6 +2008,37 @@ input[type="file"] {
     .history-layout .balance-card {
         position: sticky;
         top: var(--space-3);
+    }
+
+    .requests-layout {
+        grid-template-columns: minmax(0, 1fr) 20rem;
+        gap: var(--space-5);
+        align-items: start;
+    }
+
+    .request-page {
+        grid-template-columns: minmax(0, 1fr) 20rem;
+        gap: var(--space-5);
+        align-items: start;
+    }
+
+    .request-vote-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .request-new-layout {
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+        gap: var(--space-5);
+        align-items: start;
+    }
+
+    .request-new-intro {
+        padding-top: var(--space-2);
+    }
+
+    .request-new-intro h1 {
+        font-size: var(--step-4);
     }
 
     .auth-intro h1 {

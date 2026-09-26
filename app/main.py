@@ -9,7 +9,7 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app import admin, auth, catalogue, downloads, storage
+from app import admin, auth, catalogue, downloads, requests, storage
 from app.config import BASE_DIR, settings
 from app.db import connect, current_migration_version, get_db
 from app.templating import templates
@@ -27,6 +27,7 @@ app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(catalogue.router)
 app.include_router(downloads.router)
+app.include_router(requests.router)
 
 _COVER_DIR = re.compile(r"[0-9a-f]{2}")
 _COVER_FILE = re.compile(r"[0-9a-f]{64}\.jpg")

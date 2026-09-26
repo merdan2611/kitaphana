@@ -113,9 +113,10 @@ def test_admin_pages_have_the_theme_switch(client, db):
 # --- Phone tab bar ---------------------------------------------------------------------------
 
 
-def test_signed_out_visitor_gets_home_catalogue_and_login_tabs(client):
+def test_signed_out_visitor_gets_home_catalogue_requests_and_login_tabs(client):
     tabs = tab_bar(client.get("/").text)
     assert 'href="/"' in tabs and 'href="/books"' in tabs and 'href="/login"' in tabs
+    assert 'href="/requests"' in tabs
     assert 'href="/account"' not in tabs and 'href="/admin"' not in tabs
 
 
@@ -135,7 +136,14 @@ def test_admin_also_gets_an_admin_tab(client, db):
 
 @pytest.mark.parametrize(
     "path, expected",
-    [("/", "/"), ("/login", "/login"), ("/books", "/books"), ("/books?q=alem", "/books")],
+    [
+        ("/", "/"),
+        ("/login", "/login"),
+        ("/books", "/books"),
+        ("/books?q=alem", "/books"),
+        ("/requests", "/requests"),
+        ("/requests?list=fulfilled", "/requests"),
+    ],
 )
 def test_the_current_tab_is_marked(client, path, expected):
     assert current_tab(client.get(path).text) == expected
@@ -168,7 +176,9 @@ def test_account_tab_is_marked_on_the_account_page(client):
     [
         ("/admin", "/admin"),
         ("/admin/books", "/admin/books"),
-        ("/admin/books/new", "/admin/books/new"),
+        # Adding a book has no tab of its own (five is the most that fit): Kitaplar stays marked.
+        ("/admin/books/new", "/admin/books"),
+        ("/admin/requests", "/admin/requests"),
         ("/admin/stars", "/admin/stars"),
     ],
 )
@@ -191,3 +201,30 @@ def test_top_bar_keeps_a_dev_mode_reminder(client):
 def test_reminder_is_gone_when_dev_mode_is_off(client, test_settings):
     test_settings(dev_otp_mode=False)
     assert "dev-pill" not in client.get("/").text
+
+
+@pytest.mark.parametrize("is_admin", [False, True])
+def test_no_tab_bar_has_more_than_five_tabs(client, db, is_admin):
+    """ADR-0018: five is as many as fit on a phone."""
+    login(client)
+    db.execute("UPDATE users SET is_admin = ? WHERE phone = ?", (int(is_admin), PHONE))
+    db.commit()
+    for path in ["/", "/admin"] if is_admin else ["/"]:
+        assert tab_bar(client.get(path).text).count("<a ") <= 5, path
+
+
+def test_stylesheet_urls_change_when_the_file_changes(client, monkeypatch, tmp_path):
+    """A browser holding an old style.css must fetch the new one after a change (Sprint 07)."""
+    from app import templating
+
+    link = re.search(r'href="(/static/style\.css\?v=[0-9a-f]{10})"', client.get("/").text)
+    assert link, "the stylesheet link should carry a content version"
+    assert client.get(link.group(1)).status_code == 200
+
+    (tmp_path / "style.css").write_text("body { margin: 0; }")
+    monkeypatch.setattr(templating, "STATIC_DIR", tmp_path)
+    first = templating._static_url("style.css")
+    (tmp_path / "style.css").write_text("body { margin: 1px; }")
+    import os
+    os.utime(tmp_path / "style.css", ns=(1, 1))
+    assert templating._static_url("style.css") != first

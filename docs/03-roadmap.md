@@ -2,23 +2,24 @@
 
 **The "where am I?" file. Open this first in every session.**
 
-Sprints 01 and 03-06 have shipped: anyone can browse and search the library, an admin can add
-books and grant stars, and a signed-in reader can spend stars to download a book. Sprint 07 —
-Requests is next. Sprint 02 is unblocked: hosting moved to a DigitalOcean droplet
-([ADR-0019](adr/0019-digitalocean-droplet-hosting.md)), set up on 2026-09-25, so the site can finally
-get a public address.
+Sprints 01 and 03-07 have shipped: anyone can browse and search the library, an admin can add
+books and grant stars, a signed-in reader can spend stars to download a book, and readers can
+ask for missing books and upvote each other's requests. Sprint 08 — Beta hardening is next; it
+needs the server, so Sprint 02 comes first. Sprint 02 is unblocked: hosting moved to a
+DigitalOcean droplet ([ADR-0019](adr/0019-digitalocean-droplet-hosting.md)), set up on
+2026-09-25, so the site can finally get a public address.
 
 ## Current sprint
 
 | | |
 |---|---|
-| **Sprint** | S07 — Requests |
+| **Sprint** | S08 — Beta hardening |
 | **Status** | ⚪ Pending |
 | **Started** | — |
 | **Phase** | 1 (usable library, codes on screen) |
-| **Sprint doc** | [`sprints/sprint-07-requests.md`](sprints/sprint-07-requests.md) |
-| **Milestone** | M7 — I can ask for a book |
-| **Next up** | S02 — Production ground, now that the droplet exists; then S08 — Beta hardening |
+| **Sprint doc** | [`sprints/sprint-08-beta-hardening.md`](sprints/sprint-08-beta-hardening.md) |
+| **Milestone** | M8 — Testers can use it |
+| **Next up** | S02 — Production ground first, now that the droplet exists: S08 backs up, monitors and load-tests a real server — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md) |
 
 ## Phase 1 sprints
 
@@ -32,7 +33,7 @@ get a public address.
 | 04 | [Admin and ingest](sprints/sprint-04-admin-and-ingest.md) | 🟢 Shipped | 2026-09-23 | M4 | …put a book into the library |
 | 05 | [Public catalogue](sprints/sprint-05-public-catalogue.md) | 🟢 Shipped | 2026-09-23 | M5 | …find that book by searching |
 | 06 | [Stars and downloads](sprints/sprint-06-stars-and-downloads.md) | 🟢 Shipped | 2026-09-23 | M6 | …spend stars and get the PDF |
-| 07 | [Requests](sprints/sprint-07-requests.md) | ⚪ Pending | — | M7 | …ask for a missing book and upvote others |
+| 07 | [Requests](sprints/sprint-07-requests.md) | 🟢 Shipped | 2026-09-23 | M7 | …ask for a missing book and upvote others |
 | 08 | [Beta hardening](sprints/sprint-08-beta-hardening.md) | ⚪ Pending | — | M8 | …hand the link to a tester without apologising |
 
 ## Milestones
@@ -87,6 +88,18 @@ If a sprint is 🔴 Blocked, say what it is blocked on in the status cell and op
 ## Shipped log
 
 *Newest first.*
+
+- **2026-09-23** — Sprint 07 (Requests) shipped. A signed-in reader can ask for a book the
+  library does not have, and is first shown any book or open request that looks like it. A
+  search that finds nothing offers the request form, filled in, in one click. Anyone can read
+  the list, ordered by upvotes; signed-in readers upvote once each and can take it back, and
+  see everything they upvoted under "Goldanlarym". Nobody but the admin can see who asked: no
+  page or endpoint carries it, and the tests search every public response to be sure. The admin
+  fulfils a request with a book (everyone who wanted it sees the link), rejects it with a
+  public reason or with one click for nonsense, merges duplicates without counting anyone twice,
+  reopens mistakes, and can stop a reader from posting without touching their account or
+  stars. Readers are limited to 3 requests an hour and 10 a day. The phone tab bar has a
+  Soraglar tab, and the admin's has Soraglar in place of "Kitap goş".
 
 - **2026-09-23** — Sprint 06 (Stars and downloads) shipped. An admin can give a reader stars by
   phone number, with a note the reader also sees, and correct a mistake with a negative entry.

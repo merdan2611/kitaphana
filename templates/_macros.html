@@ -17,6 +17,10 @@
 <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>
 {%- elif name == "sun" -%}
 <circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>
+{%- elif name == "request" -%}
+<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H9l-5 4z"/><path d="M12 7.5v5M9.5 10h5"/>
+{%- elif name == "up" -%}
+<path d="M6 14l6-6 6 6"/>
 {%- elif name == "star" -%}
 <path d="m12 3.5 2.6 5.3 5.9.9-4.25 4.1 1 5.8L12 16.9l-5.25 2.7 1-5.8L3.5 9.7l5.9-.9z"/>
 {%- endif -%}
@@ -115,4 +119,30 @@
         {% endfor %}
     </tbody>
 </table>
+{%- endmacro %}
+
+{# A request's upvote control: a toggle for signed-in readers on open requests, a sign-in link
+   for visitors, and a plain count once a request is closed. `here` is where to come back to. #}
+{% macro vote(req, signed_in, here) -%}
+{% if req.status != "open" %}
+<span class="vote vote-static" title="Goldaw"><span class="vote-count">{{ req.votes }}</span><span class="vote-word">goldaw</span></span>
+{% elif not signed_in %}
+<a class="vote" href="/login?next={{ ('/requests/' ~ req.id) | urlencode }}" title="Goldamak üçin giriň">
+    {{ icon("up") }}<span class="vote-count">{{ req.votes }}</span><span class="visually-hidden">goldaw. Goldamak üçin giriň</span>
+</a>
+{% else %}
+<form class="vote-form" method="post" action="/requests/{{ req.id }}/{{ 'unvote' if req.upvoted else 'upvote' }}">
+    <input type="hidden" name="next" value="{{ here }}">
+    <button type="submit" class="vote{% if req.upvoted %} vote-on{% endif %}" aria-pressed="{{ 'true' if req.upvoted else 'false' }}"
+            title="{{ 'Goldawyňyzy aýyryň' if req.upvoted else 'Goldaň' }}">
+        {{ icon("up") }}<span class="vote-count">{{ req.votes }}</span><span class="visually-hidden">goldaw. {{ 'Siz goldadyňyz: aýyrmak üçin basyň' if req.upvoted else 'Goldamak üçin basyň' }}</span>
+    </button>
+</form>
+{% endif %}
+{%- endmacro %}
+
+{# A request's state, when it is no longer simply open. #}
+{% macro request_badge(req) -%}
+{% if req.status == "fulfilled" %}<span class="badge badge-live">Tapyldy</span>
+{%- elif req.status == "rejected" %}<span class="badge">Ret edildi</span>{% endif %}
 {%- endmacro %}

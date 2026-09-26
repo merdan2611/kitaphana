@@ -413,6 +413,91 @@ body.admin {
     width: calc(100% + 2 * var(--space-2));
 }
 
+/* --- Requests ------------------------------------------------------------------------------- */
+
+.admin-chips {
+    margin-bottom: var(--space-2);
+}
+
+.request-table-votes {
+    font-family: var(--serif);
+    font-size: var(--step-1);
+    font-weight: 700;
+}
+
+.request-admin-layout {
+    display: grid;
+    gap: 0 var(--space-3);
+}
+
+.request-admin-heading {
+    margin-bottom: var(--space-2);
+}
+
+.request-admin-note {
+    margin: var(--space-2) 0 0;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+/* A candidate book or request with the button that picks it. */
+.choice-row {
+    margin: 0;
+}
+
+.choice-row:hover strong {
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.vote-static-small {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.pick-search {
+    margin: 0 0 var(--space-1);
+}
+
+.pick-search input {
+    grid-column: auto;
+}
+
+.pick-caption {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.reject-form {
+    margin-top: var(--space-3);
+}
+
+.requester-panel form {
+    margin: var(--space-2) 0 0;
+}
+
+/* On a phone the request table is a stack of rows, the count on the left. */
+@media (max-width: 47.99rem) {
+    .request-table tr {
+        grid-template-columns: 3rem 1fr;
+    }
+
+    .book-table td.request-table-votes {
+        grid-row: 1 / span 4;
+        grid-column: 1;
+        text-align: left !important;
+    }
+}
+
 /* === Wide screens ============================================================================ */
 
 @media (min-width: 48rem) {
@@ -489,12 +574,18 @@ body.admin {
         width: 100%;
     }
 
-    .lookup-bar {
+    .lookup-bar,
+    .pick-search {
         grid-template-columns: 1fr auto;
     }
 }
 
 @media (min-width: 64rem) {
+    .request-admin-layout {
+        grid-template-columns: minmax(0, 1fr) 20rem;
+        align-items: start;
+    }
+
     .grant-layout {
         grid-template-columns: minmax(0, 26rem) minmax(0, 1fr);
         align-items: start;

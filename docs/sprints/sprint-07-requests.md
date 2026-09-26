@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | ⚪ Pending |
+| **Status** | 🟢 Shipped 2026-09-23 |
 | **Phase** | 1 (usable library, codes on screen) |
 | **Milestone** | M7 — I can ask for a book |
 | **Estimated time** | ~1 week (5-10 hours) |
@@ -116,17 +116,53 @@ this feature is obviously useful.
 
 **Done when:** a fruitless search leads to a prefilled request form in one click.
 
+## What changed while building it (2026-09-23)
+
+Recorded here so the plan above still matches what exists:
+
+- **Anonymity by construction.** Every public query in `app/requests.py` selects one explicit
+  column list (`_PUBLIC`) that has no user id in it, never `requests.*`. Only the `admin_*`
+  functions, called behind the admin guard, read the requester. The tests give a requester a
+  distinctive id and number and search every public response for them, `/openapi.json`
+  included; making the request page print the id fails three of them.
+- **The poster is the first upvote**, so a new request starts at 1 and the count always means
+  "readers who want this".
+- **Three lists:** open requests (by upvotes, then newest), fulfilled ones (newest first), and
+  "Goldanlarym" for a signed-in reader: every request they upvoted or posted, whatever its
+  status. Rejected requests leave the public lists, so one click clears nonsense, but their page
+  and "Goldanlarym" still show the reason to the people who wanted them.
+- **Only open requests take upvotes.** Closing one freezes its count.
+- **Near matches** are published books and open requests whose folded text contains every word
+  of the title, then any one word of four letters or more. If there are any, the form shows
+  them and posts only when the reader confirms it is a different book.
+- **Admin:** `/admin/requests` lists by status; each request's page offers likely books to
+  fulfil with (drafts too: the public link appears once the book is published), likely
+  duplicates to merge into, a one-click "empty or nonsense" rejection, a rejection with any
+  reason, reopening after a mistaken fulfilment or rejection (not after a merge), and blocking
+  the requester from posting. The overview shows the five most wanted.
+- **The admin tab bar made room** as Sprint 06 warned: "Kitap goş" left the phone tab bar (it is
+  the first button on the books page and stays in the desktop navigation), and Soraglar took its
+  place. `tests/test_layout.py` now fails if any tab bar grows past five.
+- **Limits:** `REQUEST_LIMITS`, default 3 an hour and 10 a day per reader, counted from the
+  requests table. Blocking is `users.requests_blocked`; a blocked reader keeps their account,
+  stars, downloads and upvotes.
+- **Deleting a book** that fulfilled a request leaves the request fulfilled, saying the book is
+  no longer available (`ON DELETE SET NULL`).
+
 ## Done when (sprint acceptance)
 
-- [ ] A signed-in reader posts a request and it appears anonymously.
-- [ ] Any visitor reads the list; signed-in readers upvote once each.
-- [ ] No endpoint or page exposes who made a request.
-- [ ] An admin fulfils a request by linking a book, and rejects with a reason.
-- [ ] Duplicates can be merged without losing or double-counting upvotes.
-- [ ] Rate limiting works.
-- [ ] Verified end-to-end on localhost, with the request link reachable from a failed search —
+- [x] A signed-in reader posts a request and it appears anonymously.
+- [x] Any visitor reads the list; signed-in readers upvote once each.
+- [x] No endpoint or page exposes who made a request.
+- [x] An admin fulfils a request by linking a book, and rejects with a reason.
+- [x] Duplicates can be merged without losing or double-counting upvotes.
+- [x] Rate limiting works.
+- [x] Verified end-to-end on localhost, with the request link reachable from a failed search —
       deployment happens in Sprint 02's catch-up pass on the droplet (see
-      [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)).
+      [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md)). *By hand under uvicorn:
+      post, near-match step, upvote from the list, visitor sent to sign in, merge (a reader who
+      upvoted both counted once, the duplicate redirecting), fulfilment with a book link; no
+      requester number on any public page. Both designs checked in screenshots.*
 
 ## Tests
 

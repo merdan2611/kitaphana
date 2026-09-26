@@ -56,6 +56,7 @@ def test_settings(monkeypatch, tmp_path):
         max_upload_mb=200,
         download_limits=((10, 3600), (30, 86400)),
         downloads_via_nginx=True,
+        request_limits=((3, 3600), (10, 86400)),
     )
     return override
 

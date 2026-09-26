@@ -5,6 +5,7 @@ handler, so no page can forget the dev-mode banner (ADR-0013) or the signed-in h
 """
 from __future__ import annotations
 
+import hashlib
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 
@@ -45,6 +46,28 @@ def _localtime(stored: str | None) -> str:
     return moment.astimezone(ASHGABAT).strftime("%d.%m.%Y %H:%M")
 
 
+def _ago(stored: str | None) -> str:
+    """How long ago a stored UTC timestamp was, in words: "3 gün öň"."""
+    if not stored:
+        return ""
+    moment = datetime.strptime(stored, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+    seconds = max((datetime.now(timezone.utc) - moment).total_seconds(), 0)
+    minutes, hours, days = seconds / 60, seconds / 3600, seconds / 86400
+    if minutes < 1:
+        return "häzir"
+    if hours < 1:
+        return f"{int(minutes)} minut öň"
+    if days < 1:
+        return f"{int(hours)} sagat öň"
+    if days < 7:
+        return f"{int(days)} gün öň"
+    if days < 30:
+        return f"{int(days // 7)} hepde öň"
+    if days < 365:
+        return f"{int(days // 30)} aý öň"
+    return f"{int(days // 365)} ýyl öň"
+
+
 def _cover_url(book) -> str | None:
     """The cover's URL with a version, so a replaced cover is not hidden by the browser cache."""
     if not book["cover_path"]:
@@ -52,8 +75,26 @@ def _cover_url(book) -> str | None:
     return f"/{book['cover_path']}?v={quote(book['updated_at'] or '')}"
 
 
+STATIC_DIR = BASE_DIR / "static"
+_static_versions: dict[str, tuple[int, str]] = {}
+
+
+def _static_url(path: str) -> str:
+    """/static/<path>?v=<content hash>, so a browser that cached the old file fetches the new
+    one the moment it changes, instead of showing new pages with old styles."""
+    file = STATIC_DIR / path
+    mtime = file.stat().st_mtime_ns
+    cached = _static_versions.get(path)
+    if cached is None or cached[0] != mtime:
+        cached = (mtime, hashlib.sha256(file.read_bytes()).hexdigest()[:10])
+        _static_versions[path] = cached
+    return f"/static/{quote(path)}?v={cached[1]}"
+
+
 templates = Jinja2Templates(directory=BASE_DIR / "templates", context_processors=[_page_globals])
 templates.env.filters["phone"] = format_phone
 templates.env.filters["filesize"] = _filesize
 templates.env.filters["localtime"] = _localtime
+templates.env.filters["ago"] = _ago
 templates.env.globals["cover_url"] = _cover_url
+templates.env.globals["static_url"] = _static_url

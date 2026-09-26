@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "_macros.html" import vote, request_badge %}
+
+{% block title %}«{{ req.title }}» soragy: Kitaphana{% endblock %}
+{% block description %}Okyjylaryň soragy: {{ req.title }}{% if req.author %}, {{ req.author }}{% endif %}.{% endblock %}
+
+{% block content %}
+<p class="breadcrumb"><a href="/requests">Soraglar</a></p>
+
+{% if posted %}
+<p class="notice" role="status">Soragyňyz goşuldy. Ol adsyz görkezilýär: kimiň soranyny hiç kim
+    görmeýär. Başgalar goldadygyça, ol sanawda ýokary galýar.</p>
+{% endif %}
+
+<article class="request-page">
+    <div class="request-page-main">
+        {{ request_badge(req) }}
+        <h1>{{ req.title }}</h1>
+        {% if req.author %}<p class="request-page-author">{{ req.author }}</p>{% endif %}
+        <p class="request-page-meta">Soraldy {{ req.created_at | ago }} · {{ req.votes }} goldaw</p>
+
+        {% if req.status == "fulfilled" %}
+        <div class="notice request-outcome">
+            {% if req.book_id %}
+            <p><strong>Bu kitap indi kitaphanada bar.</strong></p>
+            <p><a class="button" href="/books/{{ req.book_id }}">«{{ req.book_title }}» kitabyna geç</a></p>
+            {% else %}
+            <p><strong>Bu kitap kitaphana goşulypdy, ýöne häzir elýeterli däl.</strong></p>
+            {% endif %}
+        </div>
+        {% elif req.status == "rejected" %}
+        <div class="form-error request-outcome">
+            <p><strong>Bu sorag ret edildi.</strong> Sebäbi: {{ req.reject_reason }}</p>
+        </div>
+        {% endif %}
+
+        {% if req.note %}
+        <section class="request-note">
+            <h2>Bellik</h2>
+            <p>{{ req.note }}</p>
+        </section>
+        {% endif %}
+    </div>
+
+    <aside class="card request-vote-card" aria-label="Goldaw">
+        {{ vote(req, current_user, here) }}
+        <p>
+            {% if req.status != "open" %}Bu sorag ýapyldy, indi ony goldap bolmaýar.
+            {% elif not current_user %}Goldamak üçin telefon belgiňiz bilen giriň.
+            {% elif req.upvoted %}Siz bu soragy goldadyňyz. Pikiriňizi üýtgetseňiz, ýene basyň.
+            {% else %}Bu kitap size hem gerek bolsa, goldaň: köp goldanan soraglar ilki goşulýar.
+            {% endif %}
+        </p>
+    </aside>
+</article>
+{% endblock %}

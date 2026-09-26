@@ -83,6 +83,8 @@ class Settings:
     # True: nginx sends the file (X-Accel-Redirect, ADR-0014). False: the app streams it itself,
     # which is only for development under a bare uvicorn, where there is no nginx.
     downloads_via_nginx: bool = True
+    # Book requests a reader may post, as (count, window_seconds) pairs (Sprint 07).
+    request_limits: tuple[tuple[int, int], ...] = ((3, 3600), (10, 86400))
     app_version: str = "0.1.0"
 
 
@@ -102,6 +104,7 @@ def load_settings() -> Settings:
         cookie_secure=_bool_env("COOKIE_SECURE", default=True),
         download_limits=_limits_env("DOWNLOAD_LIMITS", "10/3600,30/86400"),
         downloads_via_nginx=_bool_env("DOWNLOADS_VIA_NGINX", default=True),
+        request_limits=_limits_env("REQUEST_LIMITS", "3/3600,10/86400"),
     )
 
 

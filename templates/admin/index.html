@@ -19,6 +19,28 @@
 </dl>
 
 <section class="panel">
+    <h2>Iň köp goldanan soraglar</h2>
+    {% if top_requests %}
+    <ul class="book-rows">
+        {% for req in top_requests %}
+        <li>
+            <a class="book-row" href="/admin/requests/{{ req.id }}">
+                <span class="vote-static-small">{{ req.votes }}</span>
+                <span class="book-row-text">
+                    <strong>{{ req.title }}</strong>
+                    <span>{{ req.author or "Awtor görkezilmedik" }}</span>
+                </span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    <p class="panel-foot"><a href="/admin/requests">Ähli soraglar</a></p>
+    {% else %}
+    <p class="muted">Entek açyk sorag ýok.</p>
+    {% endif %}
+</section>
+
+<section class="panel">
     <h2>Soňky goşulanlar</h2>
     {% if recent %}
     <ul class="book-rows">

@@ -1,0 +1,62 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Soraglar: dolandyryş{% endblock %}
+
+{% block content %}
+<div class="admin-heading">
+    <h1>Soraglar</h1>
+</div>
+
+{% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
+
+<nav class="chip-row admin-chips" aria-label="Ýagdaýy">
+    {% for key, label in statuses.items() %}
+    <a class="chip" href="/admin/requests{% if key != 'open' %}?status={{ key }}{% endif %}" {% if key == status %}aria-current="true"{% endif %}>{{ label }}</a>
+    {% endfor %}
+</nav>
+
+{% if requests %}
+<p class="result-count">{{ total }} sorag{% if status == "open" %}, köp goldanany ilki{% endif %}</p>
+<table class="book-table request-table">
+    <thead>
+        <tr>
+            <th scope="col" class="num">Goldaw</th>
+            <th scope="col">Sorag</th>
+            <th scope="col">Soran</th>
+            <th scope="col">Wagty</th>
+            <th scope="col">Ýagdaýy</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for req in requests %}
+        <tr>
+            <td class="num request-table-votes">{{ req.votes }}</td>
+            <td class="book-table-title">
+                <a href="/admin/requests/{{ req.id }}">{{ req.title }}</a>
+                <span>{{ req.author or "Awtor görkezilmedik" }}</span>
+            </td>
+            <td data-label="Soran">{{ req.requester_phone | phone }}{% if req.requester_blocked %} <span class="badge">petikli</span>{% endif %}</td>
+            <td data-label="Wagty">{{ req.created_at | ago }}</td>
+            <td>
+                {% if req.status == "open" %}<span class="badge badge-live">Açyk</span>
+                {% else %}<span class="badge">{{ statuses[req.status] }}</span>{% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if pages > 1 %}
+<nav class="pager" aria-label="Sahypalar">
+    {% if page > 1 %}<a href="?status={{ status }}&page={{ page - 1 }}">Öňki</a>{% endif %}
+    <span>{{ page }} / {{ pages }}</span>
+    {% if page < pages %}<a href="?status={{ status }}&page={{ page + 1 }}">Indiki</a>{% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+<div class="empty">
+    <p>Bu ýagdaýda sorag ýok.</p>
+</div>
+{% endif %}
+{% endblock %}

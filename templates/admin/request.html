@@ -1,0 +1,159 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import cover %}
+
+{% block title %}«{{ req.title }}» soragy: dolandyryş{% endblock %}
+
+{% block content %}
+<p class="breadcrumb"><a href="/admin/requests">Soraglar</a></p>
+
+{% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
+{% if action_error %}<p class="form-error" role="alert">{{ action_error }}</p>{% endif %}
+
+<div class="request-admin-layout">
+    <div class="request-admin-main">
+        <section class="panel">
+            <div class="admin-heading request-admin-heading">
+                <h1>{{ req.title }}</h1>
+                <span class="badge{% if req.status == 'open' %} badge-live{% endif %}">
+                    {{ {"open": "Açyk", "fulfilled": "Tapylan", "rejected": "Ret edilen", "merged": "Birleşdirilen"}[req.status] }}
+                </span>
+            </div>
+            <dl class="file-facts">
+                <div><dt>Awtory</dt><dd>{{ req.author or "—" }}</dd></div>
+                <div><dt>Goldaw</dt><dd>{{ req.votes }}</dd></div>
+                <div><dt>Soraldy</dt><dd>{{ req.created_at | localtime }} ({{ req.created_at | ago }})</dd></div>
+                {% if req.resolved_at %}<div><dt>Ýapyldy</dt><dd>{{ req.resolved_at | localtime }}</dd></div>{% endif %}
+            </dl>
+            {% if req.note %}<p class="request-admin-note">{{ req.note }}</p>{% endif %}
+            <p class="panel-foot"><a href="/requests/{{ req.id }}">Okyjylar muny nähili görýär</a></p>
+        </section>
+
+        {% if req.status == "open" %}
+        <section class="panel" id="fulfil">
+            <h2>Kitap bilen ýap</h2>
+            <p class="muted">Soralan kitaby sanawdan saýlaň. Ol entek neşir edilmedik bolsa hem bolýar:
+                okyjylar oňa salgyny kitap neşir edilenden soň görýär.</p>
+            <form class="filter-bar pick-search" method="get" action="/admin/requests/{{ req.id }}#fulfil" role="search">
+                <label class="visually-hidden" for="book-q">Kitap gözle</label>
+                <input id="book-q" type="search" name="book_q" value="{{ book_q }}" placeholder="Kitabyň ady ýa-da awtory">
+                {% if req_q %}<input type="hidden" name="req_q" value="{{ req_q }}">{% endif %}
+                <button type="submit" class="button-quiet">Gözle</button>
+            </form>
+            {% if books %}
+            <p class="pick-caption">{% if book_q %}«{{ book_q }}» boýunça tapylan kitaplar{% else %}Meňzeş we soňky goşulan kitaplar{% endif %}</p>
+            <ul class="book-rows">
+                {% for book in books %}
+                <li>
+                    <form class="book-row choice-row" method="post" action="/admin/requests/{{ req.id }}/fulfil">
+                        <span class="book-row-cover">{{ cover(book) }}</span>
+                        <span class="book-row-text">
+                            <strong>{{ book.title }}</strong>
+                            <span>{{ book.author or "Awtor görkezilmedik" }}{% if not book.is_published %} · garalama{% endif %}</span>
+                        </span>
+                        <input type="hidden" name="book_id" value="{{ book.id }}">
+                        <button type="submit" class="button-quiet">Şu kitap</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+            {% elif book_q %}
+            <p class="pick-caption">«{{ book_q }}» boýunça kitap tapylmady. Başgaça ýazyp görüň.</p>
+            {% else %}
+            <p class="pick-caption">Kitaphanada entek kitap ýok. Ilki <a href="/admin/books/new">kitaby goşuň</a>.</p>
+            {% endif %}
+        </section>
+
+        <section class="panel" id="merge">
+            <h2>Birleşdir</h2>
+            <p class="muted">Bu sorag başga açyk soragyň gaýtalanmasy bolsa, oňa birleşdiriň. Goldawlar
+                geçýär, iki soragy hem goldan okyjy bir gezek sanalýar. Muny yzyna gaýtaryp bolmaýar.</p>
+            <form class="filter-bar pick-search" method="get" action="/admin/requests/{{ req.id }}#merge" role="search">
+                <label class="visually-hidden" for="req-q">Sorag gözle</label>
+                <input id="req-q" type="search" name="req_q" value="{{ req_q }}" placeholder="Soragyň ady ýa-da awtory">
+                {% if book_q %}<input type="hidden" name="book_q" value="{{ book_q }}">{% endif %}
+                <button type="submit" class="button-quiet">Gözle</button>
+            </form>
+            {% if similar %}
+            <p class="pick-caption">{% if req_q %}«{{ req_q }}» boýunça açyk soraglar{% else %}Meňzeş açyk soraglar{% endif %}</p>
+            <ul class="book-rows">
+                {% for other in similar %}
+                <li>
+                    <form class="book-row choice-row" method="post" action="/admin/requests/{{ req.id }}/merge">
+                        <span class="vote-static-small">{{ other.votes }}</span>
+                        <span class="book-row-text">
+                            <strong>{{ other.title }}</strong>
+                            <span>{{ other.author or "Awtor görkezilmedik" }}</span>
+                        </span>
+                        <input type="hidden" name="target_id" value="{{ other.id }}">
+                        <button type="submit" class="button-quiet">Şuňa birleşdir</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+            {% elif req_q %}
+            <p class="pick-caption">«{{ req_q }}» boýunça açyk sorag tapylmady.</p>
+            {% else %}
+            <p class="pick-caption">Meňzeş açyk sorag tapylmady. Gaýtalanma bar bolsa, onuň adyny gözläň.</p>
+            {% endif %}
+        </section>
+
+        <section class="panel">
+            <h2>Ret et</h2>
+            <form class="inline-form" method="post" action="/admin/requests/{{ req.id }}/reject">
+                <input type="hidden" name="reason" value="{{ quick_reject }}">
+                <button type="submit" class="button-danger">Boş ýa-da manysyz: ret et</button>
+            </form>
+            <form class="admin-form reject-form" method="post" action="/admin/requests/{{ req.id }}/reject">
+                <div class="field">
+                    <label for="reason">Başga sebäp</label>
+                    <input id="reason" type="text" name="reason" maxlength="{{ max_reject_reason }}">
+                    <p class="field-hint">Sebäp hemmä görünýär.</p>
+                </div>
+                <div class="form-actions"><button type="submit" class="button-quiet">Ret et</button></div>
+            </form>
+        </section>
+
+        {% elif req.status == "merged" %}
+        <section class="panel">
+            <p>Bu sorag <a href="/admin/requests/{{ req.merged_into_id }}">#{{ req.merged_into_id }}</a>
+                soragyna birleşdirildi. Birleşdirmäni yzyna gaýtaryp bolmaýar.</p>
+        </section>
+
+        {% else %}
+        <section class="panel">
+            {% if req.status == "fulfilled" %}
+            <p>Kitap:
+                {% if req.fulfilled_book_id %}<a href="/admin/books/{{ req.fulfilled_book_id }}">{{ req.book_title }}</a>
+                {% if not req.book_published %}(neşir edilmedik: okyjylar entek görmeýär){% endif %}
+                {% else %}pozuldy{% endif %}</p>
+            {% else %}
+            <p>Sebäbi: {{ req.reject_reason }}</p>
+            {% endif %}
+            <form method="post" action="/admin/requests/{{ req.id }}/reopen">
+                <button type="submit" class="button-quiet">Täzeden aç</button>
+            </form>
+        </section>
+        {% endif %}
+    </div>
+
+    <aside class="panel requester-panel">
+        <h2>Soran okyjy</h2>
+        <p class="muted">Diňe size görünýär: okyjylar kimiň soranyny görmeýär.</p>
+        <dl class="file-facts">
+            <div><dt>Telefon</dt><dd><a href="/admin/stars?phone={{ req.requester_phone | urlencode }}">{{ req.requester_phone | phone }}</a></dd></div>
+            <div><dt>Ähli soraglary</dt><dd>{{ requester_total }}</dd></div>
+            <div><dt>Sorag goşup bilýärmi</dt><dd>{{ "Ýok, petikli" if req.requester_blocked else "Hawa" }}</dd></div>
+        </dl>
+        {% if req.requester_blocked %}
+        <form method="post" action="/admin/requests/{{ req.id }}/unblock">
+            <button type="submit" class="button-quiet">Petigi aýyr</button>
+        </form>
+        {% else %}
+        <form method="post" action="/admin/requests/{{ req.id }}/block">
+            <button type="submit" class="button-danger">Sorag goşmagy petikle</button>
+        </form>
+        <p class="field-hint">Hasaby we ýyldyzlary üýtgemeýär; kitap ýükläp we goldap bilýär.</p>
+        {% endif %}
+    </aside>
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
-"""The admin panel: upload, list, edit, publish and delete books (Sprint 04), and grant stars
-(Sprint 06).
+"""The admin panel: upload, list, edit, publish and delete books (Sprint 04), grant stars
+(Sprint 06), and fulfil, reject and merge book requests (Sprint 07).
 
 Every route here sits behind auth.require_admin at the router level, so a normal reader gets a
 404 from all of them — including the POST handlers, not only the pages that link to them.
@@ -23,7 +23,7 @@ from fastapi.responses import RedirectResponse
 from starlette.concurrency import run_in_threadpool
 from starlette.datastructures import UploadFile
 
-from app import pdfmeta, stars, storage
+from app import pdfmeta, requests, stars, storage
 from app.auth import require_admin
 from app.catalogue import LANGUAGES, MAX_BOOK_ID
 from app.db import get_db, timestamp
@@ -50,7 +50,17 @@ NOTICES = {
     "cover-failed": "PDF-iň birinji sahypasyndan daşlyk döredip bolmady.",
     "deleted": "Kitap we onuň faýly pozuldy.",
     "granted": "Ýazgy goşuldy: okyjynyň balansy täzelendi.",
+    "fulfilled": "Sorag ýapyldy: ony soranlar kitaby görýär.",
+    "rejected": "Sorag ret edildi: sebäbi hemmä görünýär.",
+    "merged": "Sorag birleşdirildi: onuň goldawlary beýleki soraga geçdi.",
+    "reopened": "Sorag täzeden açyldy.",
+    "blocked": "Bu okyjy indi sorag goşup bilmeýär. Hasaby we ýyldyzlary üýtgemedi.",
+    "unblocked": "Bu okyjy ýene sorag goşup bilýär.",
 }
+
+# One click clears an empty or nonsense request; its reason is shown publicly like any other.
+QUICK_REJECT_REASON = "Boş ýa-da manysyz sorag."
+MAX_REJECT_REASON = 300
 
 # A grant is added or, for a correction, taken away; either way at most this many at once.
 MAX_GRANT = 1000
@@ -150,6 +160,7 @@ def admin_index(request: Request, conn: sqlite3.Connection = Depends(get_db)):
             "published": counts["published"],
             "drafts": counts["total"] - counts["published"],
             "recent": recent,
+            "top_requests": requests.admin_top_open(conn),
             "section": "index",
         },
     )
@@ -460,3 +471,176 @@ async def admin_grant(request: Request, conn: sqlite3.Connection = Depends(get_d
         return await run_in_threadpool(_grant, request, conn, form)
     finally:
         await form.close()
+
+
+# --- Requests --------------------------------------------------------------------------------
+
+
+@router.get("/requests")
+def admin_requests(
+    request: Request,
+    status: str = "open",
+    page: int = 1,
+    notice: str = "",
+    conn: sqlite3.Connection = Depends(get_db),
+):
+    if status not in requests.ADMIN_STATUSES:
+        status = "open"
+    rows, total, page = requests.admin_list(conn, status, page)
+    return templates.TemplateResponse(
+        request,
+        "admin/requests.html",
+        {
+            "requests": rows,
+            "status": status,
+            "statuses": requests.ADMIN_STATUSES,
+            "total": total,
+            "page": page,
+            "pages": max(1, math.ceil(total / requests.PAGE_SIZE)),
+            "notice": NOTICES.get(notice),
+            "section": "requests",
+        },
+    )
+
+
+def _request_or_404(conn: sqlite3.Connection, request_id: int) -> sqlite3.Row:
+    if not 1 <= request_id <= MAX_BOOK_ID:
+        raise HTTPException(status_code=404)
+    row = requests.admin_get(conn, request_id)
+    if row is None:
+        raise HTTPException(status_code=404)
+    return row
+
+
+def _request_page(
+    request: Request,
+    conn: sqlite3.Connection,
+    row: sqlite3.Row,
+    status_code: int = 200,
+    book_q: str = "",
+    req_q: str = "",
+    **context,
+):
+    is_open = row["status"] == "open"
+    book_q, req_q = " ".join(book_q.split())[:100], " ".join(req_q.split())[:100]
+    context.update(
+        req=row,
+        book_q=book_q,
+        req_q=req_q,
+        books=requests.admin_book_choices(conn, row["title"], book_q) if is_open else [],
+        similar=requests.admin_request_choices(conn, row["id"], row["title"], req_q) if is_open else [],
+        requester_total=requests.requests_by_user_count(conn, row["user_id"]),
+        quick_reject=QUICK_REJECT_REASON,
+        max_reject_reason=MAX_REJECT_REASON,
+        section="requests",
+    )
+    return templates.TemplateResponse(
+        request, "admin/request.html", context, status_code=status_code
+    )
+
+
+@router.get("/requests/{request_id}")
+def admin_request(
+    request: Request,
+    request_id: int,
+    notice: str = "",
+    book_q: str = "",
+    req_q: str = "",
+    conn: sqlite3.Connection = Depends(get_db),
+):
+    row = _request_or_404(conn, request_id)
+    return _request_page(request, conn, row, book_q=book_q, req_q=req_q, notice=NOTICES.get(notice))
+
+
+def _positive_id(raw) -> int | None:
+    raw = str(raw or "").strip().lstrip("#")
+    return int(raw) if re.fullmatch(r"[1-9][0-9]{0,17}", raw) else None
+
+
+def _request_action(request: Request, conn: sqlite3.Connection, request_id: int, form, action: str):
+    row = _request_or_404(conn, request_id)
+    try:
+        if action == "fulfil":
+            book_id = _positive_id(form.get("book_id"))
+            if book_id is None:
+                raise requests.InvalidAction("Sanawdan kitap saýlaň.")
+            requests.fulfil(conn, request_id, book_id)
+            notice = "fulfilled"
+        elif action == "reject":
+            reason = " ".join(str(form.get("reason") or "").split())
+            if not reason:
+                raise requests.InvalidAction("Sebäbini ýazyň: ol hemmä görünýär.")
+            if len(reason) > MAX_REJECT_REASON:
+                raise requests.InvalidAction(f"Sebäbi {MAX_REJECT_REASON} harpdan uzyn bolmaly däl.")
+            requests.reject(conn, request_id, reason)
+            notice = "rejected"
+        elif action == "merge":
+            target_id = _positive_id(form.get("target_id"))
+            if target_id is None:
+                raise requests.InvalidAction("Sanawdan birleşdiriljek soragy saýlaň.")
+            requests.merge(conn, request_id, target_id)
+            return _redirect(f"/admin/requests/{target_id}?notice=merged")
+        else:
+            raise HTTPException(status_code=404)
+    except requests.InvalidAction as exc:
+        return _request_page(request, conn, row, 400, action_error=exc.message)
+    return _redirect(f"/admin/requests/{request_id}?notice={notice}")
+
+
+async def _request_form_action(request: Request, conn, request_id: int, action: str):
+    form = await request.form(max_files=0, max_fields=5)
+    try:
+        return await run_in_threadpool(_request_action, request, conn, request_id, form, action)
+    finally:
+        await form.close()
+
+
+@router.post("/requests/{request_id}/fulfil")
+async def admin_request_fulfil(
+    request: Request, request_id: int, conn: sqlite3.Connection = Depends(get_db)
+):
+    return await _request_form_action(request, conn, request_id, "fulfil")
+
+
+@router.post("/requests/{request_id}/reject")
+async def admin_request_reject(
+    request: Request, request_id: int, conn: sqlite3.Connection = Depends(get_db)
+):
+    return await _request_form_action(request, conn, request_id, "reject")
+
+
+@router.post("/requests/{request_id}/merge")
+async def admin_request_merge(
+    request: Request, request_id: int, conn: sqlite3.Connection = Depends(get_db)
+):
+    return await _request_form_action(request, conn, request_id, "merge")
+
+
+@router.post("/requests/{request_id}/reopen")
+def admin_request_reopen(
+    request: Request, request_id: int, conn: sqlite3.Connection = Depends(get_db)
+):
+    row = _request_or_404(conn, request_id)
+    try:
+        requests.reopen(conn, request_id)
+    except requests.InvalidAction as exc:
+        return _request_page(request, conn, row, 400, action_error=exc.message)
+    return _redirect(f"/admin/requests/{request_id}?notice=reopened")
+
+
+def _set_blocked(conn: sqlite3.Connection, request_id: int, blocked: bool) -> RedirectResponse:
+    row = _request_or_404(conn, request_id)
+    requests.set_posting_blocked(conn, row["user_id"], blocked)
+    return _redirect(f"/admin/requests/{request_id}?notice={'blocked' if blocked else 'unblocked'}")
+
+
+@router.post("/requests/{request_id}/block")
+def admin_request_block(request_id: int, conn: sqlite3.Connection = Depends(get_db)):
+    """Stop the reader who posted this request from posting more. Their account, stars and
+    upvotes are untouched."""
+    return _set_blocked(conn, request_id, True)
+
+
+@router.post("/requests/{request_id}/unblock")
+def admin_request_unblock(request_id: int, conn: sqlite3.Connection = Depends(get_db)):
+    return _set_blocked(conn, request_id, False)
