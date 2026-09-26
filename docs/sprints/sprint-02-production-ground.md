@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | ⚪ Pending |
+| **Status** | 🟡 In progress (started 2026-09-26) |
 | **Phase** | 1 (usable library, codes on screen) |
 | **Milestone** | M2 — It is on the internet |
 | **Estimated time** | ~1-2 weeks (the least familiar work in the project) |
@@ -69,7 +69,7 @@ refused, and the firewall is active with only those three ports open.
 ### 3. Application on the server
 
 Clone the repository with a read-only deploy key, create a virtual environment, install
-dependencies, write the production `.env` — with a real secret key and **dev-OTP off** — and run
+dependencies, write the production `.env` — with a real secret key and **dev-OTP on for Phase 1** (see the decisions under the server build notes) — and run
 the migrations.
 
 **Done when:** `uvicorn` started by hand on the server serves `/health` over localhost with the
@@ -208,3 +208,114 @@ this document
 [ADR-0014](../adr/0014-x-accel-redirect-for-downloads.md) ·
 [ADR-0017](../adr/0017-local-dev-with-placeholder-fixtures.md) ·
 [ADR-0019](../adr/0019-digitalocean-droplet-hosting.md)
+
+## Server build notes
+
+A record of what was actually run on the droplet (`159.65.8.186`, Ubuntu 24.04, SGP1), in
+order. Replaying this list on a fresh droplet rebuilds the server. Everything runs as root.
+
+### 2026-09-25 — baseline
+
+```sh
+apt-get update && apt-get -y upgrade
+apt-get -y install nginx git python3-venv sqlite3 certbot python3-certbot-nginx ufw unattended-upgrades
+
+# 2 GB swap, used only under memory pressure
+fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+echo "/swapfile none swap sw 0 0" >> /etc/fstab
+echo "vm.swappiness=10" > /etc/sysctl.d/99-swap.conf && sysctl -p /etc/sysctl.d/99-swap.conf
+
+# Firewall: ufw on the server, not a DigitalOcean Cloud Firewall (one of the two, not both)
+ufw allow OpenSSH && ufw allow "Nginx Full" && ufw --force enable
+
+timedatectl set-timezone Asia/Ashgabat
+useradd --system --create-home --home-dir /srv/kitaphana --shell /usr/sbin/nologin kitaphana
+
+# SSH: keys only; root by key only
+printf "PermitRootLogin prohibit-password\nPasswordAuthentication no\nKbdInteractiveAuthentication no\n" \
+    > /etc/ssh/sshd_config.d/10-hardening.conf
+sshd -t && systemctl reload ssh
+
+# Automatic security updates
+printf 'APT::Periodic::Update-Package-Lists "1";\nAPT::Periodic::Unattended-Upgrade "1";\n' \
+    > /etc/apt/apt.conf.d/20auto-upgrades
+reboot
+```
+
+DNS: `kitaphana.men` and `www` are A records to `159.65.8.186` on Cloudflare's nameservers,
+**DNS only (grey cloud)**. The proxy stays off: Cloudflare's addresses are untested from inside
+Turkmenistan, certbot's HTTP challenge is simpler without it, and the app's per-address limits
+would see Cloudflare instead of readers.
+
+### 2026-09-26 — layout
+
+```sh
+apt-get -y install poppler-utils fail2ban python3-systemd
+usermod -d /var/lib/kitaphana -m kitaphana     # data home, outside the code
+install -d -m 750 -o kitaphana -g kitaphana /var/lib/kitaphana/media
+install -d -m 700 -o kitaphana -g kitaphana /var/lib/kitaphana/db
+install -d -m 700 -o root -g root /var/backups/kitaphana
+install -d -m 755 -o kitaphana -g kitaphana /srv/kitaphana
+usermod -aG kitaphana www-data                 # nginx reads media through the group
+```
+
+| Path | What |
+|---|---|
+| `/srv/kitaphana` | the git checkout, `.venv`, `.env` (mode 600) |
+| `/var/lib/kitaphana/db/kitaphana.db` | the database |
+| `/var/lib/kitaphana/media` | PDFs, covers, upload spool |
+| `/var/backups/kitaphana` | backups (Sprint 08) |
+
+### Still to run — first deploy
+
+Not yet run: these need the developer's go-ahead.
+
+```sh
+# Code. The repository is public, so it clones over HTTPS with no deploy key; if it ever goes
+# private, add a read-only deploy key for the kitaphana user instead.
+sudo -u kitaphana git clone https://github.com/merdan2611/kitaphana.git /srv/kitaphana
+cd /srv/kitaphana
+sudo -u kitaphana python3 -m venv .venv
+sudo -u kitaphana .venv/bin/pip install -r requirements.txt
+
+# Production .env, mode 600. DEV_OTP_MODE=true for Phase 1: invite-only testing with login
+# codes shown on screen (ADR-0013), decided 2026-09-26. Every page shows the dev-OTP banner.
+# Turning it off is a Phase 2 exit criterion, once SMS delivery exists.
+umask 077; cat > .env <<ENV
+DATABASE_PATH=/var/lib/kitaphana/db/kitaphana.db
+MEDIA_DIR=/var/lib/kitaphana/media
+SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(48))")
+DEV_OTP_MODE=true
+DEBUG=false
+COOKIE_SECURE=true
+DOWNLOADS_VIA_NGINX=true
+MAX_UPLOAD_MB=200
+ENV
+chown kitaphana:kitaphana .env
+
+# Certificate first: the nginx site refers to it. `certonly` leaves nginx's files alone.
+certbot certonly --nginx -d kitaphana.men -d www.kitaphana.men --register-unsafely-without-email --agree-tos
+certbot renew --dry-run
+
+# Flood protection
+install -m 644 deploy/fail2ban-kitaphana.local /etc/fail2ban/jail.d/kitaphana.local
+install -m 644 deploy/sysctl-kitaphana.conf /etc/sysctl.d/90-kitaphana.conf && sysctl --system
+ufw limit OpenSSH                              # at most 6 SSH connections per 30 s per address
+
+# Everything else — service, nginx site, migrations, restart — is deploy.sh
+./deploy.sh
+systemctl enable --now fail2ban && fail2ban-client status
+```
+
+### Decisions that change the task list
+
+- **Root keeps logging in, by key only** (2026-09-26). Task 2 asked for root SSH to be refused
+  once another user could log in; the developer chose to keep administering as `root` with the
+  laptop's key instead. Password logins stay refused, and `kitaphana` stays a no-login user that
+  only runs the app. Read task 2's "root SSH is refused" as "SSH is key-only".
+- **Login codes stay on screen** (2026-09-26). Task 3 asked for dev-OTP off, but with no SMS
+  delivery until Phase 2 that would lock everyone out, the admin included. Phase 1 runs
+  invite-only with codes on screen, as [ADR-0013](../adr/0013-dev-otp-mode.md) allows; anyone who
+  knows a tester's phone number can sign in as them, so testers are told and nothing sensitive
+  goes into accounts.
+- **HTTPS clone, no deploy key**, because the repository is public.

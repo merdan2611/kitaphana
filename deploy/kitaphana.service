@@ -1,0 +1,45 @@
+# systemd unit for Kitaphana (ADR-0004). Installed by deploy.sh as
+# /etc/systemd/system/kitaphana.service — edit it here, not on the server.
+#
+#   systemctl status kitaphana      is it running?
+#   journalctl -u kitaphana -f      its logs
+#   systemctl restart kitaphana     what deploy.sh does after pulling
+
+[Unit]
+Description=Kitaphana digital library (uvicorn)
+After=network.target
+
+[Service]
+Type=simple
+User=kitaphana
+Group=kitaphana
+WorkingDirectory=/srv/kitaphana
+# Bound to localhost only: the outside world reaches the app through nginx and nothing else.
+# uvicorn trusts X-Forwarded-For only from 127.0.0.1 (its default), which is where nginx is.
+ExecStart=/srv/kitaphana/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --proxy-headers
+Restart=always
+RestartSec=2
+# Files the app creates are group-readable, so nginx (www-data, in the kitaphana group) can send
+# the PDFs and covers under /var/lib/kitaphana/media.
+UMask=0027
+Environment=PYTHONDONTWRITEBYTECODE=1
+
+# Sandboxing. If the app is ever compromised, it can write only its own data, not its code,
+# not the system, and cannot gain privileges.
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/kitaphana
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+# Memory ceiling on a 2 GB server: past this the app is killed and restarted rather than
+# pushing nginx and sshd into swap.
+MemoryMax=768M
+
+[Install]
+WantedBy=multi-user.target
