@@ -46,6 +46,13 @@ the star balances in it are correct.
 > ([ADR-0020](../adr/0020-nightly-backups-to-telegram.md), superseding ADR-0011). The admin
 > overview shows the newest backup and whether it reached Telegram. The restore procedure is
 > in `scripts/restore.md`.
+>
+> **2026-09-28, restore rehearsed.** The first backup (104 KB, integrity ok) reached the
+> developer's Telegram. That same copy, restored on the laptop: `scripts.migrate` said "No
+> pending migrations"; `/health` answered migration 6; the catalogue and requests pages
+> served. Its 3 readers, 2 books and 1 request, and every reader's balance (900, 95, 95),
+> matched the live database at the time of the backup exactly. Still to see: the first
+> unattended 03:30 run, in `journalctl -t kitaphana-backup` and in Telegram.
 
 ### 2. Error pages and error visibility
 
