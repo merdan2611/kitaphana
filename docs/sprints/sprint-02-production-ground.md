@@ -332,11 +332,21 @@ systemctl enable --now fail2ban && fail2ban-client reload && fail2ban-client sta
 - `otp_codes.request_ip` holds the phone's real address, not 127.0.0.1.
 - Found only on the real nginx, and fixed: the admin home at `/admin` looped (nginx 301 to
   `/admin/`, the app 307 back); an exact `location = /admin` fixes it.
+- Found only on the real nginx, and fixed: every download was a 403. nginx could not open the
+  PDF because `stage()` writes it with `mkstemp`, which is owner-only whatever the umask, and
+  `os.replace` kept that mode; `ingest` now makes it 0640, and the one PDF already uploaded was
+  `chmod`ed by hand. Stars were not lost: the first attempt charged once, retries are free
+  re-downloads.
+- Downloads through nginx, after that fix: the full file arrives with the book's title as its
+  name and the stored SHA-256; a `Range` request from 1 MB gives 206 and the two halves join
+  into the same hash. The cover is served; `/media/…` and `/_protected/…` give 404; HTML and
+  CSS go out gzipped.
 
 Still open before this sprint ships: task 0 (download timings from a phone in Turkmenistan),
 task 1's registrar lock, auto-renew and calendar reminder, and task 9's pass on a real phone —
-upload a PDF, publish it, grant stars, download it (interrupt and resume on mobile data),
-post and upvote a request, and check pages on the phone.
+upload, publish and download are done (above); still to do on a phone are a download
+interrupted and resumed on mobile data, posting and upvoting a request, and a look at the
+pages.
 
 ### Decisions that change the task list
 
