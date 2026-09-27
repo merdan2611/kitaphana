@@ -131,6 +131,14 @@
                  (server.memory_available | filesize) ~ " elýeterli" if server.memory_available is not none else "") }}
         {{ gauge("Programma", server.app_memory, server.app_memory_limit) }}
         <dl class="dash-facts">
+            <div>
+                <dt>Soňky ätiýaçlyk nusga</dt>
+                <dd>
+                    {% if backup.name %}<time datetime="{{ backup.made_at | replace(' ', 'T') }}Z" title="{{ backup.made_at | localtime }}">{{ backup.made_at | ago }}</time>
+                    · {{ "Telegrama iberildi" if backup.sent else "Telegrama iberilmedi" }}{% else %}Entek ýok{% endif %}
+                    {% if backup.stale or not backup.sent %}<span class="badge badge-danger">Barlaň</span>{% endif %}
+                </dd>
+            </div>
             <div><dt>Maglumat bazasy</dt><dd>{{ server.db_size | filesize }}</dd></div>
             <div><dt>PDF faýllar</dt><dd>{{ server.pdf_count }} · {{ server.pdf_size | filesize }}</dd></div>
             <div><dt>Serwer işläp dur</dt><dd>{% if server.uptime_seconds is not none %}{{ server.uptime_seconds // 86400 }} gün {{ server.uptime_seconds % 86400 // 3600 }} sagat{% else %}—{% endif %}</dd></div>

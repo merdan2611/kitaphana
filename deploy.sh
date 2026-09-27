@@ -24,10 +24,11 @@ as_app .venv/bin/pip install -q --disable-pip-version-check -r requirements.txt
 echo "==> Migrating"
 as_app .venv/bin/python -m scripts.migrate
 
-echo "==> Installing service and nginx configuration"
+echo "==> Installing service, nginx and backup cron configuration"
 install -m 644 deploy/kitaphana.service          /etc/systemd/system/kitaphana.service
 install -m 644 deploy/nginx-kitaphana.conf       /etc/nginx/sites-available/kitaphana
 install -m 644 deploy/nginx-kitaphana-proxy.conf /etc/nginx/snippets/kitaphana-proxy.conf
+install -m 644 deploy/cron-kitaphana-backup      /etc/cron.d/kitaphana-backup
 ln -sf /etc/nginx/sites-available/kitaphana /etc/nginx/sites-enabled/kitaphana
 rm -f /etc/nginx/sites-enabled/default
 systemctl daemon-reload

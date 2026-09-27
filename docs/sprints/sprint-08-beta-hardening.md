@@ -37,6 +37,16 @@ done without doing.
 **Done when:** a backup from the server has been restored locally, the site runs against it, and
 the star balances in it are correct.
 
+> **2026-09-27:** built as `scripts/backup.py` rather than a shell script: Python's
+> `Connection.backup` is the same online-backup API as `.backup`, the laptop has no `sqlite3`
+> CLI, and the Python version is tested (`tests/test_backup.py`). It runs nightly at 03:30 as
+> the `kitaphana` user from `deploy/cron-kitaphana-backup`. It keeps 30 days in
+> `/var/backups/kitaphana` and, instead of a manual pull to the laptop, sends each night's
+> copy as a zip to the developer's private Telegram chat
+> ([ADR-0020](../adr/0020-nightly-backups-to-telegram.md), superseding ADR-0011). The admin
+> overview shows the newest backup and whether it reached Telegram. The restore procedure is
+> in `scripts/restore.md`.
+
 ### 2. Error pages and error visibility
 
 Real 404 and 500 pages in the site's layout. **Debug mode off in production** — no stack trace
@@ -150,7 +160,7 @@ project is.
 
 ## Files this sprint creates / touches
 
-`scripts/backup.sh` · `scripts/restore.md` · `templates/404.html` · `templates/500.html` ·
+`scripts/backup.py` · `deploy/cron-kitaphana-backup` · `scripts/restore.md` · `templates/404.html` · `templates/500.html` ·
 `templates/admin/system.html` · `deploy/nginx-kitaphana.conf` (security headers) ·
 `deploy/kitaphana.service` (workers) · `../03-roadmap.md` · `../02-phases.md`
 

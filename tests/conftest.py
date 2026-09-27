@@ -57,6 +57,11 @@ def test_settings(monkeypatch, tmp_path):
         download_limits=((10, 3600), (30, 86400)),
         downloads_via_nginx=True,
         request_limits=((3, 3600), (10, 86400)),
+        backup_dir=tmp_path / "backups",
+        backup_keep_days=30,
+        # Never the developer's real bot: tests must not send anything to Telegram.
+        telegram_bot_token="",
+        telegram_chat_id="",
     )
     return override
 

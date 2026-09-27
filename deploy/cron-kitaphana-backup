@@ -1,0 +1,12 @@
+# Nightly database backup, sent to Telegram (Sprint 08, ADR-0020). Installed by deploy.sh as
+# /etc/cron.d/kitaphana-backup — edit it here, not on the server.
+#
+# Runs as kitaphana, never root: see scripts/backup.py. The server's clock is Asia/Ashgabat, so
+# this is 03:30 local, the quietest hour. Output goes to the journal:
+#
+#   journalctl -t kitaphana-backup          what last night's run said
+#
+SHELL=/bin/sh
+PATH=/usr/bin:/bin
+
+30 3 * * * kitaphana cd /srv/kitaphana && .venv/bin/python -m scripts.backup 2>&1 | logger -t kitaphana-backup

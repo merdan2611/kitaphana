@@ -1,6 +1,6 @@
 # ADR-0011: Back up the database, not the PDFs
 
-- **Status**: Accepted
+- **Status**: Superseded by [ADR-0020](0020-nightly-backups-to-telegram.md)
 - **Date**: 2026-09-20
 
 ## Context

@@ -1,6 +1,7 @@
 """The admin overview's figures (Sprint 08 task 4): activity from the database, and the server."""
 from __future__ import annotations
 
+import os
 from datetime import datetime, time, timedelta, timezone
 
 import pytest
@@ -290,3 +291,37 @@ def test_admin_overview_shows_the_dashboard(admin, db):  # noqa: F811
         assert text in page.text, text
     assert "/admin/stars?phone=%2B99365111222" in page.text
     assert 'style="' not in page.text  # heights are classes, ready for a strict CSP
+
+
+# --- Backups ---------------------------------------------------------------------------------
+
+
+def test_no_backup_folder_is_stale_not_an_error(tmp_path):
+    status = dashboard.last_backup(tmp_path / "missing")
+    assert status["name"] is None and status["stale"] is True and status["sent"] is False
+
+
+def test_the_newest_backup_is_reported_with_its_telegram_mark(tmp_path):
+    for day in ("2026-09-25", "2026-09-26"):
+        (tmp_path / f"kitaphana-{day}.db").write_bytes(b"x" * 10)
+    (tmp_path / "kitaphana-2026-09-26.sent").write_text("sent")
+    (tmp_path / "notes.db").write_text("not a backup")
+
+    status = dashboard.last_backup(tmp_path)
+    assert status["name"] == "kitaphana-2026-09-26.db"
+    assert status["size"] == 10
+    assert status["sent"] is True
+    assert status["stale"] is False  # written just now
+
+
+def test_an_old_backup_is_stale(tmp_path):
+    old = tmp_path / "kitaphana-2026-09-01.db"
+    old.write_text("x")
+    two_days_ago = datetime.now(timezone.utc).timestamp() - 2 * 86400
+    os.utime(old, (two_days_ago, two_days_ago))
+    assert dashboard.last_backup(tmp_path)["stale"] is True
+
+
+def test_admin_overview_warns_when_there_is_no_backup(admin):  # noqa: F811
+    page = admin.get("/admin")
+    assert "Soňky ätiýaçlyk nusga" in page.text and "Entek ýok" in page.text

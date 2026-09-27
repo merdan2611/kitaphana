@@ -167,6 +167,7 @@ def admin_index(request: Request, conn: sqlite3.Connection = Depends(get_db)):
             "newest_readers": dashboard.newest_readers(conn),
             "ledger_entries": stars.recent_entries(conn, 6),
             "server": dashboard.server(conn, config.settings.database_path, storage.media_root()),
+            "backup": dashboard.last_backup(config.settings.backup_dir),
             "section": "index",
         },
     )

@@ -85,6 +85,12 @@ class Settings:
     downloads_via_nginx: bool = True
     # Book requests a reader may post, as (count, window_seconds) pairs (Sprint 07).
     request_limits: tuple[tuple[int, int], ...] = ((3, 3600), (10, 86400))
+    # Nightly database backups (Sprint 08, ADR-0020): where they are kept, for how many days,
+    # and the Telegram bot and chat each one is sent to. No token means nothing is sent.
+    backup_dir: Path = Path("backups")
+    backup_keep_days: int = 30
+    telegram_bot_token: str = ""
+    telegram_chat_id: str = ""
     app_version: str = "0.1.0"
 
 
@@ -105,6 +111,10 @@ def load_settings() -> Settings:
         download_limits=_limits_env("DOWNLOAD_LIMITS", "10/3600,30/86400"),
         downloads_via_nginx=_bool_env("DOWNLOADS_VIA_NGINX", default=True),
         request_limits=_limits_env("REQUEST_LIMITS", "3/3600,10/86400"),
+        backup_dir=Path(os.environ.get("BACKUP_DIR", "backups")),
+        backup_keep_days=_int_env("BACKUP_KEEP_DAYS", 30),
+        telegram_bot_token=os.environ.get("TELEGRAM_BOT_TOKEN", "").strip(),
+        telegram_chat_id=os.environ.get("TELEGRAM_CHAT_ID", "").strip(),
     )
 
 

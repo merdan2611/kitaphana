@@ -146,6 +146,35 @@ def newest_readers(conn: sqlite3.Connection, limit: int = 5) -> list[dict]:
     return [{**dict(row), "balance": stars.balance(conn, row["id"])} for row in rows]
 
 
+# --- Backups ---------------------------------------------------------------------------------
+
+BACKUP_FILE = "kitaphana-????-??-??.db"  # scripts/backup.py names them by date
+BACKUP_STALE = timedelta(hours=36)  # a nightly job that missed a night, with room to spare
+
+
+def last_backup(backup_dir: Path) -> dict:
+    """The newest nightly backup: when it was made, its size, and whether it reached Telegram.
+
+    `stale` when there is none, or the newest is older than a missed night: the dashboard's
+    reminder that ADR-0020's promise is not being kept.
+    """
+    try:
+        newest = max(backup_dir.glob(BACKUP_FILE), default=None)
+        made = newest.stat().st_mtime if newest else None
+    except OSError:
+        newest = made = None
+    if newest is None or made is None:
+        return {"name": None, "size": None, "made_at": None, "sent": False, "stale": True}
+    made_at = datetime.fromtimestamp(made, timezone.utc)
+    return {
+        "name": newest.name,
+        "size": newest.stat().st_size,
+        "made_at": made_at.strftime("%Y-%m-%d %H:%M:%S"),
+        "sent": newest.with_suffix(".sent").exists(),
+        "stale": datetime.now(timezone.utc) - made_at > BACKUP_STALE,
+    }
+
+
 # --- Server ----------------------------------------------------------------------------------
 
 
