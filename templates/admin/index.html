@@ -6,10 +6,13 @@
 {# One series per chart, so no legend: the caption names it. Heights are CSS step classes
    (app/dashboard.py bar_step), because the pages carry no inline styles. The peak and today
    are labelled; every day's figure is in the hidden list for screen readers and in each
-   column's tooltip. #}
-{% macro day_chart(series, label) -%}
+   column's tooltip. Fourteen empty days say so, in the chart's own space. #}
+{% macro day_chart(series, label, empty) -%}
 <figure class="day-chart">
     <figcaption><strong>{{ label }}</strong> <span>14 günde {{ series.total }}</span></figcaption>
+    {% if not series.total %}
+    <p class="day-empty">{{ empty }}</p>
+    {% else %}
     <ol class="day-bars">
         {% for day in series.days %}
         <li title="{{ day.label }}: {{ day.value }}">
@@ -19,6 +22,7 @@
         </li>
         {% endfor %}
     </ol>
+    {% endif %}
     <div class="day-axis" aria-hidden="true"><span>{{ series.days[0].label }}</span><span>Şu gün</span></div>
 </figure>
 {%- endmacro %}
@@ -32,7 +36,7 @@
     {% if used is not none and total %}
     <meter class="gauge-meter{% if low %} is-low{% endif %}" min="0" max="{{ total }}" value="{{ used }}">{{ used | filesize }}</meter>
     {% endif %}
-    {% if detail %}<p class="gauge-detail">{{ detail }}</p>{% endif %}
+    {% if detail %}<p class="gauge-detail{% if low %} is-low{% endif %}">{{ detail }}</p>{% endif %}
 </div>
 {%- endmacro %}
 
@@ -53,12 +57,18 @@
     </div>
     <div>
         <dt>Ýüklemeler, 24 sagatda</dt><dd>{{ activity.downloads_day }}</dd>
-        <dd class="dash-sub">7 günde {{ activity.downloads_week }} · jemi {{ activity.downloads_total }}</dd>
+        <dd class="dash-sub">7 günde {{ activity.downloads_week }}, jemi {{ activity.downloads_total }}</dd>
     </div>
     <div>
         <dt>Açyk soraglar</dt>
         <dd>{% if activity.requests_open %}<a href="/admin/requests">{{ activity.requests_open }}</a>{% else %}0{% endif %}</dd>
-        <dd class="dash-sub">7 günde +{{ activity.requests_new_week }} · {{ activity.upvotes_week }} goldaw</dd>
+        <dd class="dash-sub">7 günde +{{ activity.requests_new_week }}, {{ activity.upvotes_week }} goldaw</dd>
+    </div>
+    <div>
+        <dt>Kitaplar</dt>
+        <dd><a href="/admin/books">{{ total }}</a></dd>
+        <dd class="dash-sub">{{ published }} neşir edilen,
+            {% if drafts %}<a href="/admin/books?status=draft">{{ drafts }} garalama</a>{% else %}0 garalama{% endif %}</dd>
     </div>
 </dl>
 
@@ -67,8 +77,8 @@
     <section class="panel">
         <h2>Soňky 14 gün</h2>
         <div class="dash-charts">
-            {{ day_chart(daily.downloads, "Ýüklemeler") }}
-            {{ day_chart(daily.signups, "Täze okyjylar") }}
+            {{ day_chart(daily.downloads, "Ýüklemeler", "14 günde ýükleme bolmady.") }}
+            {{ day_chart(daily.signups, "Täze okyjylar", "14 günde täze okyjy bolmady.") }}
         </div>
     </section>
 
@@ -135,14 +145,14 @@
                 <dt>Soňky ätiýaçlyk nusga</dt>
                 <dd>
                     {% if backup.name %}<time datetime="{{ backup.made_at | replace(' ', 'T') }}Z" title="{{ backup.made_at | localtime }}">{{ backup.made_at | ago }}</time>
-                    · {{ "Telegrama iberildi" if backup.sent else "Telegrama iberilmedi" }}{% else %}Entek ýok{% endif %}
+                    {{- ", Telegrama iberildi" if backup.sent else ", Telegrama iberilmedi" }}{% else %}Entek ýok{% endif %}
                     {% if backup.stale or not backup.sent %}<span class="badge badge-danger">Barlaň</span>{% endif %}
                 </dd>
             </div>
             <div><dt>Maglumat bazasy</dt><dd>{{ server.db_size | filesize }}</dd></div>
-            <div><dt>PDF faýllar</dt><dd>{{ server.pdf_count }} · {{ server.pdf_size | filesize }}</dd></div>
+            <div><dt>PDF faýllar</dt><dd>{{ server.pdf_count }} faýl, {{ server.pdf_size | filesize }}</dd></div>
             <div><dt>Serwer işläp dur</dt><dd>{% if server.uptime_seconds is not none %}{{ server.uptime_seconds // 86400 }} gün {{ server.uptime_seconds % 86400 // 3600 }} sagat{% else %}—{% endif %}</dd></div>
-            <div><dt>Wersiýa</dt><dd>{{ server.version }} · migrasiýa {{ server.migration }}</dd></div>
+            <div><dt>Wersiýa</dt><dd>{{ server.version }}, migrasiýa {{ server.migration }}</dd></div>
         </dl>
     </section>
 
@@ -176,15 +186,6 @@
         <p class="muted">Entek hiç kitap ýüklenmedi.</p>
         {% endif %}
     </section>
-
-    <dl class="admin-counts">
-        <div><dt>Ähli kitaplar</dt><dd>{{ total }}</dd></div>
-        <div><dt>Neşir edilen</dt><dd>{{ published }}</dd></div>
-        <div>
-            <dt>Garalama</dt>
-            <dd>{% if drafts %}<a href="/admin/books?status=draft">{{ drafts }}</a>{% else %}0{% endif %}</dd>
-        </div>
-    </dl>
 
     <section class="panel">
         <h2>Iň köp goldanan soraglar</h2>

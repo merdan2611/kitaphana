@@ -325,3 +325,21 @@ def test_an_old_backup_is_stale(tmp_path):
 def test_admin_overview_warns_when_there_is_no_backup(admin):  # noqa: F811
     page = admin.get("/admin")
     assert "Soňky ätiýaçlyk nusga" in page.text and "Entek ýok" in page.text
+
+
+def test_a_quiet_fortnight_is_said_in_words_not_drawn_as_an_empty_chart(admin):  # noqa: F811
+    page = admin.get("/admin").text
+    assert "14 günde ýükleme bolmady." in page
+    assert "14 günde täze okyjy bolmady." not in page  # the admin signed up today
+
+
+def test_book_counts_sit_in_the_top_row_with_drafts_linked(admin, db):  # noqa: F811
+    add_book(db, "Neşir edilen")
+    db.execute("UPDATE books SET is_published = 1")
+    add_book(db, "Garalama kitap")
+    db.commit()
+    page = admin.get("/admin").text
+    top_row = page.split('<dl class="admin-counts dash-counts">', 1)[1].split("</dl>", 1)[0]
+    assert "<dt>Kitaplar</dt>" in top_row
+    assert "1 neşir edilen" in top_row
+    assert '<a href="/admin/books?status=draft">1 garalama</a>' in top_row

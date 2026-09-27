@@ -1,5 +1,5 @@
 {% extends "admin/base.html" %}
-{% from "_macros.html" import cover %}
+{% from "_macros.html" import cover, file_picker %}
 
 {% block title %}{{ book.title }}: dolandyryş{% endblock %}
 
@@ -20,7 +20,7 @@
         {% if cover_error %}<p class="field-error">{{ cover_error }}</p>{% endif %}
         <form method="post" action="/admin/books/{{ book.id }}/cover" enctype="multipart/form-data" class="cover-form">
             <label for="f-cover">Daşlyk suraty</label>
-            <input id="f-cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" required>
+            {{ file_picker("f-cover", "cover", "image/jpeg,image/png,image/webp", "Surat saýla", "Surat saýlanmady") }}
             <button type="submit" class="button-quiet">Suraty goý</button>
         </form>
         <form method="post" action="/admin/books/{{ book.id }}/cover/render">

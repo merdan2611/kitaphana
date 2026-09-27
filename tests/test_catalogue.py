@@ -207,8 +207,22 @@ def test_signed_in_reader_sees_a_download_button_with_the_price(client, db):
     login(client)
     html = client.get(f"/books/{book_id}").text
     assert f'<form method="post" action="/books/{book_id}/download">' in html
-    assert "Ýükle: 2 ýyldyz" in html
+    assert "2 ýyldyz bilen ýükle" in html
     assert "Ýüklemek üçin giriň" not in html
+    assert "<dt>Bahasy</dt>" not in html  # the button already says the price
+
+
+def test_a_free_book_button_says_it_is_a_pdf_and_how_big(client, db):
+    book_id = add_book(db, "Görogly")
+    login(client)
+    html = client.get(f"/books/{book_id}").text
+    size = re.search(r"<dt>Faýl</dt><dd>PDF, ([^<]+)</dd>", html).group(1)
+    assert f"PDF ýükle ({size})" in html
+
+
+def test_a_visitor_still_sees_the_price_among_the_facts(client, db):
+    book_id = add_book(db, "Görogly", price=3)
+    assert "<dt>Bahasy</dt><dd>3 ýyldyz</dd>" in client.get(f"/books/{book_id}").text
 
 
 def test_book_without_a_cover_renders(client, db):
@@ -288,3 +302,27 @@ def test_404_page_knows_who_is_signed_in(client):
 def test_admin_404_looks_like_any_other_404(client):
     login(client)
     assert is_not_found_page(client.get("/admin"))
+
+
+# --- Home: the shelf of new books ------------------------------------------------------------
+
+
+def test_home_shows_the_newest_published_books_first(client, db):
+    for n in range(7):
+        add_book(db, f"Kitap {n}")
+    add_book(db, "Gizlin garalama", published=False)
+
+    html = client.get("/").text
+    assert titles(html) == ["Kitap 6", "Kitap 5", "Kitap 4", "Kitap 3", "Kitap 2"]
+    assert "Gizlin garalama" not in html
+    assert '<a href="/books">Ähli kitaplar</a>' in html
+
+
+def test_an_empty_library_has_no_shelf(client):
+    assert "Täze goşulanlar" not in client.get("/").text
+
+
+def test_how_it_works_is_for_visitors_not_signed_in_readers(client):
+    assert "Nähili işleýär" in client.get("/").text
+    login(client)
+    assert "Nähili işleýär" not in client.get("/").text

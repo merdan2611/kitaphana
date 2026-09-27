@@ -4,7 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    {# The one colour CSS cannot reach: keep it equal to --color-header in static/style.css. #}
+    {# The one colour CSS cannot reach: the light --color-header in static/style.css. The script
+       below switches it to the dark one when the dark theme is showing. #}
     <meta name="theme-color" content="#0b1220">
     <title>{% block title %}Kitaphana{% endblock %}</title>
     <meta name="description" content="{% block description %}Türkmen dilindäki kitaplaryň sanly kitaphanasy: gözläň, tapyň we PDF görnüşinde ýükläp alyň.{% endblock %}">
@@ -13,6 +14,7 @@
     <script>
     (function () {
         var root = document.documentElement;
+        root.classList.add("js"); // CSS enhances only what a running script can drive
         var saved = null;
         try { saved = localStorage.getItem("theme"); } catch (e) {}
         var dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
@@ -23,8 +25,14 @@
                 button.hidden = false;
                 button.setAttribute("aria-pressed", String(root.dataset.theme === "dark"));
             });
+            // The phone's browser bar follows the page's own bar: read the colour from the
+            // stylesheet rather than repeating it here, so the CSS stays its only home.
+            var header = getComputedStyle(root).getPropertyValue("--color-header").trim();
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (header && meta) meta.setAttribute("content", header);
         }
         document.addEventListener("DOMContentLoaded", sync);
+        window.addEventListener("load", sync);
         document.addEventListener("click", function (event) {
             if (!event.target.closest(".theme-toggle")) return;
             root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";

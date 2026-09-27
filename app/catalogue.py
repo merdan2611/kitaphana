@@ -22,6 +22,10 @@ router = APIRouter()
 
 PAGE_SIZE = 20
 
+# The home page's shelf of new books: one row of covers on the website, a swipeable shelf on
+# a phone (templates/index.html).
+HOME_SHELF_SIZE = 5
+
 # Also the admin form's choices (app/admin.py).
 LANGUAGES = {"tk": "Türkmençe", "ru": "Rusça", "en": "Iňlisçe"}
 
@@ -133,6 +137,13 @@ def catalogue(
             "link": link,
         },
     )
+
+
+def newest_books(conn: sqlite3.Connection, limit: int = HOME_SHELF_SIZE) -> list[sqlite3.Row]:
+    """The most recently added published books, in the catalogue's own "new" order."""
+    return conn.execute(
+        f"SELECT * FROM published_books ORDER BY {SORTS['new'][1]} LIMIT ?", (limit,)
+    ).fetchall()
 
 
 def published_book_or_404(conn: sqlite3.Connection, book_id: str) -> sqlite3.Row:

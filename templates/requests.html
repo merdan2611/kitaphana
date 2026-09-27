@@ -11,6 +11,8 @@
             <h1>Soraglar</h1>
             <a class="button" href="/requests/new">Kitap sora</a>
         </div>
+        <p class="requests-intro">Kitaphanada ýok kitaby soraň ýa-da başgalaryňkyny goldaň: iň köp
+            goldananlar ilki goşulýar. Kimiň soranyny ýa-da goldanyny hiç kim görmeýär.</p>
 
         <nav class="chip-row requests-tabs" aria-label="Sanawlar">
             {% for key, label in lists.items() %}
@@ -27,9 +29,11 @@
             <li class="request-item">
                 {{ vote(req, current_user, here) }}
                 <a class="request-text" href="/requests/{{ req.id }}">
-                    <strong>{{ req.title }}</strong>
-                    {% if req.author %}<span class="request-author">{{ req.author }}</span>{% endif %}
-                    <span class="request-meta">{{ request_badge(req) }} {{ req.created_at | ago }}</span>
+                    <span class="request-name">
+                        <strong>{{ req.title }}</strong>
+                        {% if req.author %}<span class="request-author">{{ req.author }}</span>{% endif %}
+                    </span>
+                    <span class="request-meta">{{ request_badge(req) }} {{ req.created_at | ago | capitalize }} soraldy</span>
                 </a>
             </li>
             {% endfor %}
@@ -59,14 +63,5 @@
         </div>
         {% endif %}
     </div>
-
-    <aside class="card requests-aside" aria-labelledby="requests-how">
-        <h2 id="requests-how">Nähili işleýär</h2>
-        <ul>
-            <li><strong>Ýok kitaby soraň.</strong> Ady ýeterlik, awtory bilseňiz has gowy.</li>
-            <li><strong>Başgalaryňkyny goldaň.</strong> Iň köp goldanan soraglar ilki goşulýar.</li>
-            <li><strong>Adyňyz görünmeýär.</strong> Kimiň soranyny ýa-da goldanyny hiç kim görmeýär.</li>
-        </ul>
-    </aside>
 </div>
 {% endblock %}

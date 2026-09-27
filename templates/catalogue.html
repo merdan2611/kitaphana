@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import cover %}
+{% from "_macros.html" import book_card %}
 
 {% block title %}{% if q %}«{{ q }}»: {% endif %}Katalog: Kitaphana{% endblock %}
 
@@ -27,7 +27,8 @@
    hidden only when the search found nothing in any language, since then there is nothing to filter. #}
 {% if all_count %}
 <nav class="filters" aria-label="Süzgüçler">
-    <div class="chip-row" role="group" aria-label="Dil">
+    <div class="chip-row" role="group" aria-labelledby="filter-lang">
+        <span class="chip-label" id="filter-lang">Dili:</span>
         <a class="chip" href="{{ link(lang='', page=1) }}" {% if not lang %}aria-current="true"{% endif %}>Ähli diller <span class="chip-count">{{ all_count }}</span></a>
         {% for code, name in languages.items() %}
         {% if counts.get(code) or code == lang %}
@@ -35,7 +36,8 @@
         {% endif %}
         {% endfor %}
     </div>
-    <div class="chip-row" role="group" aria-label="Tertibi">
+    <div class="chip-row" role="group" aria-labelledby="filter-sort">
+        <span class="chip-label" id="filter-sort">Tertibi:</span>
         {% for key, (label, _) in sorts.items() %}
         <a class="chip" href="{{ link(sort=key, page=1) }}" {% if key == sort %}aria-current="true"{% endif %}>{{ label }}</a>
         {% endfor %}
@@ -47,20 +49,7 @@
 <p class="result-count">{% if q %}«{{ q }}» boýunça {{ total }} kitap tapyldy{% else %}{{ total }} kitap{% endif %}</p>
 <ul class="book-grid">
     {% for book in books %}
-    <li>
-        <a class="book-card" href="/books/{{ book.id }}">
-            {{ cover(book, eager=loop.index <= 4) }}
-            <span class="book-card-text">
-                <span class="book-card-title">{{ book.title }}</span>
-                {% if book.author %}<span class="book-card-author">{{ book.author }}</span>{% endif %}
-                <span class="book-card-meta">
-                    {% if book.year %}<span>{{ book.year }}</span>{% endif %}
-                    {% if book.price_stars %}<span>{{ book.price_stars }} ýyldyz</span>
-                    {% else %}<span class="price-free">Mugt</span>{% endif %}
-                </span>
-            </span>
-        </a>
-    </li>
+    <li>{{ book_card(book, eager=loop.index <= 4) }}</li>
     {% endfor %}
 </ul>
 

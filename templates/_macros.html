@@ -54,6 +54,35 @@
 {% endif %}
 {%- endmacro %}
 
+{# One book in a list of books: the catalogue and the home page's shelf. A list row on phones,
+   a cover above its title on the website (static/style.css, "Catalogue"). #}
+{% macro book_card(book, eager=false) -%}
+<a class="book-card" href="/books/{{ book.id }}">
+    {{ cover(book, eager=eager) }}
+    <span class="book-card-text">
+        <span class="book-card-title">{{ book.title }}</span>
+        {% if book.author %}<span class="book-card-author">{{ book.author }}</span>{% endif %}
+        <span class="book-card-meta">
+            {% if book.year %}<span>{{ book.year }}</span>{% endif %}
+            {% if book.price_stars %}<span>{{ book.price_stars }} ýyldyz</span>
+            {% else %}<span class="price-free">Mugt</span>{% endif %}
+        </span>
+    </span>
+</a>
+{%- endmacro %}
+
+{# A file field that speaks Turkmen. Once the page's script runs (the "js" class, set in
+   base.html), the browser's own "Choose File" control is hidden and a button-styled label opens
+   it; admin/base.html writes the chosen file's name beside it. Without the script, the
+   browser's control shows as it is and still works. #}
+{% macro file_picker(id, name, accept, button, empty, required=true) -%}
+<span class="file-pick">
+    <input class="file-pick-input" id="{{ id }}" name="{{ name }}" type="file" accept="{{ accept }}"{% if required %} required{% endif %}>
+    <label class="button button-quiet file-pick-button" for="{{ id }}">{{ button }}</label>
+    <span class="file-pick-name" data-empty="{{ empty }}" aria-live="polite">{{ empty }}</span>
+</span>
+{%- endmacro %}
+
 {# A labelled form field with its error, if any. #}
 {% macro field(name, label, values, errors, type="text", hint=None) -%}
 <div class="field{% if errors.get(name) %} field-invalid{% endif %}">

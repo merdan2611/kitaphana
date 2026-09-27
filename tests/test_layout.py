@@ -87,9 +87,14 @@ def test_dark_theme_only_redefines_existing_colours():
     assert dark and dark <= light
 
 
-def test_header_keeps_its_colour_in_the_dark_theme():
-    """So <meta name="theme-color"> is right in both themes."""
-    assert "--color-header:" not in _dark_block((STATIC / "style.css").read_text())
+def test_theme_script_keeps_theme_color_on_the_header_token():
+    """The dark theme lifts the header off the page, so the meta tag cannot be one constant:
+    the theme script copies --color-header into it for whichever theme is showing. It reads
+    the stylesheet rather than repeating a colour, so style.css stays the only home of both."""
+    base = (BASE_DIR / "templates/base.html").read_text()
+    assert 'getPropertyValue("--color-header")' in base
+    assert 'meta[name="theme-color"]' in base
+    assert COLOUR.findall(base.split("<script>", 1)[1].split("</script>", 1)[0]) == []
 
 
 # --- Light and dark switch -------------------------------------------------------------------

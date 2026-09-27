@@ -17,7 +17,8 @@
         {{ request_badge(req) }}
         <h1>{{ req.title }}</h1>
         {% if req.author %}<p class="request-page-author">{{ req.author }}</p>{% endif %}
-        <p class="request-page-meta">Soraldy {{ req.created_at | ago }} · {{ req.votes }} goldaw</p>
+        <p class="request-page-meta">{{ req.created_at | ago | capitalize }} soraldy,
+            {% if req.votes %}{{ req.votes }} adam goldady{% else %}entek goldan ýok{% endif %}.</p>
 
         {% if req.status == "fulfilled" %}
         <div class="notice request-outcome">

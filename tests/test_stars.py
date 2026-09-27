@@ -415,6 +415,22 @@ def test_history_shows_local_time(client, db):
     assert _localtime(stored) in client.get("/account/stars").text
 
 
+def test_account_page_shows_the_latest_star_movements(client, db):
+    login(client)
+    for n in range(7):
+        stars.grant(db, user_id(db), 1, f"Sowgat {n}")
+    html = client.get("/account").text
+    assert "Sowgat 6" in html and "Sowgat 2" in html
+    assert "Sowgat 1" not in html  # the latest five only: the stars page has the rest
+    assert '<a href="/account/stars">Ähli ýyldyz taryhy</a>' in html
+
+
+def test_account_page_without_movements_points_to_the_catalogue(client):
+    login(client)
+    html = client.get("/account").text
+    assert "Entek hiç hili ýazgy ýok" in html and 'href="/books"' in html
+
+
 def test_account_page_shows_the_balance_and_links_to_the_history(client, db):
     login(client)
     stars.grant(db, user_id(db), 6, "a")

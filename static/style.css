@@ -16,8 +16,10 @@
    Two themes. :root holds the light one; :root[data-theme="dark"] below redefines only the
    tokens that change in the dark. The small script in templates/base.html sets data-theme from
    the reader's saved choice, else from the system setting, before the page is drawn.
-   The header, tab bar and stars look the same in both themes. The one place CSS cannot
-   reach: <meta name="theme-color"> in templates/base.html repeats --color-header. */
+   In the dark theme the header and tab bars sit one step above the page, in the cards' tone,
+   so they do not melt into it. The one place CSS cannot reach: <meta name="theme-color"> in
+   templates/base.html starts as the light --color-header, and the same script keeps it equal
+   to --color-header in whichever theme is showing. */
 
 :root {
     color-scheme: light;
@@ -27,7 +29,7 @@
     --color-text-muted: #536075;     /* secondary text and hints */
     --color-border: #dce2ec;         /* dividers and card edges */
     --color-input-border: #536075;   /* form field outlines */
-    --color-primary: #1d4ed8;        /* links, main buttons, "free" */
+    --color-primary: #1d4ed8;        /* links and main buttons */
     --color-primary-hover: #1639a8;  /* primary when hovered or pressed */
     --color-on-primary: #ffffff;     /* text on primary buttons */
     --color-header: #0b1220;         /* site header and the phone top bar */
@@ -96,6 +98,10 @@
     --color-success-bg: #123524;
     --color-danger: #ff8f80;
     --color-danger-bg: #3d1a17;
+    --color-header: #172036;         /* the bars lift off the page, as the cards do */
+    --color-tab-bar: #172036;
+    --color-admin-bar: #172036;
+    --color-header-raised: #273250;  /* still a step above the lighter bar */
     --color-cover-1: #22304a;
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 6px rgb(0 0 0 / 0.2);
     --shadow-bar: 0 -1px 4px rgb(0 0 0 / 0.4);
@@ -441,6 +447,50 @@ input[type="file"] {
     font-size: 0.95rem;
 }
 
+/* The Turkmen file button (templates/_macros.html, file_picker). Without a running script the
+   browser's own control shows instead, so the button and the name wait for the "js" class. */
+.file-pick-button,
+.file-pick-name {
+    display: none;
+}
+
+.js .file-pick {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+}
+
+/* Hidden from the eye, not from the keyboard or from form validation. */
+.js .file-pick-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    opacity: 0;
+}
+
+.js .file-pick-button {
+    display: inline-flex;
+}
+
+.js .file-pick-name {
+    display: block;
+    min-width: 0;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    font-weight: 400;
+    overflow-wrap: anywhere;
+}
+
+.file-pick-input:focus-visible + .file-pick-button {
+    outline: 3px solid var(--color-primary);
+    outline: 3px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+    outline-offset: 2px;
+}
+
 .stack-form {
     display: flex;
     flex-direction: column;
@@ -602,12 +652,15 @@ input[type="file"] {
 
 /* --- Home ------------------------------------------------------------------------------------ */
 
-.home-hero {
+/* One grid, in the phone's order: the hero, the new books, then how it works. From 64rem the
+   how-it-works card moves up beside the hero (the wide rules below). */
+.home {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-4);
 }
 
-.home-hero h1 {
+.home-hero-text h1 {
     font-size: var(--step-4);
     letter-spacing: -0.01em;
 }
@@ -655,6 +708,56 @@ input[type="file"] {
 .home-ways p {
     margin: 0;
     color: var(--color-text-muted);
+}
+
+/* The shelf of new books. On a phone, covers to swipe along, as in a book app; the next one
+   peeks in at the edge, so it is plain there are more. */
+.home-shelf-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+.home-shelf-head h2 {
+    margin: 0;
+    font-size: var(--step-1);
+}
+
+.home-shelf-head a {
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.home-shelf-books {
+    display: grid;
+    grid-auto-columns: 7.5rem;
+    grid-auto-flow: column;
+    gap: var(--space-2);
+    margin: 0 calc(-1 * var(--gutter));
+    padding: 0 var(--gutter) var(--space-1);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+}
+
+.home-shelf-books::-webkit-scrollbar {
+    display: none;
+}
+
+.home-shelf-books li {
+    scroll-snap-align: start;
+}
+
+.home-shelf .book-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: 0;
+    border-bottom: 0;
 }
 
 /* --- Login ----------------------------------------------------------------------------------- */
@@ -722,7 +825,13 @@ input[type="file"] {
 /* --- Account --------------------------------------------------------------------------------- */
 
 .account-layout {
-    max-width: 36rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+}
+
+.account-layout h2 {
+    font-size: var(--step-1);
 }
 
 .account-card {
@@ -757,7 +866,11 @@ input[type="file"] {
 }
 
 .account-logout {
-    margin-top: var(--space-3);
+    margin: 0;
+}
+
+.account-more {
+    margin: var(--space-2) 0 0;
 }
 
 .account-logout button {
@@ -805,7 +918,8 @@ input[type="file"] {
     font-size: 0.9rem;
 }
 
-/* Filter chips. On phones each row scrolls sideways, like an app's filter bar. */
+/* Filter chips. Every row on the site is short, so rows wrap rather than scroll: a chip cut
+   off at the screen's edge gives no sign there is more. */
 .filters {
     display: grid;
     gap: var(--space-1);
@@ -814,15 +928,8 @@ input[type="file"] {
 
 .chip-row {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space-1);
-    margin: 0 calc(-1 * var(--gutter));
-    padding: 0 var(--gutter) 2px;
-    overflow-x: auto;
-    scrollbar-width: none;
-}
-
-.chip-row::-webkit-scrollbar {
-    display: none;
 }
 
 .chip {
@@ -832,7 +939,8 @@ input[type="file"] {
     gap: 0.4rem;
     min-height: 2.5rem;
     padding: 0.3rem 0.9rem;
-    border: 1px solid var(--color-border);
+    /* The field-outline tone, not the divider one: a chip's edge is its only outline. */
+    border: 1px solid var(--color-input-border);
     border-radius: 999px;
     background: var(--color-page);
     color: var(--color-text);
@@ -846,10 +954,13 @@ input[type="file"] {
     color: var(--color-primary);
 }
 
+/* The chosen filter is filled with ink, not blue: solid blue means "the main action" and
+   nothing else. */
 .chip[aria-current] {
-    border-color: var(--color-primary);
-    background: var(--color-primary);
-    color: var(--color-on-primary);
+    border-color: var(--color-text);
+    background: var(--color-text);
+    color: var(--color-page);
+    font-weight: 600;
 }
 
 .chip-count {
@@ -857,8 +968,19 @@ input[type="file"] {
     font-size: 0.8rem;
 }
 
+/* The catalogue names each row of filters, so language and order are never mistaken for one
+   another. */
+.chip-label {
+    flex: none;
+    align-self: center;
+    margin-right: 0.25rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
 .chip[aria-current] .chip-count {
-    color: var(--color-on-primary);
+    color: var(--color-page);
+    font-weight: 400;
 }
 
 .empty-state {
@@ -966,8 +1088,10 @@ input[type="file"] {
     font-size: 0.85rem;
 }
 
+/* "Free" is news worth a heavier weight, but not blue: inside a card that is already a link,
+   blue text reads as a second link. */
 .price-free {
-    color: var(--color-primary);
+    color: var(--color-text);
     font-weight: 600;
 }
 
@@ -983,25 +1107,8 @@ input[type="file"] {
     margin: 0 auto;
 }
 
-/* On a phone the main action comes straight after the title, as in a book app; the facts
-   follow it. The website shows them in document order. */
-.book-page-main {
-    display: flex;
-    flex-direction: column;
-}
-
-.book-page-main .download-panel {
-    order: 1;
-}
-
-.book-page-main .book-facts {
-    order: 2;
-}
-
-.book-page-main .book-description {
-    order: 3;
-}
-
+/* The main action comes straight after the title, as in a book app, then the facts: the
+   template's order, on phones and on the website alike. */
 .book-page-main h1 {
     margin-bottom: 0.25rem;
     overflow-wrap: break-word;
@@ -1171,10 +1278,6 @@ input[type="file"] {
     margin: 0 0 var(--space-2);
     color: var(--color-text);
     font-size: var(--step-0);
-}
-
-.account-link {
-    margin: var(--space-2) 0 0;
 }
 
 .history-layout {
@@ -1397,8 +1500,8 @@ input[type="file"] {
 .requests-layout,
 .request-new-layout {
     display: grid;
-    /* minmax(0, …): otherwise the sideways-scrolling chip row widens the column past the
-       screen, and the whole page scrolls sideways on a phone. */
+    /* minmax(0, …): otherwise one long unbroken title could widen the column past the
+       screen, and the whole page would scroll sideways on a phone. */
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-3);
 }
@@ -1414,6 +1517,11 @@ input[type="file"] {
 
 .requests-head h1 {
     margin: 0;
+}
+
+.requests-intro {
+    max-width: 44rem;
+    color: var(--color-text-muted);
 }
 
 .requests-tabs {
@@ -1449,8 +1557,19 @@ input[type="file"] {
     text-decoration: none;
 }
 
+.request-name {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
+/* A request is a book someone wants: set in the books' serif, not as a comment. */
 .request-text strong {
-    font-weight: 600;
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.3;
     overflow-wrap: anywhere;
 }
 
@@ -1461,6 +1580,7 @@ input[type="file"] {
 
 .request-author {
     color: var(--color-text-muted);
+    font-size: 0.9rem;
     overflow-wrap: anywhere;
 }
 
@@ -1488,7 +1608,7 @@ input[type="file"] {
     width: 3.25rem;
     min-height: 3.5rem;
     padding: 0.3rem 0;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-input-border);
     border-radius: var(--radius);
     background: var(--color-page);
     color: var(--color-text);
@@ -1514,14 +1634,19 @@ input[type="file"] {
     stroke-linejoin: round;
 }
 
+/* Your own vote: a blue outline on a blue wash, so it reads as "on" rather than as another
+   solid-blue button. The inset ring doubles the edge without moving anything by a pixel. */
 .vote-on,
 .vote-on:hover {
     border-color: var(--color-primary);
-    background: var(--color-primary);
-    color: var(--color-on-primary);
+    background: color-mix(in srgb, var(--color-primary) 12%, var(--color-page));
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+    color: var(--color-primary);
 }
 
+/* A closed request's count: not a control, so no control's edge. */
 .vote-static {
+    border-color: var(--color-border);
     background: var(--color-surface);
     color: var(--color-text-muted);
 }
@@ -1529,31 +1654,6 @@ input[type="file"] {
 .vote-word {
     font-size: 0.7rem;
     font-weight: 400;
-}
-
-.requests-aside h2 {
-    font-size: var(--step-1);
-}
-
-.requests-aside ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.requests-aside li {
-    padding: 0.75rem 0;
-    border-top: 1px solid var(--color-border);
-    color: var(--color-text-muted);
-}
-
-.requests-aside li:last-child {
-    padding-bottom: 0;
-}
-
-.requests-aside strong {
-    display: block;
-    color: var(--color-text);
 }
 
 /* One request */
@@ -1779,17 +1879,29 @@ input[type="file"] {
     }
 
     /* Home */
-    .home-hero h1 {
+    .home {
+        gap: var(--space-5);
+    }
+
+    .home-hero-text h1 {
         font-size: var(--step-5);
         max-width: 16ch;
     }
 
     .home-lead {
-        max-width: 34ch;
+        max-width: 42ch;
     }
 
     .home-search {
         max-width: 32rem;
+    }
+
+    .home-shelf-head {
+        margin-bottom: var(--space-3);
+    }
+
+    .home-shelf-head h2 {
+        font-size: var(--step-2);
     }
 
     /* Login: the form becomes a card on the grey desk. */
@@ -1810,10 +1922,6 @@ input[type="file"] {
     }
 
     /* Account */
-    .account-layout {
-        margin: 0 auto;
-    }
-
     .account-card {
         padding-top: 0.25rem;
         padding-bottom: 0.25rem;
@@ -1838,13 +1946,6 @@ input[type="file"] {
         gap: var(--space-2);
     }
 
-    .chip-row {
-        flex-wrap: wrap;
-        margin: 0;
-        padding: 0;
-        overflow: visible;
-    }
-
     .book-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
@@ -1859,6 +1960,16 @@ input[type="file"] {
         border-bottom: 0;
     }
 
+    /* The home shelf: always one row of five, across the whole container. */
+    .home-shelf-books {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-auto-flow: row;
+        gap: var(--space-3);
+        margin: 0;
+        padding: 0;
+        overflow: visible;
+    }
+
     /* Book page: cover beside the details, facts as a row of tiles. */
     .book-page {
         grid-template-columns: 15rem minmax(0, 1fr);
@@ -1869,10 +1980,6 @@ input[type="file"] {
     .book-page-cover {
         width: 100%;
         margin: 0;
-    }
-
-    .book-page-main {
-        display: block;
     }
 
     .book-page-main h1 {
@@ -1971,6 +2078,10 @@ input[type="file"] {
         font-size: var(--step-1);
     }
 
+    .request-author {
+        font-size: var(--step-0);
+    }
+
     .request-page-main h1 {
         font-size: var(--step-4);
     }
@@ -1982,11 +2093,18 @@ input[type="file"] {
 
 /* Two columns once there is room for them. */
 @media (min-width: 64rem) {
-    .home-hero {
+    /* Only a first visit has the how-it-works card, beside the hero; the shelf spans both. */
+    .home-split {
         grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-        gap: var(--space-5);
+        grid-template-areas:
+            "text ways"
+            "shelf shelf";
         align-items: center;
     }
+
+    .home-split .home-hero-text { grid-area: text; }
+    .home-split .home-ways { grid-area: ways; }
+    .home-split .home-shelf { grid-area: shelf; }
 
     .auth-layout {
         grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
@@ -2005,15 +2123,41 @@ input[type="file"] {
         align-items: start;
     }
 
+    /* Account: who you are and signing out on the left, what happened lately beside them. */
+    .account-layout {
+        grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+            "details activity"
+            "logout activity";
+        gap: var(--space-3) var(--space-4);
+        align-items: start;
+    }
+
+    .account-details-section { grid-area: details; }
+    .account-activity { grid-area: activity; }
+    .account-logout { grid-area: logout; }
+
     .history-layout .balance-card {
         position: sticky;
         top: var(--space-3);
     }
 
-    .requests-layout {
-        grid-template-columns: minmax(0, 1fr) 20rem;
-        gap: var(--space-5);
-        align-items: start;
+    /* The list has the whole width: each row puts what it is on the left and when it was
+       asked on the right, instead of a ragged edge halfway across. */
+    .request-text {
+        flex-direction: row;
+        align-items: center;
+        gap: var(--space-3);
+    }
+
+    .request-name {
+        flex: 1;
+    }
+
+    .request-meta {
+        flex: none;
+        justify-content: flex-end;
     }
 
     .request-page {

@@ -48,8 +48,8 @@ def not_found(request: Request, exc: Exception):
 
 
 @app.get("/")
-def home(request: Request):
-    return templates.TemplateResponse(request, "index.html")
+def home(request: Request, conn: sqlite3.Connection = Depends(get_db)):
+    return templates.TemplateResponse(request, "index.html", {"books": catalogue.newest_books(conn)})
 
 
 @app.get("/covers/{prefix}/{name}")

@@ -14,22 +14,15 @@
         <h1>{{ book.title }}</h1>
         {% if book.author %}<p class="book-page-author">{{ book.author }}</p>{% endif %}
 
-        <dl class="book-facts">
-            {% if book.year %}<div><dt>Ýyly</dt><dd>{{ book.year }}</dd></div>{% endif %}
-            <div><dt>Dili</dt><dd>{{ language_name }}</dd></div>
-            {% if book.page_count %}<div><dt>Sahypa</dt><dd>{{ book.page_count }}</dd></div>{% endif %}
-            <div><dt>Faýl</dt><dd>PDF, {{ book.file_size | filesize }}</dd></div>
-            <div><dt>Bahasy</dt><dd>{% if book.price_stars %}{{ book.price_stars }} ýyldyz{% else %}Mugt{% endif %}</dd></div>
-        </dl>
-
         {# POST, because it can spend stars (app/downloads.py). #}
         <section class="download-panel" aria-label="Ýükläp almak">
             {% if download_error %}<p class="form-error" role="alert">{{ download_error }}</p>{% endif %}
             {% if current_user %}
             {% set price = book.price_stars %}
             <form method="post" action="/books/{{ book.id }}/download">
+                {# The button says what it does and what it costs: readers are on metered data. #}
                 <button type="submit">
-                    {%- if not price or paid_for %}Ýükle{% else %}Ýükle: {{ price }} ýyldyz{% endif -%}
+                    {%- if not price or paid_for %}PDF ýükle ({{ book.file_size | filesize }}){% else %}{{ price }} ýyldyz bilen ýükle{% endif -%}
                 </button>
             </form>
             <p>
@@ -46,6 +39,15 @@
             <p>Diňe telefon belgiňiz gerek, parol ýok. Girenden soň şu sahypa gaýdyp gelersiňiz.</p>
             {% endif %}
         </section>
+
+        {# The price is a fact only for visitors: a signed-in reader's button already says it. #}
+        <dl class="book-facts">
+            {% if book.year %}<div><dt>Ýyly</dt><dd>{{ book.year }}</dd></div>{% endif %}
+            <div><dt>Dili</dt><dd>{{ language_name }}</dd></div>
+            {% if book.page_count %}<div><dt>Sahypa</dt><dd>{{ book.page_count }}</dd></div>{% endif %}
+            <div><dt>Faýl</dt><dd>PDF, {{ book.file_size | filesize }}</dd></div>
+            {% if not current_user %}<div><dt>Bahasy</dt><dd>{% if book.price_stars %}{{ book.price_stars }} ýyldyz{% else %}Mugt{% endif %}</dd></div>{% endif %}
+        </dl>
 
         {% if book.description %}
         <section class="book-description">

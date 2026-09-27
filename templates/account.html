@@ -1,24 +1,44 @@
 {% extends "base.html" %}
+{% from "_macros.html" import ledger %}
 
 {% block title %}Hasabym: Kitaphana{% endblock %}
 {% block body_class %}page-desk{% endblock %}
 
+{# A phone reads it as an app screen: details, what happened lately, and signing out last. The
+   website puts the details and signing out on the left and the activity beside them. #}
 {% block content %}
+<h1>Hasabym</h1>
+
 <div class="account-layout">
-    <h1>Hasabym</h1>
-    <section class="card account-card">
-        <dl class="account-details">
-            <div>
-                <dt>Telefon belgisi</dt>
-                <dd>{{ user.phone | phone }}</dd>
-            </div>
-            <div>
-                <dt>Ýyldyz balansy</dt>
-                <dd><a href="/account/stars">{{ star_balance }} ýyldyz</a></dd>
-            </div>
-        </dl>
+    <section class="account-details-section" aria-labelledby="account-details-title">
+        <h2 id="account-details-title">Maglumatlar</h2>
+        <div class="card account-card">
+            <dl class="account-details">
+                <div>
+                    <dt>Telefon belgisi</dt>
+                    <dd>{{ user.phone | phone }}</dd>
+                </div>
+                <div>
+                    <dt>Ýyldyz balansy</dt>
+                    <dd><a href="/account/stars">{{ star_balance }} ýyldyz</a></dd>
+                </div>
+            </dl>
+        </div>
     </section>
-    <p class="account-link"><a href="/account/stars">Ýyldyzlaryňyzyň taryhy</a></p>
+
+    <section class="account-activity" aria-labelledby="account-activity-title">
+        <h2 id="account-activity-title">Soňky hereketler</h2>
+        {% if entries %}
+        <div class="card ledger-card">{{ ledger(entries) }}</div>
+        <p class="account-more"><a href="/account/stars">Ähli ýyldyz taryhy</a></p>
+        {% else %}
+        <div class="card history-empty">
+            <p>Entek hiç hili ýazgy ýok. Ýyldyz berlende ýa-da kitap ýüklände, ol şu ýerde görüner.</p>
+            <a class="button" href="/books">Kataloga geç</a>
+        </div>
+        {% endif %}
+    </section>
+
     <form method="post" action="/logout" class="account-logout">
         <button class="button-quiet" type="submit">Çykyş</button>
     </form>

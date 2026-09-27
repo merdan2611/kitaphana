@@ -1,4 +1,5 @@
 {% extends "admin/base.html" %}
+{% from "_macros.html" import file_picker %}
 
 {% block title %}Kitap goş: dolandyryş{% endblock %}
 
@@ -19,7 +20,7 @@
       data-upload-form>
     <div class="field{% if errors.get('pdf') %} field-invalid{% endif %}">
         <label for="f-pdf">PDF faýly</label>
-        <input id="f-pdf" name="pdf" type="file" accept="application/pdf,.pdf" required>
+        {{ file_picker("f-pdf", "pdf", "application/pdf,.pdf", "PDF saýla", "Faýl saýlanmady") }}
         {% if errors.get('pdf') %}<p class="field-error">{{ errors.pdf }}</p>{% endif %}
     </div>
 

@@ -12,6 +12,7 @@ body.admin {
     top: 0;
     z-index: 20;
     background: var(--color-admin-bar);
+    border-bottom: 1px solid var(--color-header-raised);
     color: var(--color-on-admin-bar);
 }
 
@@ -111,8 +112,16 @@ body.admin {
 
 /* --- Overview dashboard (Sprint 08) ----------------------------------------------------------- */
 
+/* Five tiles: two across on a phone, the odd one out taking a whole row; 3 + 2 on a tablet;
+   one row on the website (the wide rules below). */
 .dash-counts {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 47.99rem) {
+    .dash-counts > div:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+    }
 }
 
 .admin-counts dd.dash-sub {
@@ -327,6 +336,25 @@ body.admin {
     margin: 0.25rem 0 0;
     color: var(--color-text-muted);
     font-size: var(--step--1);
+}
+
+/* Running low: what is left is the figure that matters, not the bar of what is used. */
+.gauge-detail.is-low {
+    color: var(--color-danger);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Fourteen quiet days: said in words, in the space the bars would take. */
+.day-empty {
+    display: grid;
+    place-items: center;
+    height: 6.5rem;
+    margin: 0;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    text-align: center;
 }
 
 .badge-danger {
@@ -852,7 +880,15 @@ body.admin {
     }
 
     .dash-counts {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .dash-counts > div {
+        grid-column: span 2;
+    }
+
+    .dash-counts > div:nth-child(n + 4) {
+        grid-column: span 3;
     }
 
     .dash-charts {
@@ -869,6 +905,15 @@ body.admin {
     .grant-layout {
         grid-template-columns: minmax(0, 26rem) minmax(0, 1fr);
         align-items: start;
+    }
+
+    .dash-counts {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .dash-counts > div,
+    .dash-counts > div:nth-child(n + 4) {
+        grid-column: auto;
     }
 
     /* Activity on the left, the server and the library on the right. */

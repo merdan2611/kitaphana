@@ -1,23 +1,44 @@
 {% extends "base.html" %}
+{% from "_macros.html" import book_card %}
 
 {% block title %}Kitaphana: türkmen dilindäki kitaplar{% endblock %}
 
+{# The order is a phone's: what the library is, its newest books, then how it works. The
+   website lifts the how-it-works card beside the hero (static/style.css, "Home"). That card is
+   for a first visit only: a signed-in reader already knows. #}
 {% block content %}
-<section class="home-hero">
+<div class="home{% if not current_user %} home-split{% endif %}">
     <div class="home-hero-text">
         <h1>Türkmen dilindäki kitaplar bir ýerde</h1>
-        <p class="home-lead">Çat toparlarynda ýitip gidýän PDF-ler däl-de, gözläp tapyp boljak, tertipli kitaphana.</p>
+        <p class="home-lead">Çat toparlarynda ýitip gidýän <span class="nowrap">PDF-ler</span>
+            <span class="nowrap">däl-de</span>, gözläp tapyp boljak, tertipli kitaphana.</p>
         <form class="search-form home-search" role="search" method="get" action="/books">
             <label class="visually-hidden" for="home-q">Kitap gözle</label>
             <input id="home-q" type="search" name="q" placeholder="Kitap ýa-da awtor" enterkeyhint="search">
             <button type="submit">Gözle</button>
         </form>
-        <p class="home-note">
-            <a href="/books">Ähli kitaplara serediň</a>{% if not current_user %},
-            ýükläp almak üçin bolsa <a href="/login">telefon belgiňiz bilen giriň</a>{% endif %}.
-        </p>
+        {% if not current_user %}
+        <p class="home-note">Ýükläp almak üçin <a href="/login">telefon belgiňiz bilen giriň</a>: parol gerek däl.</p>
+        {% endif %}
     </div>
 
+    {# What a library's front page is for: its books. A shelf to swipe along on a phone, one
+       row of covers on the website. #}
+    {% if books %}
+    <section class="home-shelf" aria-labelledby="home-shelf-title">
+        <div class="home-shelf-head">
+            <h2 id="home-shelf-title">Täze goşulanlar</h2>
+            <a href="/books">Ähli kitaplar</a>
+        </div>
+        <ul class="book-grid home-shelf-books">
+            {% for book in books %}
+            <li>{{ book_card(book) }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    {% if not current_user %}
     <section class="card home-ways" aria-labelledby="home-ways-title">
         <h2 id="home-ways-title">Nähili işleýär</h2>
         <ul>
@@ -35,5 +56,6 @@
             </li>
         </ul>
     </section>
-</section>
+    {% endif %}
+</div>
 {% endblock %}

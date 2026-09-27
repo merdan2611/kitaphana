@@ -270,9 +270,19 @@ def login_verify(
     return response
 
 
+# The account page shows this many of the latest star movements; the stars page has them all.
+ACCOUNT_RECENT_ENTRIES = 5
+
+
 @router.get("/account")
-def account(request: Request, user=Depends(require_user)):
-    return templates.TemplateResponse(request, "account.html", {"user": user})
+def account(
+    request: Request, user=Depends(require_user), conn: sqlite3.Connection = Depends(get_db)
+):
+    return templates.TemplateResponse(
+        request,
+        "account.html",
+        {"user": user, "entries": stars.history(conn, user["id"])[:ACCOUNT_RECENT_ENTRIES]},
+    )
 
 
 @router.get("/account/stars")

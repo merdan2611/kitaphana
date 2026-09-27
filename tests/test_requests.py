@@ -46,7 +46,9 @@ def voters(db, request_id) -> set[int]:
 
 
 def listed_titles(html: str) -> list[str]:
-    return re.findall(r'<a class="request-text" href="/requests/\d+">\s*<strong>([^<]*)</strong>', html)
+    return re.findall(
+        r'<a class="request-text" href="/requests/\d+">\s*<span class="request-name">\s*<strong>([^<]*)</strong>', html
+    )
 
 
 def post(client, **form):
@@ -140,7 +142,7 @@ def test_a_signed_in_reader_posts_and_is_the_first_upvote(client, db, reader):
 
     page = client.get(response.headers["location"]).text
     assert "Soragyňyz goşuldy" in page and "adsyz" in page
-    assert "Aýlar we ýyllar" in page and "1 goldaw" in page
+    assert "Aýlar we ýyllar" in page and "1 adam goldady" in page
 
 
 @pytest.mark.parametrize(
@@ -360,7 +362,7 @@ def test_the_displayed_count_is_the_number_of_rows(client, db):
     for i in range(2, 6):
         reqs.upvote(db, rid, make_user(db, f"+9936500000{i}"))
     assert votes(db, rid) == 5
-    assert "5 goldaw" in client.get(f"/requests/{rid}").text
+    assert "5 adam goldady" in client.get(f"/requests/{rid}").text
 
 
 def test_visitors_cannot_upvote(client, db):

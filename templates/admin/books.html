@@ -44,7 +44,7 @@
                 <span>{{ book.author or "Awtor görkezilmedik" }}{% if book.year %}, {{ book.year }}{% endif %}</span>
             </td>
             <td data-label="Dil">{{ languages.get(book.language, book.language) }}</td>
-            <td class="num" data-label="Baha">{% if book.price_stars %}{{ book.price_stars }} ýyldyz{% else %}mugt{% endif %}</td>
+            <td class="num" data-label="Baha">{% if book.price_stars %}{{ book.price_stars }} ýyldyz{% else %}Mugt{% endif %}</td>
             <td>
                 {% if book.is_published %}<span class="badge badge-live">Neşir edilen</span>
                 {% else %}<span class="badge">Garalama</span>{% endif %}
