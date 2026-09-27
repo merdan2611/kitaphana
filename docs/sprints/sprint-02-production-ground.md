@@ -365,5 +365,5 @@ pages.
   `kitaphana.men` server block, with `X-Robots-Tag: noindex` sent too. `/health` and the ACME
   challenge (in the port-80 block) stay open, so the curl checks and certificate renewal still
   work. An IP allowlist was rejected because Turkmen mobile addresses are shared and keep
-  changing. To launch, delete the gate lines and the `/health` block from
+  changing. To launch, delete the gate lines and every `auth_basic off` block from
   `deploy/nginx-kitaphana.conf` and run `deploy.sh`.
