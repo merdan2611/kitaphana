@@ -302,6 +302,12 @@ install -m 644 deploy/fail2ban-kitaphana.local /etc/fail2ban/jail.d/kitaphana.lo
 install -m 644 deploy/sysctl-kitaphana.conf /etc/sysctl.d/90-kitaphana.conf && sysctl --system
 ufw limit OpenSSH                              # at most 6 SSH connections per 30 s per address
 
+# Pre-launch password gate, before deploy.sh: the nginx site refers to this file, and without it
+# every page answers 500. Add a tester later with the same command minus -c.
+apt-get -y install apache2-utils
+htpasswd -c /etc/nginx/kitaphana.htpasswd merdan
+chown root:www-data /etc/nginx/kitaphana.htpasswd && chmod 640 /etc/nginx/kitaphana.htpasswd
+
 # Everything else — service, nginx site, migrations, restart — is deploy.sh
 ./deploy.sh
 systemctl enable --now fail2ban && fail2ban-client status
@@ -319,3 +325,10 @@ systemctl enable --now fail2ban && fail2ban-client status
   knows a tester's phone number can sign in as them, so testers are told and nothing sensitive
   goes into accounts.
 - **HTTPS clone, no deploy key**, because the repository is public.
+- **The site sits behind a password until launch** (2026-09-27). The developer wants to test on
+  the real domain before anyone else can reach it. nginx basic auth covers the whole
+  `kitaphana.men` server block, with `X-Robots-Tag: noindex` sent too. `/health` and the ACME
+  challenge (in the port-80 block) stay open, so the curl checks and certificate renewal still
+  work. An IP allowlist was rejected because Turkmen mobile addresses are shared and keep
+  changing. To launch, delete the gate lines and the `/health` block from
+  `deploy/nginx-kitaphana.conf` and run `deploy.sh`.
