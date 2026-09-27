@@ -364,6 +364,8 @@ pages.
   the real domain before anyone else can reach it. nginx basic auth covers the whole
   `kitaphana.men` server block, with `X-Robots-Tag: noindex` sent too. `/health` and the ACME
   challenge (in the port-80 block) stay open, so the curl checks and certificate renewal still
-  work. An IP allowlist was rejected because Turkmen mobile addresses are shared and keep
+  work. So does `/books/<id>/file` (and the internal `/_protected/` it redirects to): Android
+  hands downloads to its download manager, which re-requests without the gate's password, so
+  every download failed with 401. The app still requires a session allowed to fetch the book. An IP allowlist was rejected because Turkmen mobile addresses are shared and keep
   changing. To launch, delete the gate lines and every `auth_basic off` block from
   `deploy/nginx-kitaphana.conf` and run `deploy.sh`.
