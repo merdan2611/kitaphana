@@ -1,7 +1,40 @@
 {% extends "admin/base.html" %}
-{% from "_macros.html" import cover %}
+{% from "_macros.html" import cover, ledger %}
 
 {% block title %}Dolandyryş: Kitaphana{% endblock %}
+
+{# One series per chart, so no legend: the caption names it. Heights are CSS step classes
+   (app/dashboard.py bar_step), because the pages carry no inline styles. The peak and today
+   are labelled; every day's figure is in the hidden list for screen readers and in each
+   column's tooltip. #}
+{% macro day_chart(series, label) -%}
+<figure class="day-chart">
+    <figcaption><strong>{{ label }}</strong> <span>14 günde {{ series.total }}</span></figcaption>
+    <ol class="day-bars">
+        {% for day in series.days %}
+        <li title="{{ day.label }}: {{ day.value }}">
+            {% if day.value and (day.value == series.peak or loop.last) %}<span class="day-value" aria-hidden="true">{{ day.value }}</span>{% endif %}
+            <span class="day-bar bar-{{ day.step }}" aria-hidden="true"></span>
+            <span class="visually-hidden">{{ day.label }}: {{ day.value }}</span>
+        </li>
+        {% endfor %}
+    </ol>
+    <div class="day-axis" aria-hidden="true"><span>{{ series.days[0].label }}</span><span>Şu gün</span></div>
+</figure>
+{%- endmacro %}
+
+{% macro gauge(label, used, total, low=false, detail="") -%}
+<div class="gauge">
+    <div class="gauge-text">
+        <span>{{ label }}{% if low %} <span class="badge badge-danger">Az galdy</span>{% endif %}</span>
+        <span>{% if used is not none and total %}{{ used | filesize }} / {{ total | filesize }}{% elif used is not none %}{{ used | filesize }}{% else %}—{% endif %}</span>
+    </div>
+    {% if used is not none and total %}
+    <meter class="gauge-meter{% if low %} is-low{% endif %}" min="0" max="{{ total }}" value="{{ used }}">{{ used | filesize }}</meter>
+    {% endif %}
+    {% if detail %}<p class="gauge-detail">{{ detail }}</p>{% endif %}
+</div>
+{%- endmacro %}
 
 {% block content %}
 <div class="admin-heading">
@@ -9,59 +42,188 @@
     <a class="button" href="/admin/books/new">Kitap goş</a>
 </div>
 
-<dl class="admin-counts">
-    <div><dt>Ähli kitaplar</dt><dd>{{ total }}</dd></div>
-    <div><dt>Neşir edilen</dt><dd>{{ published }}</dd></div>
+<dl class="admin-counts dash-counts">
     <div>
-        <dt>Garalama</dt>
-        <dd>{% if drafts %}<a href="/admin/books?status=draft">{{ drafts }}</a>{% else %}0{% endif %}</dd>
+        <dt>Okyjylar</dt><dd>{{ activity.readers }}</dd>
+        <dd class="dash-sub">7 günde +{{ activity.readers_new_week }}</dd>
+    </div>
+    <div>
+        <dt>Işjeň, 24 sagatda</dt><dd>{{ activity.active_day }}</dd>
+        <dd class="dash-sub">7 günde {{ activity.active_week }}</dd>
+    </div>
+    <div>
+        <dt>Ýüklemeler, 24 sagatda</dt><dd>{{ activity.downloads_day }}</dd>
+        <dd class="dash-sub">7 günde {{ activity.downloads_week }} · jemi {{ activity.downloads_total }}</dd>
+    </div>
+    <div>
+        <dt>Açyk soraglar</dt>
+        <dd>{% if activity.requests_open %}<a href="/admin/requests">{{ activity.requests_open }}</a>{% else %}0{% endif %}</dd>
+        <dd class="dash-sub">7 günde +{{ activity.requests_new_week }} · {{ activity.upvotes_week }} goldaw</dd>
     </div>
 </dl>
 
-<section class="panel">
-    <h2>Iň köp goldanan soraglar</h2>
-    {% if top_requests %}
-    <ul class="book-rows">
-        {% for req in top_requests %}
-        <li>
-            <a class="book-row" href="/admin/requests/{{ req.id }}">
-                <span class="vote-static-small">{{ req.votes }}</span>
-                <span class="book-row-text">
-                    <strong>{{ req.title }}</strong>
-                    <span>{{ req.author or "Awtor görkezilmedik" }}</span>
-                </span>
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
-    <p class="panel-foot"><a href="/admin/requests">Ähli soraglar</a></p>
-    {% else %}
-    <p class="muted">Entek açyk sorag ýok.</p>
-    {% endif %}
-</section>
+<div class="dash-grid">
+<div class="dash-main">
+    <section class="panel">
+        <h2>Soňky 14 gün</h2>
+        <div class="dash-charts">
+            {{ day_chart(daily.downloads, "Ýüklemeler") }}
+            {{ day_chart(daily.signups, "Täze okyjylar") }}
+        </div>
+    </section>
 
-<section class="panel">
-    <h2>Soňky goşulanlar</h2>
-    {% if recent %}
-    <ul class="book-rows">
-        {% for book in recent %}
-        <li>
-            <a class="book-row" href="/admin/books/{{ book.id }}">
-                <span class="book-row-cover">{{ cover(book) }}</span>
-                <span class="book-row-text">
-                    <strong>{{ book.title }}</strong>
-                    <span>{{ book.author or "Awtor görkezilmedik" }}</span>
-                </span>
-                {% if book.is_published %}<span class="badge badge-live">Neşir edilen</span>
-                {% else %}<span class="badge">Garalama</span>{% endif %}
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
-    <p class="panel-foot"><a href="/admin/books">Ähli kitaplar</a></p>
-    {% else %}
-    <p>Kitaphana entek boş. Ilkinji PDF-i ýükläň ýa-da ösüş üçin
-        <code>python -m scripts.seed_fixtures</code> işlediň.</p>
-    {% endif %}
-</section>
+    <section class="panel">
+        <h2>Girişler</h2>
+        <table class="dash-table">
+            <thead>
+                <tr><th scope="col"></th><th scope="col" class="num">24 sagat</th><th scope="col" class="num">7 gün</th></tr>
+            </thead>
+            <tbody>
+                <tr><th scope="row">Kod soraldy</th><td class="num">{{ activity.logins_day.codes }}</td><td class="num">{{ activity.logins_week.codes }}</td></tr>
+                <tr><th scope="row">Girdi</th><td class="num">{{ activity.logins_day.sign_ins }}</td><td class="num">{{ activity.logins_week.sign_ins }}</td></tr>
+                <tr><th scope="row">Kod alyp, girmedik belgiler</th><td class="num">{{ activity.logins_day.stuck }}</td><td class="num">{{ activity.logins_week.stuck }}</td></tr>
+            </tbody>
+        </table>
+        <p class="panel-foot muted">Kod alyp girmedikler: synagçynyň nirede kynçylyk çekýändigini görkezýär.</p>
+    </section>
+
+    <section class="panel">
+        <h2>Täze okyjylar</h2>
+        {% if newest_readers %}
+        <table class="dash-table dash-readers">
+            <thead>
+                <tr><th scope="col">Okyjy</th><th scope="col">Hasaba girdi</th><th scope="col">Soňky gezek</th><th scope="col" class="num">Ýyldyz</th></tr>
+            </thead>
+            <tbody>
+                {% for reader in newest_readers %}
+                <tr>
+                    <th scope="row"><a href="/admin/stars?phone={{ reader.phone | urlencode }}">{{ reader.phone | phone }}</a></th>
+                    <td data-label="Hasaba girdi"><time datetime="{{ reader.created_at | replace(' ', 'T') }}Z" title="{{ reader.created_at | localtime }}">{{ reader.created_at | ago }}</time></td>
+                    <td data-label="Soňky gezek">{% if reader.last_seen_at %}<time datetime="{{ reader.last_seen_at | replace(' ', 'T') }}Z" title="{{ reader.last_seen_at | localtime }}">{{ reader.last_seen_at | ago }}</time>{% else %}—{% endif %}</td>
+                    <td class="num" data-label="Ýyldyz">{{ reader.balance }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="muted">Entek okyjy ýok.</p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <h2>Soňky hereketler</h2>
+        {% if ledger_entries %}
+        {{ ledger(ledger_entries, readers=true) }}
+        <p class="panel-foot"><a href="/admin/stars">Ähli ýyldyz hereketleri</a></p>
+        {% else %}
+        <p class="muted">Entek hereket ýok: ýyldyz berlende ýa-da kitap ýüklenende şu ýerde görüner.</p>
+        {% endif %}
+    </section>
+</div>
+
+<div class="dash-side">
+    <section class="panel">
+        <h2>Serwer</h2>
+        {{ gauge("Disk", server.disk_used, server.disk_total, server.disk_low,
+                 (server.disk_free | filesize) ~ " boş" if server.disk_free is not none else "") }}
+        {{ gauge("Ýat (RAM)", (server.memory_total - server.memory_available) if server.memory_available is not none else none,
+                 server.memory_total, server.memory_low,
+                 (server.memory_available | filesize) ~ " elýeterli" if server.memory_available is not none else "") }}
+        {{ gauge("Programma", server.app_memory, server.app_memory_limit) }}
+        <dl class="dash-facts">
+            <div><dt>Maglumat bazasy</dt><dd>{{ server.db_size | filesize }}</dd></div>
+            <div><dt>PDF faýllar</dt><dd>{{ server.pdf_count }} · {{ server.pdf_size | filesize }}</dd></div>
+            <div><dt>Serwer işläp dur</dt><dd>{% if server.uptime_seconds is not none %}{{ server.uptime_seconds // 86400 }} gün {{ server.uptime_seconds % 86400 // 3600 }} sagat{% else %}—{% endif %}</dd></div>
+            <div><dt>Wersiýa</dt><dd>{{ server.version }} · migrasiýa {{ server.migration }}</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2>Ýyldyzlar</h2>
+        <dl class="dash-facts">
+            <div><dt>Berlen</dt><dd>{{ activity.stars_added }}</dd></div>
+            <div><dt>Harçlanan</dt><dd>{{ activity.stars_spent }}</dd></div>
+            <div><dt>Okyjylarda galan</dt><dd>{{ activity.stars_held }}</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2>Iň köp ýüklenen kitaplar</h2>
+        {% if top_books %}
+        <table class="dash-table">
+            <thead>
+                <tr><th scope="col">Kitap</th><th scope="col" class="num">Okyjy</th><th scope="col" class="num">Ýükleme</th></tr>
+            </thead>
+            <tbody>
+                {% for book in top_books %}
+                <tr>
+                    <th scope="row"><a href="/admin/books/{{ book.id }}">{{ book.title }}</a></th>
+                    <td class="num">{{ book.readers }}</td>
+                    <td class="num">{{ book.downloads }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="muted">Entek hiç kitap ýüklenmedi.</p>
+        {% endif %}
+    </section>
+
+    <dl class="admin-counts">
+        <div><dt>Ähli kitaplar</dt><dd>{{ total }}</dd></div>
+        <div><dt>Neşir edilen</dt><dd>{{ published }}</dd></div>
+        <div>
+            <dt>Garalama</dt>
+            <dd>{% if drafts %}<a href="/admin/books?status=draft">{{ drafts }}</a>{% else %}0{% endif %}</dd>
+        </div>
+    </dl>
+
+    <section class="panel">
+        <h2>Iň köp goldanan soraglar</h2>
+        {% if top_requests %}
+        <ul class="book-rows">
+            {% for req in top_requests %}
+            <li>
+                <a class="book-row" href="/admin/requests/{{ req.id }}">
+                    <span class="vote-static-small">{{ req.votes }}</span>
+                    <span class="book-row-text">
+                        <strong>{{ req.title }}</strong>
+                        <span>{{ req.author or "Awtor görkezilmedik" }}</span>
+                    </span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        <p class="panel-foot"><a href="/admin/requests">Ähli soraglar</a></p>
+        {% else %}
+        <p class="muted">Entek açyk sorag ýok.</p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <h2>Soňky goşulanlar</h2>
+        {% if recent %}
+        <ul class="book-rows">
+            {% for book in recent %}
+            <li>
+                <a class="book-row" href="/admin/books/{{ book.id }}">
+                    <span class="book-row-cover">{{ cover(book) }}</span>
+                    <span class="book-row-text">
+                        <strong>{{ book.title }}</strong>
+                        <span>{{ book.author or "Awtor görkezilmedik" }}</span>
+                    </span>
+                    {% if book.is_published %}<span class="badge badge-live">Neşir edilen</span>
+                    {% else %}<span class="badge">Garalama</span>{% endif %}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        <p class="panel-foot"><a href="/admin/books">Ähli kitaplar</a></p>
+        {% else %}
+        <p>Kitaphana entek boş. Ilkinji PDF-i ýükläň ýa-da ösüş üçin
+            <code>python -m scripts.seed_fixtures</code> işlediň.</p>
+        {% endif %}
+    </section>
+</div>
+</div>
 {% endblock %}

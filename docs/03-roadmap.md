@@ -14,12 +14,12 @@ DigitalOcean droplet ([ADR-0019](adr/0019-digitalocean-droplet-hosting.md)), set
 | | |
 |---|---|
 | **Sprint** | S08 — Beta hardening |
-| **Status** | ⚪ Pending |
-| **Started** | — |
+| **Status** | 🟡 In progress |
+| **Started** | 2026-09-27 |
 | **Phase** | 1 (usable library, codes on screen) |
 | **Sprint doc** | [`sprints/sprint-08-beta-hardening.md`](sprints/sprint-08-beta-hardening.md) |
 | **Milestone** | M8 — Testers can use it |
-| **Next up** | S02 — Production ground first, now that the droplet exists: S08 backs up, monitors and load-tests a real server — see [ADR-0017](adr/0017-local-dev-with-placeholder-fixtures.md) |
+| **Still open alongside** | S02 — Production ground: the site is live behind a password, and only the developer's phone checks remain (tasks 0, 1 and 9; see its build notes) |
 
 ## Phase 1 sprints
 

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | ⚪ Pending |
+| **Status** | 🟡 In progress (started 2026-09-27) |
 | **Phase** | 1 (usable library, codes on screen) |
 | **Milestone** | M8 — Testers can use it |
 | **Estimated time** | ~1-2 weeks |
@@ -73,6 +73,16 @@ and memory use. The droplet's 50 GB disk is a ceiling and 2 GB of RAM is a tight
 urgent.
 
 **Done when:** the page shows real figures, and you know today's headroom.
+
+> **2026-09-27:** built as the admin overview itself (`/admin`, "Umumy") rather than a separate
+> `system.html`: the admin tab bar is full (ADR-0018). Widened, at the developer's request, into
+> a dashboard of what the app already records: readers, active readers, sign-ins and numbers
+> that got a code but never got in, downloads, stars, requests, the last 14 days, the most
+> downloaded books, and recent ledger activity, beside the disk, memory and database figures.
+> Queries live in `app/dashboard.py`; ledger reads stay in `app/stars.py`. **Visits are not
+> counted**: page views exist only in nginx's log, which the sandboxed app cannot read, and
+> parsing it on each load would slow as it grows. Visit statistics wait for Phase 2 — for
+> example a nightly GoAccess report run outside the app.
 
 ### 5. Tune the workers
 

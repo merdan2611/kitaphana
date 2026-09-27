@@ -23,7 +23,7 @@ from fastapi.responses import RedirectResponse
 from starlette.concurrency import run_in_threadpool
 from starlette.datastructures import UploadFile
 
-from app import pdfmeta, requests, stars, storage
+from app import config, dashboard, pdfmeta, requests, stars, storage
 from app.auth import require_admin
 from app.catalogue import LANGUAGES, MAX_BOOK_ID
 from app.db import get_db, timestamp
@@ -161,6 +161,12 @@ def admin_index(request: Request, conn: sqlite3.Connection = Depends(get_db)):
             "drafts": counts["total"] - counts["published"],
             "recent": recent,
             "top_requests": requests.admin_top_open(conn),
+            "activity": dashboard.activity(conn),
+            "daily": dashboard.daily(conn),
+            "top_books": dashboard.top_books(conn),
+            "newest_readers": dashboard.newest_readers(conn),
+            "ledger_entries": stars.recent_entries(conn, 6),
+            "server": dashboard.server(conn, config.settings.database_path, storage.media_root()),
             "section": "index",
         },
     )

@@ -209,3 +209,48 @@ def recent_entries(conn: sqlite3.Connection, limit: int = 20) -> list[sqlite3.Ro
         " ORDER BY star_ledger.id DESC LIMIT ?",
         (limit,),
     ).fetchall()
+
+
+# --- Site-wide figures, for the admin overview (app/dashboard.py) ----------------------------
+
+
+def download_count(conn: sqlite3.Connection, since: str | None = None) -> int:
+    """Downloads by all readers since `since`, or ever: one spend row each, free ones included."""
+    return conn.execute(
+        "SELECT COUNT(*) FROM star_ledger WHERE reason = 'spend' AND created_at >= ?",
+        (since or "",),
+    ).fetchone()[0]
+
+
+def downloads_per_day(conn: sqlite3.Connection, since: str, shift: str) -> dict[str, int]:
+    """Downloads per calendar day since `since`, keyed "YYYY-MM-DD" after moving each stored
+    UTC time by the SQLite date modifier `shift` (for example "+5 hours")."""
+    rows = conn.execute(
+        "SELECT date(created_at, ?), COUNT(*) FROM star_ledger"
+        " WHERE reason = 'spend' AND created_at >= ? GROUP BY 1",
+        (shift, since),
+    ).fetchall()
+    return dict(rows)
+
+
+def totals(conn: sqlite3.Connection) -> dict[str, int]:
+    """Stars added to readers (grants, top-ups and refunds, less corrections), spent, and still
+    held. `added - spent == held`, since every movement is a row."""
+    row = conn.execute(
+        "SELECT COALESCE(SUM(CASE WHEN reason = 'spend' THEN 0 ELSE amount END), 0),"
+        " COALESCE(-SUM(CASE WHEN reason = 'spend' THEN amount ELSE 0 END), 0),"
+        " COALESCE(SUM(amount), 0) FROM star_ledger"
+    ).fetchone()
+    return {"added": row[0], "spent": row[1], "held": row[2]}
+
+
+def most_downloaded(conn: sqlite3.Connection, limit: int = 5) -> list[sqlite3.Row]:
+    """The most downloaded books, ranked by how many readers took them, then by downloads."""
+    return conn.execute(
+        "SELECT books.id, books.title, books.author, COUNT(*) AS downloads,"
+        " COUNT(DISTINCT star_ledger.user_id) AS readers"
+        " FROM star_ledger JOIN books ON star_ledger.reference = 'book:' || books.id"
+        " WHERE star_ledger.reason = 'spend'"
+        " GROUP BY books.id ORDER BY readers DESC, downloads DESC, books.id LIMIT ?",
+        (limit,),
+    ).fetchall()

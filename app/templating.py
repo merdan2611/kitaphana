@@ -31,7 +31,9 @@ def _filesize(size: int | None) -> str:
         return "—"
     if size < 1024 * 1024:
         return f"{size / 1024:.0f} KB"
-    return f"{size / (1024 * 1024):.1f} MB"
+    if size < 1024**3:
+        return f"{size / (1024 * 1024):.1f} MB"
+    return f"{size / 1024**3:.1f} GB"  # disk figures on the admin overview
 
 
 # Turkmenistan keeps UTC+5 all year, so a fixed offset is exact and needs no tz database.
