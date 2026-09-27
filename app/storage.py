@@ -176,6 +176,9 @@ def ingest(
 
     pdf_path = media_root() / pdf_relpath(staged.content_hash)
     pdf_path.parent.mkdir(parents=True, exist_ok=True)
+    # mkstemp made the staged file owner-only, whatever the umask. nginx sends the PDF as
+    # www-data through the kitaphana group (ADR-0014), so it must be group-readable.
+    os.chmod(staged.path, 0o640)
     os.replace(staged.path, pdf_path)
 
     cover = cover_relpath(staged.content_hash)

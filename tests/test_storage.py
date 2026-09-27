@@ -124,6 +124,16 @@ def test_ingest_stores_the_file_at_its_hash_path(conn):
     assert tmp_files() == []
 
 
+def test_stored_pdf_is_readable_by_the_group_so_nginx_can_send_it(conn):
+    # nginx runs as www-data in the kitaphana group (ADR-0014). The staged file comes from
+    # mkstemp, which is owner-only whatever the umask: every download was a 403 in production.
+    data = make_pdf()
+    storage.ingest(conn, stage_bytes(data), original_filename="kitap.pdf")
+
+    stored = storage.media_root() / storage.pdf_relpath(hashlib.sha256(data).hexdigest())
+    assert stored.stat().st_mode & 0o777 == 0o640
+
+
 def test_embedded_metadata_fills_blank_fields_only(conn):
     first = storage.ingest(
         conn, stage_bytes(make_pdf(title="Içki at", author="Içki awtor")), original_filename="a.pdf"
