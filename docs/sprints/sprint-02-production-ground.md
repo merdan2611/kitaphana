@@ -167,13 +167,18 @@ done — not deferred again.
 
 ## Done when (sprint acceptance)
 
-- [ ] `https://<domain>` serves the home page with a valid certificate.
-- [ ] The site survives `sudo reboot` with no manual steps.
-- [ ] Deploying is one command and takes under a minute.
-- [ ] Only SSH, 80 and 443 are open; SSH is key-only.
-- [ ] The uvicorn process is not reachable from outside except through nginx.
-- [ ] The server build is written down.
+- [x] `https://<domain>` serves the home page with a valid certificate. *Let's Encrypt, valid to
+      2026-12-26; behind the pre-launch password gate.*
+- [x] The site survives `sudo reboot` with no manual steps. *Back in 25 s on 2026-09-27, with
+      nginx, fail2ban (both jails), ufw and the certbot timer up and nothing failed.*
+- [x] Deploying is one command and takes under a minute. *`./deploy.sh`, 4.8 s.*
+- [x] Only SSH, 80 and 443 are open; SSH is key-only. *`ss -tlnp` shows nothing else public;
+      password SSH answers `Permission denied (publickey)`.*
+- [x] The uvicorn process is not reachable from outside except through nginx. *Bound to
+      127.0.0.1:8000; port 8000 times out from outside.*
+- [x] The server build is written down.
 - [ ] Every sprint shipped locally before this one has been re-verified against the live server.
+      *Waits on the developer's phone pass: the gate keeps scripted checks out, by design.*
 
 ## Tests
 
@@ -317,6 +322,21 @@ chown root:www-data /etc/nginx/kitaphana.htpasswd && chmod 640 /etc/nginx/kitaph
 ./deploy.sh
 systemctl enable --now fail2ban && fail2ban-client reload && fail2ban-client status
 ```
+
+### 2026-09-27 — checks against the live server
+
+- `kill -9` on uvicorn: systemd had a new process answering `/health` within 4 s.
+- App stopped: nginx answered `/health` with 502 in 0.8 s rather than hanging.
+- `https://kitaphana.men/_protected/...` gives 404 from outside; the bare IP gets no TLS
+  handshake.
+- `otp_codes.request_ip` holds the phone's real address, not 127.0.0.1.
+- Found only on the real nginx, and fixed: the admin home at `/admin` looped (nginx 301 to
+  `/admin/`, the app 307 back); an exact `location = /admin` fixes it.
+
+Still open before this sprint ships: task 0 (download timings from a phone in Turkmenistan),
+task 1's registrar lock, auto-renew and calendar reminder, and task 9's pass on a real phone —
+upload a PDF, publish it, grant stars, download it (interrupt and resume on mobile data),
+post and upvote a request, and check pages on the phone.
 
 ### Decisions that change the task list
 
