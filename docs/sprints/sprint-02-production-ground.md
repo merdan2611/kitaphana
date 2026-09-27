@@ -266,9 +266,14 @@ usermod -aG kitaphana www-data                 # nginx reads media through the g
 | `/var/lib/kitaphana/media` | PDFs, covers, upload spool |
 | `/var/backups/kitaphana` | backups (Sprint 08) |
 
-### Still to run — first deploy
+### 2026-09-27 — first deploy
 
-Not yet run: these need the developer's go-ahead.
+Run on the developer's go-ahead. Three surprises, all fixed: `nginx -t` rejected `http2 on;`
+(Ubuntu 24.04 ships nginx 1.24; `http2` goes on the `listen` lines instead) and the unquoted
+`{2}` in the cover regex; and `systemctl enable --now fail2ban` did not load the new jail
+because fail2ban was already running, so run `fail2ban-client reload` after installing it.
+Certbot took about five minutes but succeeded. Live at `d59662c`, migration 6, behind the
+password gate; the gate's password is not written down here.
 
 ```sh
 # Code. The repository is public, so it clones over HTTPS with no deploy key; if it ever goes
@@ -310,7 +315,7 @@ chown root:www-data /etc/nginx/kitaphana.htpasswd && chmod 640 /etc/nginx/kitaph
 
 # Everything else — service, nginx site, migrations, restart — is deploy.sh
 ./deploy.sh
-systemctl enable --now fail2ban && fail2ban-client status
+systemctl enable --now fail2ban && fail2ban-client reload && fail2ban-client status
 ```
 
 ### Decisions that change the task list
