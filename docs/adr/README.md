@@ -53,3 +53,4 @@ because it was a mistake or annoying because it was the price of something that 
 | [0018](0018-responsive-website-and-phone-layout.md) | A website on wide screens, an app-style layout on phones | Accepted | 2026-09-23 |
 | [0019](0019-digitalocean-droplet-hosting.md) | Host on a single DigitalOcean droplet | Accepted | 2026-09-25 |
 | [0020](0020-nightly-backups-to-telegram.md) | Nightly database backups, sent to a private Telegram chat | Accepted | 2026-09-27 |
+| [0021](0021-russian-reader-interface.md) | A Russian interface beside Turkmen, for readers | Accepted | 2026-09-28 |

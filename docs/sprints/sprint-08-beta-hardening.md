@@ -126,6 +126,10 @@ language later costs several times what building for two would.
 **Done when:** both are answered and dated in
 [`../04-risks-and-research.md`](../04-risks-and-research.md).
 
+> **2026-09-28:** the developer answered R8's direction before the testers arrived: Russian is
+> offered beside Turkmen (task 10). What is left of R8 for the testers is whether the Russian
+> reads naturally and whether anyone wants English.
+
 ### 8. Invite testers
 
 Five to ten people. Give them stars by grant, tell them plainly that codes appear on screen and
@@ -146,6 +150,26 @@ knowing how long things actually take. Write the Phase 2 sprint documents.
 **Done when:** the roadmap describes reality, and a session opening cold can tell where the
 project is.
 
+### 10. A Russian interface for readers (added 2026-09-28)
+
+Pulled into this sprint by the developer's decision, despite the no-go on new reader-facing
+features below, so that testers see it from the first day. See
+[ADR-0021](../adr/0021-russian-reader-interface.md) for the design.
+
+What it covers:
+- every reader page and message, in Turkmen by default or Russian by the reader's choice;
+- a switch in the website's header, in a phone's app bar for visitors, and as a setting on the
+  account page;
+- the admin area stays Turkmen.
+
+The Russian was drafted by Claude and **is reviewed by the developer before it is deployed**
+(`app/translations/ru.py`).
+
+**Done when:** the developer has reviewed the Russian, it is live, and a phone has been used
+in both languages. *Built and tested on 2026-09-28: 771 tests pass, including a check that
+every reader text has its Russian. Every reader page was checked in screenshots in Russian at
+1280, 390 and 360 px. Waiting on the review.*
+
 ## Done when (sprint acceptance)
 
 - [ ] Backups run nightly, are pulled off the server, and **one has been restored**.
@@ -155,6 +179,7 @@ project is.
 - [ ] Concurrent large downloads leave the site responsive.
 - [ ] Five or more testers have completed the loop unaided.
 - [ ] R1 and R8 are answered.
+- [ ] Reader pages work in Russian, reviewed by the developer (task 10).
 - [ ] The roadmap points at Phase 2.
 
 ## Tests
@@ -169,12 +194,15 @@ project is.
 
 `scripts/backup.py` · `deploy/cron-kitaphana-backup` · `scripts/restore.md` · `templates/404.html` · `templates/500.html` ·
 `templates/admin/system.html` · `deploy/nginx-kitaphana.conf` (security headers) ·
-`deploy/kitaphana.service` (workers) · `../03-roadmap.md` · `../02-phases.md`
+`deploy/kitaphana.service` (workers) · `app/i18n.py` · `app/translations/ru.py` ·
+`tests/test_i18n.py` · `../adr/0021-russian-reader-interface.md` · `../03-roadmap.md` ·
+`../02-phases.md`
 
 ## No-gos
 
 - No new reader-facing features. Anything the testers ask for goes on a list for Phase 2, not
-  into this sprint.
+  into this sprint. One exception, the developer's call on 2026-09-28: the Russian interface
+  (task 10).
 - No real SMS, no payments — Phase 2, even if a tester asks.
 - No monitoring stack. A cron job and the journal are enough at this size.
 - No public launch. Phase 1 ends invite-only by design, because codes on screen mean anyone who

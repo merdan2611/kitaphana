@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
-{% block title %}Giriş: Kitaphana{% endblock %}
+{% block title %}{{ _("Giriş") }}: Kitaphana{% endblock %}
 {% block body_class %}page-auth{% endblock %}
 
 {% block content %}
 <div class="auth-layout">
     <section class="auth-intro">
         {% if step == "code" %}
-        <h1>Kody giriziň</h1>
-        <p class="lead"><strong>{{ phone | phone }}</strong> belgisi üçin 6 sanly kod döredildi.</p>
+        <h1>{{ _("Kody giriziň") }}</h1>
+        <p class="lead">{% trans number=phone | phone %}<strong>{{ number }}</strong> belgisi üçin 6 sanly kod döredildi.{% endtrans %}</p>
         {% else %}
-        <h1>Giriş</h1>
-        <p class="lead">Telefon belgiňizi giriziň. Hasabyňyz ýok bolsa, ol şu wagt döredilýär: parol gerek däl.</p>
+        <h1>{{ _("Giriş") }}</h1>
+        <p class="lead">{{ _("Telefon belgiňizi giriziň. Hasabyňyz ýok bolsa, ol şu wagt döredilýär: parol gerek däl.") }}</p>
         {% endif %}
 
         {# A real sequence, so it is numbered. Shown on the website only; phones keep it short. #}
         <ol class="auth-steps">
             <li {% if step != "code" %}aria-current="step"{% endif %}>
-                <strong>Telefon belgiňizi giriziň.</strong> Türkmenistanyň islendik ykjam belgisi bolýar.
+                {% trans %}<strong>Telefon belgiňizi giriziň.</strong> Türkmenistanyň islendik ykjam belgisi bolýar.{% endtrans %}
             </li>
             <li {% if step == "code" %}aria-current="step"{% endif %}>
-                <strong>Kody giriziň.</strong> Kod birnäçe minut işleýär we diňe bir gezek ulanylýar.
+                {% trans %}<strong>Kody giriziň.</strong> Kod birnäçe minut işleýär we diňe bir gezek ulanylýar.{% endtrans %}
             </li>
             <li>
-                <strong>Boldy.</strong> Bu enjamda uzak wagtlap girilen bolup galýarsyňyz.
+                {% trans %}<strong>Boldy.</strong> Bu enjamda uzak wagtlap girilen bolup galýarsyňyz.{% endtrans %}
             </li>
         </ol>
     </section>
@@ -34,7 +34,7 @@
         {% if step == "code" %}
         {% if shown_code %}
         <div class="dev-code">
-            <span class="dev-code-label">Ösüş tertibinde kod SMS-iň ýerine şu ýerde görkezilýär:</span>
+            <span class="dev-code-label">{{ _("Ösüş tertibinde kod SMS-iň ýerine şu ýerde görkezilýär:") }}</span>
             <span class="dev-code-value">{{ shown_code }}</span>
         </div>
         {% endif %}
@@ -42,28 +42,28 @@
         <form method="post" action="/login/verify" class="stack-form">
             <input type="hidden" name="phone" value="{{ phone }}">
             {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
-            <label for="code">Kod</label>
+            <label for="code">{{ _("Kod") }}</label>
             <input id="code" class="code-input" name="code" type="text" inputmode="numeric"
                    autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="7" required autofocus>
-            <button type="submit">Gir</button>
+            <button type="submit">{{ _("Gir") }}</button>
         </form>
 
         <div class="form-aside">
             <form method="post" action="/login" class="inline-form">
                 <input type="hidden" name="phone" value="{{ phone }}">
                 {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
-                <button class="link-button" type="submit">Täze kod sora</button>
+                <button class="link-button" type="submit">{{ _("Täze kod sora") }}</button>
             </form>
-            <a href="/login{% if next_url %}?next={{ next_url | urlencode }}{% endif %}">Başga belgi bilen gir</a>
+            <a href="/login{% if next_url %}?next={{ next_url | urlencode }}{% endif %}">{{ _("Başga belgi bilen gir") }}</a>
         </div>
 
         {% else %}
         <form method="post" action="/login" class="stack-form">
             {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
-            <label for="phone">Telefon belgisi</label>
+            <label for="phone">{{ _("Telefon belgisi") }}</label>
             <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel"
                    placeholder="+993 61 234567" value="{{ phone or '' }}" required autofocus>
-            <button type="submit">Kod al</button>
+            <button type="submit">{{ _("Kod al") }}</button>
         </form>
         {% endif %}
     </section>

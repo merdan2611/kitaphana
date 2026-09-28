@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "_macros.html" import cover %}
 
-{% block title %}Ýyldyz ýetmeýär: Kitaphana{% endblock %}
+{% block title %}{{ _("Ýyldyz ýetmeýär") }}: Kitaphana{% endblock %}
 {% block body_class %}page-desk{% endblock %}
 
 {% block content %}
@@ -10,25 +10,25 @@
 <section class="card shortfall">
     <div class="shortfall-cover">{{ cover(book, eager=true) }}</div>
     <div class="shortfall-main">
-        <h1>Ýyldyz ýetmeýär</h1>
-        <p>«{{ book.title }}» kitabyny ýüklemek üçin {{ book.price_stars }} ýyldyz gerek. Hiç zat
-            tölenmedi we balansyňyz üýtgemedi.</p>
+        <h1>{{ _("Ýyldyz ýetmeýär") }}</h1>
+        <p>{{ ngettext("«%(title)s» kitabyny ýüklemek üçin %(num)d ýyldyz gerek.", "«%(title)s» kitabyny ýüklemek üçin %(num)d ýyldyz gerek.", book.price_stars, title=book.title) }}
+            {{ _("Hiç zat tölenmedi we balansyňyz üýtgemedi.") }}</p>
 
         <dl class="shortfall-sums">
-            <div><dt>Kitabyň bahasy</dt><dd>{{ book.price_stars }} ýyldyz</dd></div>
-            <div><dt>Balansyňyz</dt><dd>{{ balance }} ýyldyz</dd></div>
-            <div><dt>Ýetmeýär</dt><dd>{{ missing }} ýyldyz</dd></div>
+            <div><dt>{{ _("Kitabyň bahasy") }}</dt><dd>{{ ngettext("%(num)d ýyldyz", "%(num)d ýyldyz", book.price_stars) }}</dd></div>
+            <div><dt>{{ _("Balansyňyz") }}</dt><dd>{{ ngettext("%(num)d ýyldyz", "%(num)d ýyldyz", balance) }}</dd></div>
+            <div><dt>{{ _("Ýetmeýär") }}</dt><dd>{{ ngettext("%(num)d ýyldyz", "%(num)d ýyldyz", missing) }}</dd></div>
         </dl>
 
-        <h2>Nädip ýyldyz almaly?</h2>
-        <p>Häzirlikçe ýyldyzlary satyn alyp bolmaýar: olary diňe administrator berýär.
+        <h2>{{ _("Nädip ýyldyz almaly?") }}</h2>
+        <p>{% trans number=current_user.phone | phone %}Häzirlikçe ýyldyzlary satyn alyp bolmaýar: olary diňe administrator berýär.
             Administratora ýüz tutuň we telefon belgiňizi aýdyň:
-            <strong class="nowrap">{{ current_user.phone | phone }}</strong>. Ýyldyzlar goşulandan
-            soň, şu kitaba gaýdyp geliň.</p>
+            <strong class="nowrap">{{ number }}</strong>. Ýyldyzlar goşulandan
+            soň, şu kitaba gaýdyp geliň.{% endtrans %}</p>
 
         <div class="shortfall-actions">
-            <a class="button" href="/books/{{ book.id }}">Kitaba dolan</a>
-            <a href="/account/stars">Ýyldyzlarym</a>
+            <a class="button" href="/books/{{ book.id }}">{{ _("Kitaba dolan") }}</a>
+            <a href="/account/stars">{{ _("Ýyldyzlarym") }}</a>
         </div>
     </div>
 </section>

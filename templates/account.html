@@ -1,46 +1,58 @@
 {% extends "base.html" %}
 {% from "_macros.html" import ledger %}
 
-{% block title %}Hasabym: Kitaphana{% endblock %}
+{% block title %}{{ _("Hasabym") }}: Kitaphana{% endblock %}
 {% block body_class %}page-desk{% endblock %}
 
 {# A phone reads it as an app screen: details, what happened lately, and signing out last. The
    website puts the details and signing out on the left and the activity beside them. #}
 {% block content %}
-<h1>Hasabym</h1>
+<h1>{{ _("Hasabym") }}</h1>
 
 <div class="account-layout">
     <section class="account-details-section" aria-labelledby="account-details-title">
-        <h2 id="account-details-title">Maglumatlar</h2>
+        <h2 id="account-details-title">{{ _("Maglumatlar") }}</h2>
         <div class="card account-card">
             <dl class="account-details">
                 <div>
-                    <dt>Telefon belgisi</dt>
+                    <dt>{{ _("Telefon belgisi") }}</dt>
                     <dd>{{ user.phone | phone }}</dd>
                 </div>
                 <div>
-                    <dt>Ýyldyz balansy</dt>
-                    <dd><a href="/account/stars">{{ star_balance }} ýyldyz</a></dd>
+                    <dt>{{ _("Ýyldyz balansy") }}</dt>
+                    <dd><a href="/account/stars">{{ ngettext("%(num)d ýyldyz", "%(num)d ýyldyz", star_balance) }}</a></dd>
                 </div>
             </dl>
         </div>
     </section>
 
+    {# The same switch as the header's, as a setting: the current language filled, the other a
+       link that brings the reader back here. #}
+    <section class="account-language" aria-labelledby="account-language-title">
+        <h2 id="account-language-title">{{ _("Saýtyň dili") }}</h2>
+        <div class="chip-row">
+            {% for code, name in ui_languages.items() %}
+            {% if code == ui_lang %}<span class="chip" aria-current="true" lang="{{ code }}">{{ name }}</span>
+            {% else %}<a class="chip" href="/dil/{{ code }}?next=/account" lang="{{ code }}" hreflang="{{ code }}">{{ name }}</a>{% endif %}
+            {% endfor %}
+        </div>
+    </section>
+
     <section class="account-activity" aria-labelledby="account-activity-title">
-        <h2 id="account-activity-title">Soňky hereketler</h2>
+        <h2 id="account-activity-title">{{ _("Soňky hereketler") }}</h2>
         {% if entries %}
         <div class="card ledger-card">{{ ledger(entries) }}</div>
-        <p class="account-more"><a href="/account/stars">Ähli ýyldyz taryhy</a></p>
+        <p class="account-more"><a href="/account/stars">{{ _("Ähli ýyldyz taryhy") }}</a></p>
         {% else %}
         <div class="card history-empty">
-            <p>Entek hiç hili ýazgy ýok. Ýyldyz berlende ýa-da kitap ýüklände, ol şu ýerde görüner.</p>
-            <a class="button" href="/books">Kataloga geç</a>
+            <p>{{ _("Entek hiç hili ýazgy ýok. Ýyldyz berlende ýa-da kitap ýüklände, ol şu ýerde görüner.") }}</p>
+            <a class="button" href="/books">{{ _("Kataloga geç") }}</a>
         </div>
         {% endif %}
     </section>
 
     <form method="post" action="/logout" class="account-logout">
-        <button class="button-quiet" type="submit">Çykyş</button>
+        <button class="button-quiet" type="submit">{{ _("Çykyş") }}</button>
     </form>
 </div>
 {% endblock %}

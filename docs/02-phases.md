@@ -144,6 +144,6 @@ graduates from this list becomes a phase with its own exit criteria.
 | Full-text search inside PDFs | Expensive on 2 GB of RAM. Would likely need a separate index and careful memory limits. |
 | OCR for scanned books | Prerequisite for the above on scans. Very CPU-hungry; would have to run off the server. |
 | EPUB alongside PDF | Much better on phones. Conversion quality for scans is poor, so this suits born-digital books only. |
-| Russian-language interface | Depends on whether readers expect it — see R8 in [`04-risks-and-research.md`](04-risks-and-research.md). |
+| English interface | Russian arrived in Sprint 08 ([ADR-0021](adr/0021-russian-reader-interface.md)); English is one more catalogue, once readers ask for it. |
 | Series and collections | Grouping multi-volume works, which the flat book model cannot express. |
 | Public statistics page | Books, downloads, fulfilled requests. Good for trust, trivial to build. |

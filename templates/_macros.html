@@ -30,9 +30,21 @@
 {# The light/dark switch at the end of the header. Hidden until the script in base.html is
    running; that script also keeps aria-pressed in step with the theme. #}
 {% macro theme_toggle() -%}
-<button class="theme-toggle" type="button" aria-label="Garaňky tertip" aria-pressed="false" title="Ýagty ýa-da garaňky tertip" hidden>
+<button class="theme-toggle" type="button" aria-label="{{ _('Garaňky tertip') }}" aria-pressed="false" title="{{ _('Ýagty ýa-da garaňky tertip') }}" hidden>
     <span class="icon-moon">{{ icon("moon") }}</span><span class="icon-sun">{{ icon("sun") }}</span>
 </button>
+{%- endmacro %}
+
+{# The link to the interface's other language, named in that language (ADR-0021): "RU" on a
+   phone's app bar, "Русский" on the website, and the full name for screen readers either way.
+   It returns the reader to the page they were on. #}
+{% macro language_switch() -%}
+{% set here = request.url.path ~ ("?" ~ request.url.query if request.url.query else "") %}
+{% for code, name in ui_languages.items() if code != ui_lang %}
+<a class="lang-switch" href="/dil/{{ code }}?next={{ here | urlencode }}" lang="{{ code }}" hreflang="{{ code }}">
+    <span class="lang-name">{{ name }}</span><span class="lang-code" aria-hidden="true">{{ ui_short_names[code] }}</span>
+</a>
+{% endfor %}
 {%- endmacro %}
 
 {# A book's cover, or a typeset stand-in when it has none. Never a broken image. #}
@@ -64,8 +76,8 @@
         {% if book.author %}<span class="book-card-author">{{ book.author }}</span>{% endif %}
         <span class="book-card-meta">
             {% if book.year %}<span>{{ book.year }}</span>{% endif %}
-            {% if book.price_stars %}<span>{{ book.price_stars }} ýyldyz</span>
-            {% else %}<span class="price-free">Mugt</span>{% endif %}
+            {% if book.price_stars %}<span>{{ ngettext("%(num)d ýyldyz", "%(num)d ýyldyz", book.price_stars) }}</span>
+            {% else %}<span class="price-free">{{ _("Mugt") }}</span>{% endif %}
         </span>
     </span>
 </a>
@@ -107,10 +119,10 @@
 
 {# What a ledger entry was, in words (reasons: migration 005). #}
 {% macro ledger_reason(entry) -%}
-{% if entry.reason == "grant" %}{{ "Administrator berdi" if entry.amount > 0 else "Administrator düzetdi" }}
-{%- elif entry.reason == "spend" %}{{ "Kitap satyn alyndy" if entry.amount < 0 else "Kitap ýüklendi" }}
-{%- elif entry.reason == "topup" %}Ýyldyz satyn alyndy
-{%- elif entry.reason == "refund" %}Yzyna gaýtaryldy
+{% if entry.reason == "grant" %}{{ _("Administrator berdi") if entry.amount > 0 else _("Administrator düzetdi") }}
+{%- elif entry.reason == "spend" %}{{ _("Kitap satyn alyndy") if entry.amount < 0 else _("Kitap ýüklendi") }}
+{%- elif entry.reason == "topup" %}{{ _("Ýyldyz satyn alyndy") }}
+{%- elif entry.reason == "refund" %}{{ _("Yzyna gaýtaryldy") }}
 {%- else %}{{ entry.reason }}{% endif %}
 {%- endmacro %}
 
@@ -121,11 +133,11 @@
 <table class="ledger">
     <thead>
         <tr>
-            <th scope="col">Wagty</th>
-            {% if readers %}<th scope="col">Okyjy</th>{% endif %}
-            <th scope="col">Näme boldy</th>
-            <th scope="col" class="num">Ýyldyz</th>
-            {% if not readers %}<th scope="col" class="num">Galan</th>{% endif %}
+            <th scope="col">{{ _("Wagty") }}</th>
+            {% if readers %}<th scope="col">{{ _("Okyjy") }}</th>{% endif %}
+            <th scope="col">{{ _("Näme boldy") }}</th>
+            <th scope="col" class="num">{{ _("Ýyldyz") }}</th>
+            {% if not readers %}<th scope="col" class="num">{{ _("Galan") }}</th>{% endif %}
         </tr>
     </thead>
     <tbody>
@@ -143,7 +155,7 @@
                 {% endif %}
             </td>
             <td class="num ledger-amount{% if entry.amount > 0 %} ledger-plus{% endif %}">{{ signed(entry.amount) }}</td>
-            {% if not readers %}<td class="num ledger-after" data-label="Galan">{{ entry.balance_after }}</td>{% endif %}
+            {% if not readers %}<td class="num ledger-after" data-label="{{ _('Galan') }}">{{ entry.balance_after }}</td>{% endif %}
         </tr>
         {% endfor %}
     </tbody>
@@ -154,17 +166,17 @@
    for visitors, and a plain count once a request is closed. `here` is where to come back to. #}
 {% macro vote(req, signed_in, here) -%}
 {% if req.status != "open" %}
-<span class="vote vote-static" title="Goldaw"><span class="vote-count">{{ req.votes }}</span><span class="vote-word">goldaw</span></span>
+<span class="vote vote-static" title="{{ _('Goldaw') }}"><span class="vote-count">{{ req.votes }}</span><span class="vote-word">{{ ngettext("goldaw", "goldaw", req.votes) }}</span></span>
 {% elif not signed_in %}
-<a class="vote" href="/login?next={{ ('/requests/' ~ req.id) | urlencode }}" title="Goldamak üçin giriň">
-    {{ icon("up") }}<span class="vote-count">{{ req.votes }}</span><span class="visually-hidden">goldaw. Goldamak üçin giriň</span>
+<a class="vote" href="/login?next={{ ('/requests/' ~ req.id) | urlencode }}" title="{{ _('Goldamak üçin giriň') }}">
+    {{ icon("up") }}<span class="vote-count">{{ req.votes }}</span><span class="visually-hidden">{{ ngettext("goldaw. Goldamak üçin giriň", "goldaw. Goldamak üçin giriň", req.votes) }}</span>
 </a>
 {% else %}
 <form class="vote-form" method="post" action="/requests/{{ req.id }}/{{ 'unvote' if req.upvoted else 'upvote' }}">
     <input type="hidden" name="next" value="{{ here }}">
     <button type="submit" class="vote{% if req.upvoted %} vote-on{% endif %}" aria-pressed="{{ 'true' if req.upvoted else 'false' }}"
-            title="{{ 'Goldawyňyzy aýyryň' if req.upvoted else 'Goldaň' }}">
-        {{ icon("up") }}<span class="vote-count">{{ req.votes }}</span><span class="visually-hidden">goldaw. {{ 'Siz goldadyňyz: aýyrmak üçin basyň' if req.upvoted else 'Goldamak üçin basyň' }}</span>
+            title="{{ _('Goldawyňyzy aýyryň') if req.upvoted else _('Goldaň') }}">
+        {{ icon("up") }}<span class="vote-count">{{ req.votes }}</span><span class="visually-hidden">{{ ngettext("goldaw. Siz goldadyňyz: aýyrmak üçin basyň", "goldaw. Siz goldadyňyz: aýyrmak üçin basyň", req.votes) if req.upvoted else ngettext("goldaw. Goldamak üçin basyň", "goldaw. Goldamak üçin basyň", req.votes) }}</span>
     </button>
 </form>
 {% endif %}
@@ -172,6 +184,6 @@
 
 {# A request's state, when it is no longer simply open. #}
 {% macro request_badge(req) -%}
-{% if req.status == "fulfilled" %}<span class="badge badge-live">Tapyldy</span>
-{%- elif req.status == "rejected" %}<span class="badge">Ret edildi</span>{% endif %}
+{% if req.status == "fulfilled" %}<span class="badge badge-live">{{ _("Tapyldy") }}</span>
+{%- elif req.status == "rejected" %}<span class="badge">{{ _("Ret edildi") }}</span>{% endif %}
 {%- endmacro %}

@@ -27,6 +27,7 @@ from app import config, ratelimit, search
 from app.auth import current_user, safe_next
 from app.catalogue import valid_book_id
 from app.db import get_db, timestamp
+from app.i18n import N_, tr, tr_n
 from app.templating import templates
 
 router = APIRouter()
@@ -39,11 +40,11 @@ MAX_SUGGESTIONS = 5
 # Merged requests redirect to their target; a chain longer than this is a bug, not a request.
 MAX_MERGE_HOPS = 20
 
-# The public list's tabs: key -> label. "mine" needs a signed-in reader.
+# The public list's tabs: key -> label, translated where shown. "mine" needs a signed-in reader.
 LISTS = {
-    "open": "Açyk soraglar",
-    "fulfilled": "Tapylanlar",
-    "mine": "Goldanlarym",
+    "open": N_("Açyk soraglar"),
+    "fulfilled": N_("Tapylanlar"),
+    "mine": N_("Goldanlarym"),
 }
 
 # What a public page may know about a request. Deliberately no user_id (see the module docstring).
@@ -61,10 +62,14 @@ _FROM = " FROM requests LEFT JOIN published_books ON published_books.id = reques
 
 
 class PostingBlocked(Exception):
-    message = (
+    TEXT = N_(
         "Size sorag goşmak gadagan edildi. Kitaplary gözläp we ýükläp, beýleki soraglary bolsa "
         "goldap bilersiňiz."
     )
+
+    @property
+    def message(self) -> str:
+        return tr(self.TEXT)
 
 
 class RequestLimited(Exception):
@@ -74,8 +79,9 @@ class RequestLimited(Exception):
 
     @property
     def message(self) -> str:
-        wait = ratelimit.wait_phrase(self.retry_after_seconds)
-        return f"Siz soňky wagtda gaty köp sorag goşduňyz. {wait} soň täzeden synanyşyň."
+        return tr("Siz soňky wagtda gaty köp sorag goşduňyz.") + " " + ratelimit.try_again_after(
+            self.retry_after_seconds
+        )
 
 
 class InvalidAction(Exception):
@@ -537,7 +543,7 @@ def request_new(
     if user is None:
         return _login_redirect(_new_form_url(title, author))
     if user["requests_blocked"]:
-        return _form_page(request, 403, blocked=PostingBlocked.message)
+        return _form_page(request, 403, blocked=PostingBlocked().message)
     return _form_page(request, values={"title": title, "author": author, "note": ""})
 
 
@@ -551,13 +557,13 @@ def validate(title: str, author: str, note: str) -> tuple[dict, dict]:
     }
     errors = {}
     if not search.fold(values["title"]):
-        errors["title"] = "Kitabyň adyny ýazyň."
+        errors["title"] = tr("Kitabyň adyny ýazyň.")
     elif len(values["title"]) > MAX_TITLE:
-        errors["title"] = f"Ady {MAX_TITLE} harpdan uzyn bolmaly däl."
+        errors["title"] = tr_n("Ady %(num)d harpdan uzyn bolmaly däl.", MAX_TITLE)
     if len(values["author"]) > MAX_AUTHOR:
-        errors["author"] = f"Awtoryň ady {MAX_AUTHOR} harpdan uzyn bolmaly däl."
+        errors["author"] = tr_n("Awtoryň ady %(num)d harpdan uzyn bolmaly däl.", MAX_AUTHOR)
     if len(values["note"]) > MAX_NOTE:
-        errors["note"] = f"Bellik {MAX_NOTE} harpdan uzyn bolmaly däl."
+        errors["note"] = tr_n("Bellik %(num)d harpdan uzyn bolmaly däl.", MAX_NOTE)
     return values, errors
 
 
@@ -577,7 +583,7 @@ def request_post(
     if errors:
         return _form_page(request, 400, values=values, errors=errors)
     if user["requests_blocked"]:
-        return _form_page(request, 403, values=values, blocked=PostingBlocked.message)
+        return _form_page(request, 403, values=values, blocked=PostingBlocked().message)
 
     if confirmed != "1":
         # Many requests are for books the library already has, or that someone already asked

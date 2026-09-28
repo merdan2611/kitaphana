@@ -16,6 +16,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app import search, stars
 from app.db import get_db
+from app.i18n import N_
 from app.templating import templates
 
 router = APIRouter()
@@ -27,13 +28,13 @@ PAGE_SIZE = 20
 HOME_SHELF_SIZE = 5
 
 # Also the admin form's choices (app/admin.py).
-LANGUAGES = {"tk": "Türkmençe", "ru": "Rusça", "en": "Iňlisçe"}
+LANGUAGES = {"tk": N_("Türkmençe"), "ru": N_("Rusça"), "en": N_("Iňlisçe")}
 
 # Sort key -> (link label, ORDER BY). Both are fixed strings, never built from the request.
 # Title order uses the folded text, so Ä files with A and capitals with lower case.
 SORTS = {
-    "new": ("Täze goşulanlar", "created_at DESC, id DESC"),
-    "title": ("Ady boýunça", "search_text, id"),
+    "new": (N_("Täze goşulanlar"), "created_at DESC, id DESC"),
+    "title": (N_("Ady boýunça"), "search_text, id"),
 }
 DEFAULT_SORT = "new"
 

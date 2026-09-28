@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import re
 
+from app.i18n import N_, tr
+
 # Spaces, dashes, brackets and dots are how people group digits; they carry no meaning.
 _SEPARATORS = re.compile(r"[\s\-().]")
 # [0-9], not \d: \d also matches Arabic-Indic and other Unicode digits.
@@ -19,22 +21,24 @@ _DIGITS = re.compile(r"[0-9]+")
 # can still never receive a code. Landlines (Ashgabat 12, regional 1X-5X) are rejected.
 _MOBILE = re.compile(r"(6[0-9]|71)[0-9]{6}")
 
-MSG_EMPTY = "Telefon belgiňizi giriziň."
-MSG_NOT_DIGITS = "Belgide diňe sanlar bolmaly, mysal üçin: +993 61 234567."
-MSG_FOREIGN = "Diňe Türkmenistanyň (+993) ykjam belgileri kabul edilýär."
-MSG_LENGTH = "Belgi 8 sanly bolmaly (+993 goşulmazdan), mysal üçin: +993 61 234567."
-MSG_NOT_MOBILE = (
+# In Turkmen, as the catalogue keys (app/i18n.py); InvalidPhone carries them translated.
+MSG_EMPTY = N_("Telefon belgiňizi giriziň.")
+MSG_NOT_DIGITS = N_("Belgide diňe sanlar bolmaly, mysal üçin: +993 61 234567.")
+MSG_FOREIGN = N_("Diňe Türkmenistanyň (+993) ykjam belgileri kabul edilýär.")
+MSG_LENGTH = N_("Belgi 8 sanly bolmaly (+993 goşulmazdan), mysal üçin: +993 61 234567.")
+MSG_NOT_MOBILE = N_(
     "Bu Türkmenistanyň ykjam belgisine meňzemeýär. Belgi 6 ýa-da 71 bilen başlanmaly, "
     "mysal üçin: +993 61 234567."
 )
 
 
 class InvalidPhone(ValueError):
-    """Raised with a message a reader can act on, in the interface language."""
+    """Raised with a message a reader can act on, in the interface language: one of the MSG_
+    texts above, translated here for whoever is asking."""
 
     def __init__(self, message: str) -> None:
         super().__init__(message)
-        self.message = message
+        self.message = tr(message)
 
 
 def normalize_phone(raw: str) -> str:

@@ -34,6 +34,7 @@ from app import config, ratelimit, stars, storage
 from app.auth import current_user
 from app.catalogue import book_page_response, login_url_for, published_book_or_404, valid_book_id
 from app.db import get_db, timestamp
+from app.i18n import tr
 from app.templating import templates
 
 log = logging.getLogger(__name__)
@@ -60,8 +61,9 @@ class DownloadLimited(Exception):
 
     @property
     def message(self) -> str:
-        wait = ratelimit.wait_phrase(self.retry_after_seconds)
-        return f"Siz soňky wagtda gaty köp kitap ýüklediňiz. {wait} soň täzeden synanyşyň."
+        return tr("Siz soňky wagtda gaty köp kitap ýüklediňiz.") + " " + ratelimit.try_again_after(
+            self.retry_after_seconds
+        )
 
 
 # --- Recording a download --------------------------------------------------------------------

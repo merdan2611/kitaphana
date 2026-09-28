@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "_macros.html" import book_card %}
 
-{% block title %}Kitaphana: türkmen dilindäki kitaplar{% endblock %}
+{% block title %}{{ _("Kitaphana: türkmen dilindäki kitaplar") }}{% endblock %}
 
 {# The order is a phone's: what the library is, its newest books, then how it works. The
    website lifts the how-it-works card beside the hero (static/style.css, "Home"). That card is
@@ -9,16 +9,16 @@
 {% block content %}
 <div class="home{% if not current_user %} home-split{% endif %}">
     <div class="home-hero-text">
-        <h1>Türkmen dilindäki kitaplar bir ýerde</h1>
-        <p class="home-lead">Çat toparlarynda ýitip gidýän <span class="nowrap">PDF-ler</span>
-            <span class="nowrap">däl-de</span>, gözläp tapyp boljak, tertipli kitaphana.</p>
+        <h1>{{ _("Türkmen dilindäki kitaplar bir ýerde") }}</h1>
+        <p class="home-lead">{% trans %}Çat toparlarynda ýitip gidýän <span class="nowrap">PDF-ler</span>
+            <span class="nowrap">däl-de</span>, gözläp tapyp boljak, tertipli kitaphana.{% endtrans %}</p>
         <form class="search-form home-search" role="search" method="get" action="/books">
-            <label class="visually-hidden" for="home-q">Kitap gözle</label>
-            <input id="home-q" type="search" name="q" placeholder="Kitap ýa-da awtor" enterkeyhint="search">
-            <button type="submit">Gözle</button>
+            <label class="visually-hidden" for="home-q">{{ _("Kitap gözle") }}</label>
+            <input id="home-q" type="search" name="q" placeholder="{{ _('Kitap ýa-da awtor') }}" enterkeyhint="search">
+            <button type="submit">{{ _("Gözle") }}</button>
         </form>
         {% if not current_user %}
-        <p class="home-note">Ýükläp almak üçin <a href="/login">telefon belgiňiz bilen giriň</a>: parol gerek däl.</p>
+        <p class="home-note">{% trans %}Ýükläp almak üçin <a href="/login">telefon belgiňiz bilen giriň</a>: parol gerek däl.{% endtrans %}</p>
         {% endif %}
     </div>
 
@@ -27,8 +27,8 @@
     {% if books %}
     <section class="home-shelf" aria-labelledby="home-shelf-title">
         <div class="home-shelf-head">
-            <h2 id="home-shelf-title">Täze goşulanlar</h2>
-            <a href="/books">Ähli kitaplar</a>
+            <h2 id="home-shelf-title">{{ _("Täze goşulanlar") }}</h2>
+            <a href="/books">{{ _("Ähli kitaplar") }}</a>
         </div>
         <ul class="book-grid home-shelf-books">
             {% for book in books %}
@@ -40,19 +40,19 @@
 
     {% if not current_user %}
     <section class="card home-ways" aria-labelledby="home-ways-title">
-        <h2 id="home-ways-title">Nähili işleýär</h2>
+        <h2 id="home-ways-title">{{ _("Nähili işleýär") }}</h2>
         <ul>
             <li>
-                <h3>Gözläň</h3>
-                <p>Kitaby ady ýa-da awtory boýunça tapyň.</p>
+                <h3>{{ _("Gözläň") }}</h3>
+                <p>{{ _("Kitaby ady ýa-da awtory boýunça tapyň.") }}</p>
             </li>
             <li>
-                <h3>Ýükläp alyň</h3>
-                <p>Käbir kitaplar mugt, käbirleri üçin ýyldyz gerek.</p>
+                <h3>{{ _("Ýükläp alyň") }}</h3>
+                <p>{{ _("Käbir kitaplar mugt, käbirleri üçin ýyldyz gerek.") }}</p>
             </li>
             <li>
-                <h3>Soraň</h3>
-                <p>Ýok kitaby soraň. Başgalar hem ses berse, ol öňe geçýär.</p>
+                <h3>{{ _("Soraň") }}</h3>
+                <p>{{ _("Ýok kitaby soraň. Başgalar hem ses berse, ol öňe geçýär.") }}</p>
             </li>
         </ul>
     </section>

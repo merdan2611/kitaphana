@@ -1,23 +1,23 @@
 {% extends "base.html" %}
 {% from "_macros.html" import vote, request_badge %}
 
-{% block title %}Soraglar: Kitaphana{% endblock %}
-{% block description %}Kitaphanada ýok kitaplar: okyjylaryň soraglary we goldawlary.{% endblock %}
+{% block title %}{{ _("Soraglar") }}: Kitaphana{% endblock %}
+{% block description %}{{ _("Kitaphanada ýok kitaplar: okyjylaryň soraglary we goldawlary.") }}{% endblock %}
 
 {% block content %}
 <div class="requests-layout">
     <div class="requests-main">
         <div class="requests-head">
-            <h1>Soraglar</h1>
-            <a class="button" href="/requests/new">Kitap sora</a>
+            <h1>{{ _("Soraglar") }}</h1>
+            <a class="button" href="/requests/new">{{ _("Kitap sora") }}</a>
         </div>
-        <p class="requests-intro">Kitaphanada ýok kitaby soraň ýa-da başgalaryňkyny goldaň: iň köp
-            goldananlar ilki goşulýar. Kimiň soranyny ýa-da goldanyny hiç kim görmeýär.</p>
+        <p class="requests-intro">{% trans %}Kitaphanada ýok kitaby soraň ýa-da başgalaryňkyny goldaň: iň köp
+            goldananlar ilki goşulýar. Kimiň soranyny ýa-da goldanyny hiç kim görmeýär.{% endtrans %}</p>
 
-        <nav class="chip-row requests-tabs" aria-label="Sanawlar">
+        <nav class="chip-row requests-tabs" aria-label="{{ _('Sanawlar') }}">
             {% for key, label in lists.items() %}
             {% if key != "mine" or current_user %}
-            <a class="chip" href="{{ list_url(key) }}" {% if key == list_name %}aria-current="true"{% endif %}>{{ label }}
+            <a class="chip" href="{{ list_url(key) }}" {% if key == list_name %}aria-current="true"{% endif %}>{{ _(label) }}
                 {% if key in counts %}<span class="chip-count">{{ counts[key] }}</span>{% endif %}</a>
             {% endif %}
             {% endfor %}
@@ -33,33 +33,33 @@
                         <strong>{{ req.title }}</strong>
                         {% if req.author %}<span class="request-author">{{ req.author }}</span>{% endif %}
                     </span>
-                    <span class="request-meta">{{ request_badge(req) }} {{ req.created_at | ago | capitalize }} soraldy</span>
+                    <span class="request-meta">{{ request_badge(req) }} {{ _("%(when)s soraldy", when=req.created_at | ago) | capitalize }}</span>
                 </a>
             </li>
             {% endfor %}
         </ol>
 
         {% if pages > 1 %}
-        <nav class="pager" aria-label="Sahypalar">
-            {% if page > 1 %}<a class="button button-quiet" href="{{ list_url(list_name, page - 1) }}" rel="prev">Öňki</a>{% endif %}
-            <span>Sahypa {{ page }} / {{ pages }}</span>
-            {% if page < pages %}<a class="button button-quiet" href="{{ list_url(list_name, page + 1) }}" rel="next">Indiki</a>{% endif %}
+        <nav class="pager" aria-label="{{ _('Sahypalar') }}">
+            {% if page > 1 %}<a class="button button-quiet" href="{{ list_url(list_name, page - 1) }}" rel="prev">{{ _("Öňki") }}</a>{% endif %}
+            <span>{{ _("Sahypa %(page)s / %(pages)s", page=page, pages=pages) }}</span>
+            {% if page < pages %}<a class="button button-quiet" href="{{ list_url(list_name, page + 1) }}" rel="next">{{ _("Indiki") }}</a>{% endif %}
         </nav>
         {% endif %}
 
         {% else %}
         <div class="empty-state">
             {% if list_name == "open" %}
-            <h2>Häzir açyk sorag ýok</h2>
-            <p>Gözlän kitabyňyz kitaphanada ýok bolsa, ilkinji bolup soraň.</p>
+            <h2>{{ _("Häzir açyk sorag ýok") }}</h2>
+            <p>{{ _("Gözlän kitabyňyz kitaphanada ýok bolsa, ilkinji bolup soraň.") }}</p>
             {% elif list_name == "fulfilled" %}
-            <h2>Entek tapylan sorag ýok</h2>
-            <p>Soralan kitap kitaphana goşulanda, ol şu ýerde görüner.</p>
+            <h2>{{ _("Entek tapylan sorag ýok") }}</h2>
+            <p>{{ _("Soralan kitap kitaphana goşulanda, ol şu ýerde görüner.") }}</p>
             {% else %}
-            <h2>Siz entek hiç bir soragy goldamadyňyz</h2>
-            <p>Goldan ýa-da goşan soraglaryňyz şu ýerde görüner, ýapylandan soň hem.</p>
+            <h2>{{ _("Siz entek hiç bir soragy goldamadyňyz") }}</h2>
+            <p>{{ _("Goldan ýa-da goşan soraglaryňyz şu ýerde görüner, ýapylandan soň hem.") }}</p>
             {% endif %}
-            <a class="button" href="/requests/new">Kitap sora</a>
+            <a class="button" href="/requests/new">{{ _("Kitap sora") }}</a>
         </div>
         {% endif %}
     </div>

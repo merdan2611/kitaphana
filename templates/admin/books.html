@@ -16,7 +16,7 @@
     <input id="q" type="search" name="q" value="{{ q }}" placeholder="Ady ýa-da awtory">
     <label class="visually-hidden" for="status">Ýagdaýy</label>
     <select id="status" name="status">
-        {% for key, (label, _) in status_filters.items() %}
+        {% for key, (label, _where) in status_filters.items() %}
         <option value="{{ key }}" {% if key == status %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
     </select>

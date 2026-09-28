@@ -12,8 +12,9 @@ from urllib.parse import quote
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
-from app import config
+from app import config, i18n
 from app.config import BASE_DIR
+from app.i18n import tr, tr_n
 from app.phone import format_phone
 
 
@@ -23,6 +24,10 @@ def _page_globals(request: Request) -> dict:
         # Set by auth.current_user, which runs as an app-wide dependency.
         "current_user": getattr(request.state, "user", None),
         "star_balance": getattr(request.state, "star_balance", None),
+        # The interface language (app/i18n.py): <html lang> and the language switch.
+        "ui_lang": i18n.current(),
+        "ui_languages": i18n.LANGUAGES,
+        "ui_short_names": i18n.SHORT_NAMES,
     }
 
 
@@ -49,25 +54,26 @@ def _localtime(stored: str | None) -> str:
 
 
 def _ago(stored: str | None) -> str:
-    """How long ago a stored UTC timestamp was, in words: "3 gün öň"."""
+    """How long ago a stored UTC timestamp was, in words, in the reader's language: "3 gün öň",
+    "3 дня назад"."""
     if not stored:
         return ""
     moment = datetime.strptime(stored, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
     seconds = max((datetime.now(timezone.utc) - moment).total_seconds(), 0)
     minutes, hours, days = seconds / 60, seconds / 3600, seconds / 86400
     if minutes < 1:
-        return "häzir"
+        return tr("häzir")
     if hours < 1:
-        return f"{int(minutes)} minut öň"
+        return tr_n("%(num)d minut öň", int(minutes))
     if days < 1:
-        return f"{int(hours)} sagat öň"
+        return tr_n("%(num)d sagat öň", int(hours))
     if days < 7:
-        return f"{int(days)} gün öň"
+        return tr_n("%(num)d gün öň", int(days))
     if days < 30:
-        return f"{int(days // 7)} hepde öň"
+        return tr_n("%(num)d hepde öň", int(days // 7))
     if days < 365:
-        return f"{int(days // 30)} aý öň"
-    return f"{int(days // 365)} ýyl öň"
+        return tr_n("%(num)d aý öň", int(days // 30))
+    return tr_n("%(num)d ýyl öň", int(days // 365))
 
 
 def _cover_url(book) -> str | None:
@@ -94,6 +100,12 @@ def _static_url(path: str) -> str:
 
 
 templates = Jinja2Templates(directory=BASE_DIR / "templates", context_processors=[_page_globals])
+# Reader pages mark their text with _() and {% trans %} (ADR-0021). Newstyle: _() takes its
+# placeholders as keyword arguments. Trimmed: a {% trans %} block spread over lines in the
+# template is one line of text, so the catalogue key does not depend on indentation.
+templates.env.add_extension("jinja2.ext.i18n")
+templates.env.install_gettext_callables(i18n.gettext, i18n.ngettext, newstyle=True)
+templates.env.policies["ext.i18n.trimmed"] = True
 templates.env.filters["phone"] = format_phone
 templates.env.filters["filesize"] = _filesize
 templates.env.filters["localtime"] = _localtime

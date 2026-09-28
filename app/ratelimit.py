@@ -17,6 +17,7 @@ from datetime import datetime, timedelta, timezone
 
 from app import config
 from app.db import timestamp
+from app.i18n import tr, tr_n
 
 
 class RateLimited(Exception):
@@ -26,15 +27,16 @@ class RateLimited(Exception):
 
     @property
     def message(self) -> str:
-        return f"Kod gaty köp soraldy. {wait_phrase(self.retry_after_seconds)} soň täzeden synanyşyň."
+        return tr("Kod gaty köp soraldy.") + " " + try_again_after(self.retry_after_seconds)
 
 
-def wait_phrase(seconds: int) -> str:
-    """"5 minutdan" or "3 sagatdan": how long to wait, for "… soň täzeden synanyşyň"."""
+def try_again_after(seconds: int) -> str:
+    """"5 minutdan soň täzeden synanyşyň." (or hours), in the reader's language. A whole
+    sentence rather than a phrase to slot in: Russian orders it differently ("через 5 минут")."""
     minutes = math.ceil(seconds / 60)
     if minutes >= 120:
-        return f"{math.ceil(minutes / 60)} sagatdan"
-    return f"{minutes} minutdan"
+        return tr_n("%(num)d sagatdan soň täzeden synanyşyň.", math.ceil(minutes / 60))
+    return tr_n("%(num)d minutdan soň täzeden synanyşyň.", minutes)
 
 
 def _parse(stored: str) -> datetime:

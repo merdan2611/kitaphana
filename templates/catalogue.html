@@ -1,52 +1,52 @@
 {% extends "base.html" %}
 {% from "_macros.html" import book_card %}
 
-{% block title %}{% if q %}«{{ q }}»: {% endif %}Katalog: Kitaphana{% endblock %}
+{% block title %}{% if q %}«{{ q }}»: {% endif %}{{ _("Katalog") }}: Kitaphana{% endblock %}
 
 {% block content %}
 <div class="catalogue-head">
-    <h1>Katalog</h1>
+    <h1>{{ _("Katalog") }}</h1>
     <form class="search-form" role="search" method="get" action="/books">
-        <label class="visually-hidden" for="q">Kitap gözle</label>
-        <input id="q" type="search" name="q" value="{{ q }}" placeholder="Kitap ýa-da awtor" enterkeyhint="search">
+        <label class="visually-hidden" for="q">{{ _("Kitap gözle") }}</label>
+        <input id="q" type="search" name="q" value="{{ q }}" placeholder="{{ _('Kitap ýa-da awtor') }}" enterkeyhint="search">
         {% if lang %}<input type="hidden" name="lang" value="{{ lang }}">{% endif %}
         {% if sort != "new" %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-        <button type="submit">Gözle</button>
+        <button type="submit">{{ _("Gözle") }}</button>
     </form>
 </div>
 
 {% if catalogue_empty %}
 <div class="empty-state">
-    <h2>Katalog entek boş</h2>
-    <p>Ilkinji kitaplar ýakyn wagtda goşular.</p>
-    {% if current_user and current_user.is_admin %}<a class="button" href="/admin/books/new">Kitap goş</a>{% endif %}
+    <h2>{{ _("Katalog entek boş") }}</h2>
+    <p>{{ _("Ilkinji kitaplar ýakyn wagtda goşular.") }}</p>
+    {% if current_user and current_user.is_admin %}<a class="button" href="/admin/books/new">{{ _("Kitap goş") }}</a>{% endif %}
 </div>
 {% else %}
 
 {# Filters are plain links, so every view of the catalogue has a URL that can be shared. They are
    hidden only when the search found nothing in any language, since then there is nothing to filter. #}
 {% if all_count %}
-<nav class="filters" aria-label="Süzgüçler">
+<nav class="filters" aria-label="{{ _('Süzgüçler') }}">
     <div class="chip-row" role="group" aria-labelledby="filter-lang">
-        <span class="chip-label" id="filter-lang">Dili:</span>
-        <a class="chip" href="{{ link(lang='', page=1) }}" {% if not lang %}aria-current="true"{% endif %}>Ähli diller <span class="chip-count">{{ all_count }}</span></a>
+        <span class="chip-label" id="filter-lang">{{ _("Dili:") }}</span>
+        <a class="chip" href="{{ link(lang='', page=1) }}" {% if not lang %}aria-current="true"{% endif %}>{{ _("Ähli diller") }} <span class="chip-count">{{ all_count }}</span></a>
         {% for code, name in languages.items() %}
         {% if counts.get(code) or code == lang %}
-        <a class="chip" href="{{ link(lang=code, page=1) }}" {% if code == lang %}aria-current="true"{% endif %}>{{ name }} <span class="chip-count">{{ counts.get(code, 0) }}</span></a>
+        <a class="chip" href="{{ link(lang=code, page=1) }}" {% if code == lang %}aria-current="true"{% endif %}>{{ _(name) }} <span class="chip-count">{{ counts.get(code, 0) }}</span></a>
         {% endif %}
         {% endfor %}
     </div>
     <div class="chip-row" role="group" aria-labelledby="filter-sort">
-        <span class="chip-label" id="filter-sort">Tertibi:</span>
-        {% for key, (label, _) in sorts.items() %}
-        <a class="chip" href="{{ link(sort=key, page=1) }}" {% if key == sort %}aria-current="true"{% endif %}>{{ label }}</a>
+        <span class="chip-label" id="filter-sort">{{ _("Tertibi:") }}</span>
+        {% for key, (label, _order) in sorts.items() %}
+        <a class="chip" href="{{ link(sort=key, page=1) }}" {% if key == sort %}aria-current="true"{% endif %}>{{ _(label) }}</a>
         {% endfor %}
     </div>
 </nav>
 {% endif %}
 
 {% if books %}
-<p class="result-count">{% if q %}«{{ q }}» boýunça {{ total }} kitap tapyldy{% else %}{{ total }} kitap{% endif %}</p>
+<p class="result-count">{% if q %}{{ ngettext("«%(q)s» boýunça %(num)d kitap tapyldy", "«%(q)s» boýunça %(num)d kitap tapyldy", total, q=q) }}{% else %}{{ ngettext("%(num)d kitap", "%(num)d kitap", total) }}{% endif %}</p>
 <ul class="book-grid">
     {% for book in books %}
     <li>{{ book_card(book, eager=loop.index <= 4) }}</li>
@@ -54,29 +54,29 @@
 </ul>
 
 {% if pages > 1 %}
-<nav class="pager" aria-label="Sahypalar">
-    {% if page > 1 %}<a class="button button-quiet" href="{{ link(page=page - 1) }}" rel="prev">Öňki</a>{% endif %}
-    <span>Sahypa {{ page }} / {{ pages }}</span>
-    {% if page < pages %}<a class="button button-quiet" href="{{ link(page=page + 1) }}" rel="next">Indiki</a>{% endif %}
+<nav class="pager" aria-label="{{ _('Sahypalar') }}">
+    {% if page > 1 %}<a class="button button-quiet" href="{{ link(page=page - 1) }}" rel="prev">{{ _("Öňki") }}</a>{% endif %}
+    <span>{{ _("Sahypa %(page)s / %(pages)s", page=page, pages=pages) }}</span>
+    {% if page < pages %}<a class="button button-quiet" href="{{ link(page=page + 1) }}" rel="next">{{ _("Indiki") }}</a>{% endif %}
 </nav>
 {% endif %}
 
 {% else %}
 <div class="empty-state">
     {% if q %}
-    <h2>«{{ q }}» boýunça kitap tapylmady</h2>
-    <p>Başgaça ýazyp görüň. Baş we setir harplar, şeýle hem ä, ň, ş ýaly harplar gözlegde
-        tapawutlanmaýar: «alem» ýazsaňyz, «Älem» hem tapylýar.</p>
+    <h2>{{ _("«%(q)s» boýunça kitap tapylmady", q=q) }}</h2>
+    <p>{% trans %}Başgaça ýazyp görüň. Baş we setir harplar, şeýle hem ä, ň, ş ýaly harplar gözlegde
+        tapawutlanmaýar: «alem» ýazsaňyz, «Älem» hem tapylýar.{% endtrans %}</p>
     {% else %}
-    <h2>Bu dilde entek kitap ýok</h2>
+    <h2>{{ _("Bu dilde entek kitap ýok") }}</h2>
     {% endif %}
-    <p><a href="{{ link(q='', lang='', page=1) }}">Ähli kitaplara serediň</a></p>
+    <p><a href="{{ link(q='', lang='', page=1) }}">{{ _("Ähli kitaplara serediň") }}</a></p>
     {% if q %}
     {# The one moment requests are obviously useful: the reader looked and it is not here. #}
     <div class="ask-panel">
-        <h3>Bu kitaby soraň</h3>
-        <p>Kitaphanada ýok bolsa, soraň: başgalar hem goldasa, ol öňe geçýär. Adyňyz görünmeýär.</p>
-        <a class="button" href="/requests/new?{{ {'title': q} | urlencode }}">«{{ q }}» kitabyny sora</a>
+        <h3>{{ _("Bu kitaby soraň") }}</h3>
+        <p>{{ _("Kitaphanada ýok bolsa, soraň: başgalar hem goldasa, ol öňe geçýär. Adyňyz görünmeýär.") }}</p>
+        <a class="button" href="/requests/new?{{ {'title': q} | urlencode }}">{{ _("«%(q)s» kitabyny sora", q=q) }}</a>
     </div>
     {% endif %}
 </div>

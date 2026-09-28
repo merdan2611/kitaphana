@@ -18,19 +18,23 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 
 from app import config, ratelimit, sessions, stars
+from app.i18n import N_, tr, tr_n
 from app.db import get_db, timestamp
 from app.phone import InvalidPhone, normalize_phone
 from app.templating import templates
 
 log = logging.getLogger(__name__)
 
-MSG_CODE_FORMAT = "Kod 6 sanly bolmaly."
-MSG_CODE_GONE = "Bu kodyň möhleti gutardy ýa-da ol eýýäm ulanyldy. Täze kod soraň."
-MSG_CODE_BURNED = "Nädogry kod gaty köp girizildi. Täze kod soraň."
-MSG_BLOCKED = "Bu hasap petiklenen."
+# In Turkmen, as the catalogue keys (app/i18n.py); CodeRejected carries them translated.
+MSG_CODE_FORMAT = N_("Kod 6 sanly bolmaly.")
+MSG_CODE_GONE = N_("Bu kodyň möhleti gutardy ýa-da ol eýýäm ulanyldy. Täze kod soraň.")
+MSG_CODE_BURNED = N_("Nädogry kod gaty köp girizildi. Täze kod soraň.")
+MSG_BLOCKED = N_("Bu hasap petiklenen.")
 
 
 class CodeRejected(Exception):
+    """A code that will not sign anyone in. `message` is already in the reader's language."""
+
     def __init__(self, message: str) -> None:
         super().__init__(message)
         self.message = message
@@ -96,7 +100,7 @@ def verify_code(conn: sqlite3.Connection, phone: str, code: str) -> int:
     code = re.sub(r"\s", "", code or "")
     if not re.fullmatch(r"[0-9]{6}", code):
         # Cannot be the code, so it does not spend an attempt.
-        raise CodeRejected(MSG_CODE_FORMAT)
+        raise CodeRejected(tr(MSG_CODE_FORMAT))
 
     now = timestamp()
     row = conn.execute(
@@ -106,7 +110,7 @@ def verify_code(conn: sqlite3.Connection, phone: str, code: str) -> int:
         (phone, now),
     ).fetchone()
     if row is None:
-        raise CodeRejected(MSG_CODE_GONE)
+        raise CodeRejected(tr(MSG_CODE_GONE))
 
     if not hmac.compare_digest(_hash_code(phone, code), row["code_hash"]):
         # Increment and burn in one statement, so concurrent guesses cannot overshoot the limit.
@@ -123,8 +127,8 @@ def verify_code(conn: sqlite3.Connection, phone: str, code: str) -> int:
         ).fetchone()["attempt_count"]
         remaining = max_attempts - attempts
         if remaining <= 0:
-            raise CodeRejected(MSG_CODE_BURNED)
-        raise CodeRejected(f"Kod nädogry. Ýene {remaining} synanyşygyňyz galdy.")
+            raise CodeRejected(tr(MSG_CODE_BURNED))
+        raise CodeRejected(tr_n("Kod nädogry. Ýene %(num)d synanyşygyňyz galdy.", remaining))
 
     # Claim the code; the used_at guard makes a concurrent second use of it fail here.
     claimed = conn.execute(
@@ -132,13 +136,13 @@ def verify_code(conn: sqlite3.Connection, phone: str, code: str) -> int:
     ).rowcount
     if claimed != 1:
         conn.rollback()
-        raise CodeRejected(MSG_CODE_GONE)
+        raise CodeRejected(tr(MSG_CODE_GONE))
 
     conn.execute("INSERT OR IGNORE INTO users (phone) VALUES (?)", (phone,))
     user = conn.execute("SELECT id, is_blocked FROM users WHERE phone = ?", (phone,)).fetchone()
     conn.commit()
     if user["is_blocked"]:
-        raise CodeRejected(MSG_BLOCKED)
+        raise CodeRejected(tr(MSG_BLOCKED))
     return user["id"]
 
 
@@ -178,11 +182,11 @@ def require_admin(user: sqlite3.Row | None = Depends(current_user)) -> sqlite3.R
 router = APIRouter()
 
 
-def safe_next(value: str | None) -> str | None:
-    """Where to send a reader after login, if `value` is a path on this site; otherwise None.
+def local_path(value: str | None) -> str | None:
+    """`value` if it is a path on this site, otherwise None.
 
-    The value arrives in a URL (/login?next=/books/12), so without this check a crafted link such
-    as /login?next=//evil.example would bounce a freshly logged-in reader to another site.
+    Such values arrive in URLs (/login?next=/books/12, /dil/ru?next=/books), so without this
+    check a crafted link such as ?next=//evil.example would bounce a reader to another site.
     """
     if not value or len(value) > 500:
         return None
@@ -192,9 +196,18 @@ def safe_next(value: str | None) -> str | None:
     if any(ch < " " or ch == "\x7f" for ch in value):
         return None
     parts = urlsplit(value)
-    if parts.scheme or parts.netloc or parts.path.startswith(("/login", "/logout")):
+    if parts.scheme or parts.netloc:
         return None
     return value
+
+
+def safe_next(value: str | None) -> str | None:
+    """Where to send a reader after login, if `value` is a path on this site that is not the
+    login or logout itself; otherwise None."""
+    path = local_path(value)
+    if path is None or urlsplit(path).path.startswith(("/login", "/logout")):
+        return None
+    return path
 
 
 def _login_page(request: Request, status_code: int = 200, **context):

@@ -64,7 +64,9 @@ Things Kitaphana will deliberately **not** be:
   choice would be both hostile and ineffective.
 - **Not an upload-anything site.** Only admins add books. There is no public upload queue to
   moderate, because moderation is work that a solo project cannot absorb.
-- **Not multi-region.** One server, one country, one language.
+- **Not multi-region.** One server, one country. The interface is Turkmen, with Russian as the
+  reader's alternative ([ADR-0021](adr/0021-russian-reader-interface.md)); each book stays in
+  the language it was written in.
 
 ## What success looks like
 
