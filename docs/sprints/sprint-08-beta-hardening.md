@@ -168,7 +168,10 @@ The Russian was drafted by Claude and **is reviewed by the developer before it i
 **Done when:** the developer has reviewed the Russian, it is live, and a phone has been used
 in both languages. *Built and tested on 2026-09-28: 771 tests pass, including a check that
 every reader text has its Russian. Every reader page was checked in screenshots in Russian at
-1280, 390 and 360 px. Waiting on the review.*
+1280, 390 and 360 px. The developer reviewed the Russian and it went live the same day
+(`bbba6ef`). On the live site, visitors get Turkmen by default, `/dil/ru` switches the
+catalogue to Russian ("Каталог", "2 книги"), and `/dil/tk` switches back. Still to do: the
+developer's own pass on a phone in both languages.*
 
 ## Done when (sprint acceptance)
 
