@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Ýalňyşlyk ýüze çykdy") }}: Kitaphana{% endblock %}
+
+{% block content %}
+<section class="not-found">
+    <h1>{{ _("Ýalňyşlyk ýüze çykdy") }}</h1>
+    <p>{{ _("Saýtda näsazlyk boldy, bu siziň günäňiz däl. Birazdan täzeden synanyşyň.") }}</p>
+    <p>{{ _("Gaýtalansa, bize şu belgini aýdyň:") }} <code>{{ ref }}</code></p>
+    <p class="not-found-links"><a href="/books">{{ _("Kataloga geç") }}</a> <a href="/">{{ _("Baş sahypa") }}</a></p>
+</section>
+{% endblock %}

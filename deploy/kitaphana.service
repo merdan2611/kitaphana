@@ -3,6 +3,7 @@
 #
 #   systemctl status kitaphana      is it running?
 #   journalctl -u kitaphana -f      its logs
+#   journalctl -u kitaphana -p err  only errors: 500s with their reference, then the traceback
 #   systemctl restart kitaphana     what deploy.sh does after pulling
 
 [Unit]
@@ -16,7 +17,8 @@ Group=kitaphana
 WorkingDirectory=/srv/kitaphana
 # Bound to localhost only: the outside world reaches the app through nginx and nothing else.
 # uvicorn trusts X-Forwarded-For only from 127.0.0.1 (its default), which is where nginx is.
-ExecStart=/srv/kitaphana/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --proxy-headers
+ExecStart=/srv/kitaphana/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --proxy-headers \
+    --log-config /srv/kitaphana/deploy/logging.yaml
 Restart=always
 RestartSec=2
 # Files the app creates are group-readable, so nginx (www-data, in the kitaphana group) can send

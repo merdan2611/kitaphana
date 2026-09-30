@@ -63,6 +63,21 @@ request, and there is a documented way to look: `journalctl -u kitaphana -p err`
 **Done when:** a deliberately broken URL returns a styled 500 with no internals, and the
 traceback is findable in the journal within seconds.
 
+> **2026-09-30, built; waiting for a server reachable from Turkmenistan to be checked live.**
+> Any unhandled error shows `templates/500.html` in the site's layout and the reader's language,
+> with an 8-character reference and nothing of the error itself; if even that page fails, a bare
+> bilingual one. The app logs `Error <ref>: <method> <path> (user, client): <exception>`, and
+> uvicorn logs the traceback right after. Under systemd, journald filed every line at "info",
+> so `-p err` found nothing: `app/logs.py` now prefixes each line with its syslog priority,
+> installed by `deploy/logging.yaml` (uvicorn `--log-config`). Checked under a real journald
+> (a user unit against an unmigrated database): `journalctl -p err` shows the reference line
+> and the whole traceback, and access lines stay at info. The unused `DEBUG` setting is gone
+> (`.env.example` had it `true`); `app.debug` is off and a test holds it there. nginx now shows
+> `static/errors/50x.html` in both languages instead of its bare "502 Bad Gateway" while the app
+> is down or restarting. Tests: `tests/test_errors.py`. The Turkmen and Russian texts of both
+> pages were drafted by Claude and need the developer's review. Still to do on the live server:
+> deploy, break a URL on purpose, and time how long the traceback takes to appear.
+
 ### 3. Security pass
 
 Go through it once, deliberately:
@@ -196,6 +211,7 @@ developer's own pass on a phone in both languages.*
 ## Files this sprint creates / touches
 
 `scripts/backup.py` · `deploy/cron-kitaphana-backup` · `scripts/restore.md` · `templates/404.html` · `templates/500.html` ·
+`app/logs.py` · `deploy/logging.yaml` · `static/errors/50x.html` · `tests/test_errors.py` ·
 `templates/admin/system.html` · `deploy/nginx-kitaphana.conf` (security headers) ·
 `deploy/kitaphana.service` (workers) · `app/i18n.py` · `app/translations/ru.py` ·
 `tests/test_i18n.py` · `../adr/0021-russian-reader-interface.md` · `../03-roadmap.md` ·

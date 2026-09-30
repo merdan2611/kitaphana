@@ -1,0 +1,23 @@
+# Logging for the app under systemd, passed to uvicorn with --log-config (deploy/kitaphana.service).
+# Everything goes to stderr, which is the journal; app/logs.py marks each line with its severity
+# so `journalctl -u kitaphana -p err` finds errors and their tracebacks.
+version: 1
+disable_existing_loggers: false
+formatters:
+  journal:
+    (): app.logs.JournalFormatter
+    format: "%(levelname)s %(name)s: %(message)s"
+handlers:
+  stderr:
+    class: logging.StreamHandler
+    formatter: journal
+    stream: ext://sys.stderr
+root:
+  level: INFO
+  handlers: [stderr]
+# uvicorn's loggers have no handlers of their own here: they pass their records up to the root.
+loggers:
+  uvicorn:
+    level: INFO
+  uvicorn.access:
+    level: INFO

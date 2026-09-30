@@ -69,7 +69,6 @@ class Settings:
     media_dir: Path
     secret_key: str
     dev_otp_mode: bool
-    debug: bool
     otp_ttl_seconds: int = 300
     otp_max_attempts: int = 5
     # (count, window_seconds) pairs; a code request is refused once any one is reached.
@@ -100,7 +99,6 @@ def load_settings() -> Settings:
         media_dir=Path(os.environ.get("MEDIA_DIR", "media")),
         secret_key=os.environ.get("SECRET_KEY", "dev-insecure-secret-key-change-in-production"),
         dev_otp_mode=_bool_env("DEV_OTP_MODE", default=False),
-        debug=_bool_env("DEBUG", default=False),
         otp_ttl_seconds=_int_env("OTP_TTL_SECONDS", 300),
         otp_max_attempts=_int_env("OTP_MAX_ATTEMPTS", 5),
         otp_limits_per_phone=_limits_env("OTP_LIMITS_PER_PHONE", "3/600,10/86400"),

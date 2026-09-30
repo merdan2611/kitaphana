@@ -1,0 +1,28 @@
+<!doctype html>
+<!-- Served by nginx, not the app, when the app is down or restarting (deploy/nginx-kitaphana.conf).
+     Plain HTML with no template: it must work when nothing else does. Both languages, since
+     nginx does not know the reader's choice. -->
+<html lang="tk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Kitaphana</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container site-header-inner">
+            <a class="site-title" href="/">Kitaphana</a>
+        </div>
+    </header>
+    <main class="site-content">
+        <section class="not-found">
+            <h1>Kitaphana häzir elýeterli däl</h1>
+            <p>Saýt täzelenýär ýa-da wagtlaýyn işlemeýär. Birnäçe minutdan sahypany täzeläň.</p>
+            <h1 lang="ru">Kitaphana сейчас недоступна</h1>
+            <p lang="ru">Сайт обновляется или временно не работает. Обновите страницу через несколько минут.</p>
+            <p class="not-found-links"><a href="/">Kitaphana</a></p>
+        </section>
+    </main>
+</body>
+</html>

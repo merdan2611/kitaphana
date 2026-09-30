@@ -349,4 +349,10 @@ TRANSLATIONS: dict[str, str | tuple[str, ...]] = {
     "Sahypa tapylmady": "Страница не найдена",
     "Bu salgyda sahypa ýok. Ol aýrylan bolmagy ýa-da salgy ýalňyş ýazylan bolmagy mümkin.":
         "По этому адресу страницы нет. Возможно, её удалили или в адресе ошибка.",
+
+    # --- Server error (templates/500.html) ------------------------------------------------------
+    "Ýalňyşlyk ýüze çykdy": "Произошла ошибка",
+    "Saýtda näsazlyk boldy, bu siziň günäňiz däl. Birazdan täzeden synanyşyň.":
+        "На сайте произошёл сбой, вы здесь ни при чём. Попробуйте ещё раз чуть позже.",
+    "Gaýtalansa, bize şu belgini aýdyň:": "Если это повторится, сообщите нам этот код:",
 }
